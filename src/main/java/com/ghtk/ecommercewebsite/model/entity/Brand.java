@@ -1,4 +1,4 @@
-package com.ghtk.ecommercewebsite.entity;
+package com.ghtk.ecommercewebsite.model.entity;
 
 import java.sql.Timestamp;
 
