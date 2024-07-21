@@ -15,13 +15,13 @@ public class ProductOrder {
     @Id
     private Long id;
 
-    @Column(name = "price", columnDefinition = "BIGINT")
+    @Column(name = "price")
     private BigDecimal price;
 
-    @Column(name = "quantity", columnDefinition = "INT")
+    @Column(name = "quantity")
     private Integer quantity;
 
-    @Column(name = "orders_id", columnDefinition = "BIGINT")
+    @Column(name = "orders_id")
     private Long ordersId;
  
 }

@@ -14,45 +14,45 @@ public class Voucher {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "coupon_code", columnDefinition = "VARCHAR(255)") 
+    @Column(name = "coupon_code")
     private String couponCode;
 
-    @Column(name = "create_at", columnDefinition = "TIMESTAMP")
+    @Column(name = "create_at")
     private Timestamp createdAt;
 
-    @Column(name = "discount_type", columnDefinition = "TINYINT")
+    @Column(name = "discount_type")
     private Integer discountType;
 
-    @Column(name = "discount_value", columnDefinition = "DECIMAL(12,2)")
+    @Column(name = "discount_value")
     private BigDecimal discountValue;
 
-    @Column(name = "expired_at", columnDefinition = "TIMESTAMP")
+    @Column(name = "expired_at")
     private Timestamp expiredAt;
 
-    @Column(name = "is_active", columnDefinition = "TINYINT(1)")
+    @Column(name = "is_active")
     private Boolean isActive;
 
-    @Column(name = "is_public", columnDefinition = "TINYINT(1)")
+    @Column(name = "is_public")
     private Boolean isPublic;
 
-    @Column(name = "maximum_discount_value", columnDefinition = "DECIMAL(12,2)")
+    @Column(name = "maximum_discount_value")
     private Long maximumDiscountValue;
 
-    @Column(name = "name", columnDefinition = "VARCHAR(255)")
+    @Column(name = "name")
     private String name;
 
-    @Column(name = "shop_id", columnDefinition = "BIGINT")
+    @Column(name = "shop_id")
     private Long shopId;
 
-    @Column(name = "start_at", columnDefinition = "TIMESTAMP")
+    @Column(name = "start_at")
     private Timestamp startAt;
 
-    @Column(name = "quantity", columnDefinition = "INT")
+    @Column(name = "quantity")
     private Integer quantity;
 
-    @Column(name = "minimum_quantity_needed", columnDefinition = "INT")
+    @Column(name = "minimum_quantity_needed")
     private Integer minimumQuantityNeeded;
 
-    @Column(name = "type_repeat", columnDefinition = "TINYINT")
+    @Column(name = "type_repeat")
     private Integer typeRepeat;
 }

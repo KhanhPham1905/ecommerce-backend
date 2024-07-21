@@ -15,19 +15,19 @@ public class Statistic {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "created_at", columnDefinition = "TIMESTAMP")
+    @Column(name = "created_at")
     private Timestamp createdAt;
 
-    @Column(name = "profit", columnDefinition = "DECIMAL(17,2)")
+    @Column(name = "profit")
     private BigDecimal profit;
 
-    @Column(name = "sales", columnDefinition = "DECIMAL(17,2)")
+    @Column(name = "sales")
     private BigDecimal sales;
 
-    @Column(name = "order_id", columnDefinition = "BIGINT")
+    @Column(name = "order_id")
     private Long ordersId;
 
-    @Column(name = "shop_id", columnDefinition = "DECIMAL(17,2)")
+    @Column(name = "shop_id")
     private Long shopId;
 }
 

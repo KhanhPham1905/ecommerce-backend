@@ -12,12 +12,12 @@ public class Warehouse {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", columnDefinition = "VARCHAR(255)")
+    @Column(name = "name")
     private String name;
     
-    @Column(name = "shop_id", columnDefinition = "BIGINT")
+    @Column(name = "shop_id")
     private Long shopId;
 
-    @Column(name = "address_id", columnDefinition = "BIGINT")
+    @Column(name = "address_id")
     private Long addressId;
 }

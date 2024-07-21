@@ -12,7 +12,7 @@ public class ProductItemAttributes {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "value", columnDefinition = "VARCHAR(200)")
+    @Column(name = "value")
     private String value;
 
 }

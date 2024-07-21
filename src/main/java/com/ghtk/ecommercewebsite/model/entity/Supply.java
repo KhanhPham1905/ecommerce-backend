@@ -15,16 +15,16 @@ public class Supply {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "supply_date", columnDefinition = "TIMESTAMP")
+    @Column(name = "supply_date")
     private Timestamp supplyDate;
 
-    @Column(name = "quantity", columnDefinition = "INT")
+    @Column(name = "quantity")
     private Long quantity;
 
-    @Column(name = "warehouse_id", columnDefinition = "BIGINT")
+    @Column(name = "warehouse_id")
     private Long wareHouseId;
 
-    @Column(name = "product_item_id", columnDefinition = "DECIMAL(17,2)")
+    @Column(name = "product_item_id")
     private Long productItemId;
 
 }
