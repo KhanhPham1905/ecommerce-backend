@@ -19,7 +19,7 @@ import java.time.LocalDateTime;
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(name = "email", columnDefinition = "VARCHAR(50)")
     private String email;

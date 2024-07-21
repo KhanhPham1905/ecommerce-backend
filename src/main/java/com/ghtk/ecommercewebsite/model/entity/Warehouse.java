@@ -10,14 +10,14 @@ public class Warehouse {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(name = "name", columnDefinition = "VARCHAR(255)")
     private String name;
     
     @Column(name = "shop_id", columnDefinition = "BIGINT")
-    private long shopId;
+    private Long shopId;
 
     @Column(name = "address_id", columnDefinition = "BIGINT")
-    private long addressId;
+    private Long addressId;
 }

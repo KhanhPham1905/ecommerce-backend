@@ -1,9 +1,6 @@
 package com.ghtk.ecommercewebsite.model.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 
 @Data
@@ -11,8 +8,9 @@ import lombok.Data;
 @Table(name = "product_item_attributes")
 public class ProductItemAttributes {
 
-    @EmbeddedId
-    private ProductItemAttributesId productItemAttributesId;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @Column(name = "value", columnDefinition = "VARCHAR(200)")
     private String value;
