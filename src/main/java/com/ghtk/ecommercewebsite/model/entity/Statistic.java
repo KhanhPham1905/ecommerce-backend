@@ -13,7 +13,7 @@ public class Statistic {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(name = "created_at", columnDefinition = "TIMESTAMP")
     private Timestamp createdAt;
@@ -25,9 +25,9 @@ public class Statistic {
     private BigDecimal sales;
 
     @Column(name = "order_id", columnDefinition = "BIGINT")
-    private long ordersId;
+    private Long ordersId;
 
     @Column(name = "shop_id", columnDefinition = "DECIMAL(17,2)")
-    private long shopId;
+    private Long shopId;
 }
 

@@ -10,7 +10,7 @@ public class Shop {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(name = "name", columnDefinition = "VARCHAR(255)")
     private String name;
@@ -22,6 +22,6 @@ public class Shop {
     private String phone;
 
     @Column(name = "address_id", columnDefinition = "BIGINT")
-    private long addressId;
+    private Long addressId;
 
 }

@@ -1,10 +1,7 @@
 package com.ghtk.ecommercewebsite.model.entity;
 
 
-import jakarta.persistence.Column;
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -15,17 +12,17 @@ import java.math.BigDecimal;
 @Table(name="product_orders")
 public class ProductOrder {
 
-    @EmbeddedId
-    private ProductOrderId productOrderId;
+    @Id
+    private Long id;
 
     @Column(name = "price", columnDefinition = "BIGINT")
     private BigDecimal price;
 
     @Column(name = "quantity", columnDefinition = "INT")
-    private int quantity;
+    private Integer quantity;
 
     @Column(name = "orders_id", columnDefinition = "BIGINT")
-    private long ordersId;
+    private Long ordersId;
  
 }
 

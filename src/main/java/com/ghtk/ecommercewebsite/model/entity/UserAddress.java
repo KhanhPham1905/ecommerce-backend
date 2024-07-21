@@ -10,6 +10,6 @@ import java.io.Serializable;
 @Entity
 @Table(name="user_address")
 public class UserAddress implements Serializable {
-    @EmbeddedId
-    private UserAddressId userAddressId;
+    @Id
+    private Long id;
 }

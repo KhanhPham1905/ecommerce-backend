@@ -10,10 +10,9 @@ import java.security.Timestamp;
 @Entity
 @Table(name="voucher")
 public class Voucher {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(name = "coupon_code", columnDefinition = "VARCHAR(255)") 
     private String couponCode;
@@ -22,7 +21,7 @@ public class Voucher {
     private Timestamp createdAt;
 
     @Column(name = "discount_type", columnDefinition = "TINYINT")
-    private int discountType;
+    private Integer discountType;
 
     @Column(name = "discount_value", columnDefinition = "DECIMAL(12,2)")
     private BigDecimal discountValue;
@@ -37,24 +36,23 @@ public class Voucher {
     private Boolean isPublic;
 
     @Column(name = "maximum_discount_value", columnDefinition = "DECIMAL(12,2)")
-    private long maximumDiscountValue;
+    private Long maximumDiscountValue;
 
     @Column(name = "name", columnDefinition = "VARCHAR(255)")
     private String name;
 
     @Column(name = "shop_id", columnDefinition = "BIGINT")
-    private long shopId;
+    private Long shopId;
 
     @Column(name = "start_at", columnDefinition = "TIMESTAMP")
     private Timestamp startAt;
 
     @Column(name = "quantity", columnDefinition = "INT")
-    private int quantity;
+    private Integer quantity;
 
     @Column(name = "minimum_quantity_needed", columnDefinition = "INT")
-    private int minimumQuantityNeeded;
+    private Integer minimumQuantityNeeded;
 
     @Column(name = "type_repeat", columnDefinition = "TINYINT")
-    private int typeRepeat;
-
+    private Integer typeRepeat;
 }
