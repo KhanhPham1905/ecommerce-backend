@@ -12,16 +12,16 @@ public class Shop {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "name", columnDefinition = "VARCHAR(255)")
+    @Column(name = "name")
     private String name;
 
-    @Column(name = "mail", columnDefinition = "VARCHAR(45)")
+    @Column(name = "mail")
     private String mail;
 
-    @Column(name = "phone", columnDefinition = "VARCHAR(15)")
+    @Column(name = "phone")
     private String phone;
 
-    @Column(name = "address_id", columnDefinition = "BIGINT")
+    @Column(name = "address_id")
     private Long addressId;
 
 }

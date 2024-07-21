@@ -14,36 +14,34 @@ import java.time.LocalDateTime;
 @Data
 @Entity
 @Table(name = "users")
-@Getter
-@Setter
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "email", columnDefinition = "VARCHAR(50)")
+    @Column(name = "email")
     private String email;
 
-    @Column(name = "full_name", columnDefinition = "VARCHAR(200)")
+    @Column(name = "full_name")
     private String fullName;
 
-    @Column(name = "profit", columnDefinition = "DECIMAL(17,2)")
+    @Column(name = "profit")
     private String password;
 
-    @Column(name = "phone", columnDefinition = "VARCHAR(10)")
+    @Column(name = "phone")
     private String phone;
 
-    @Column(name = "status", columnDefinition = "TINY(1)")
+    @Column(name = "status")
     private Boolean status;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "gender")
     private Gender gender;
 
-    @Column(name = "created_at", columnDefinition = "TIMESTAMP")
+    @Column(name = "created_at")
     private Timestamp createdAt;
 
-    @Column(name = "modified_at", columnDefinition = "DECIMAL(17,2)")
+    @Column(name = "modified_at")
     private Timestamp modifiedAt;
 
     @Enumerated(EnumType.STRING)
