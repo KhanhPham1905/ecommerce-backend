@@ -1,11 +1,11 @@
-package com.ghtk.ecommercewebsite.models.enums;
-
-public enum Day {
-    MONDAY,
-    TUESDAY,
-    WEDNESDAY,
-    THURSDAY,
-    FRIDAY,
-    SATURDAY,
-    SUNDAY
-}
+//package com.ghtk.ecommercewebsite.models.enums;
+//
+//public enum Day {
+//    MONDAY,
+//    TUESDAY,
+//    WEDNESDAY,
+//    THURSDAY,
+//    FRIDAY,
+//    SATURDAY,
+//    SUNDAY
+//}

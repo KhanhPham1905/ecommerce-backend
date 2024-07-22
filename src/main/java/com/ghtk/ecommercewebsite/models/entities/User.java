@@ -1,7 +1,7 @@
 package com.ghtk.ecommercewebsite.models.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
-import com.ghtk.ecommercewebsite.models.enums.Gender;
+//import com.ghtk.ecommercewebsite.models.enums.Gender;
 import jakarta.persistence.*;
 import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
@@ -14,13 +14,15 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.List;
 
+
+
 @Entity
 @Table(name = "users")
+@NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 @Builder
-@NoArgsConstructor
-@AllArgsConstructor
 public class User implements UserDetails {
 
     @Id
@@ -72,6 +74,7 @@ public class User implements UserDetails {
         SimpleGrantedAuthority authority = new SimpleGrantedAuthority("ROLE_" + role.getName().toString());
         return List.of(authority);
     }
+
 
 //    @Override
 //    public Collection<? extends GrantedAuthority> getAuthorities() {

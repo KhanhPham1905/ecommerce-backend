@@ -1,4 +1,7 @@
-package com.ghtk.ecommercewebsite.models.entities;
-
-public class DayRepeat {
-}
+//package com.ghtk.ecommercewebsite.models.entities;
+//
+//import jakarta.persistence.Entity;
+//
+//@Entity
+//public class DayRepeat {
+//}
