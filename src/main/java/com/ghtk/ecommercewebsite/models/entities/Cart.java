@@ -1,7 +1,7 @@
-package com.ghtk.ecommercewebsite.models.entities;
-
-import jakarta.persistence.Entity;
-
+//package com.ghtk.ecommercewebsite.models.entities;
+//
+//import jakarta.persistence.Entity;
+//
 //@Entity
-public class Cart {
-}
+//public class Cart {
+//}
