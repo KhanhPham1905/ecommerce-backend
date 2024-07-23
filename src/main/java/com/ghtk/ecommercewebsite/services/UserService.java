@@ -1,5 +1,6 @@
 package com.ghtk.ecommercewebsite.services;
 
+import com.ghtk.ecommercewebsite.exceptions.SellerAlreadyExistedException;
 import com.ghtk.ecommercewebsite.models.enums.RoleEnum;
 import lombok.RequiredArgsConstructor;
 import com.ghtk.ecommercewebsite.exceptions.UserAlreadyExistedException;
@@ -18,11 +19,10 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.file.AccessDeniedException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -35,22 +35,36 @@ public class UserService {
     private final PasswordEncoder passwordEncoder;
     private final com.ghtk.ecommercewebsite.services.AuthenticationService authenticationService;
 
-    public User signUp(RegisterUserDto registerUserDto) {
+    @Transactional
+    public User signUp(RegisterUserDto input) throws UserAlreadyExistedException {
         Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.USER);
         if (optionalRole.isEmpty()) { return null; }
 
-        Optional<User> optionalUser = userRepository.findByEmail(registerUserDto.getEmail());
-        if (optionalUser.isPresent()) {
-            throw new UserAlreadyExistedException(registerUserDto.getEmail());
-        }
+        Role userRole = optionalRole.get();
 
-        var user = User.builder()
-                .fullName(registerUserDto.getFullName())
-                .email(registerUserDto.getEmail())
-                .password(passwordEncoder.encode(registerUserDto.getPassword()))
-                .role(optionalRole.get())
-                .build();
-        return userRepository.save(user);
+        Optional<User> optionalUser = userRepository.findByEmail(input.getEmail());
+        if (optionalUser.isPresent()) {
+            User existingUser = optionalUser.get();
+            Set<Role> existingRoles = existingUser.getRoles();
+//            Role userRole = Role.builder().name(RoleEnum.USER).build();
+
+            if (existingRoles.contains(userRole)) {
+                throw new UserAlreadyExistedException(input.getEmail());
+            } else {
+                existingRoles.add(userRole);
+                existingUser.setRoles(existingRoles);
+                return userRepository.save(existingUser);
+            }
+        } else {
+            Set<Role> roles = new HashSet<>(List.of(optionalRole.get()));
+            var user = User.builder()
+                    .fullName(input.getFullName())
+                    .email(input.getEmail())
+                    .password(passwordEncoder.encode(input.getPassword()))
+                    .roles(roles)
+                    .build();
+            return userRepository.save(user);
+        }
     }
 
     public LoginResponse authenticateUserAndGetLoginResponse(LoginUserDto loginUserDto) throws AccessDeniedException {
@@ -68,20 +82,6 @@ public class UserService {
     }
 
     public List<User> allSellers() {
-        return userRepository.findByRoleName(RoleEnum.SELLER);
-    }
-
-    public User createSeller(RegisterUserDto registerUserDto) {
-        Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.SELLER);
-        if (optionalRole.isEmpty()) { return null; }
-
-        var user = User
-                .builder()
-                .fullName(registerUserDto.getFullName())
-                .email(registerUserDto.getEmail())
-                .password(passwordEncoder.encode(registerUserDto.getPassword()))
-                .role(optionalRole.get())
-                .build();
-        return userRepository.save(user);
+        return userRepository.findByRolesContaining(RoleEnum.SELLER);
     }
 }
