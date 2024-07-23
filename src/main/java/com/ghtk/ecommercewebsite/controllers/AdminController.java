@@ -1,5 +1,6 @@
 package com.ghtk.ecommercewebsite.controllers;
 
+import com.ghtk.ecommercewebsite.common.api.CommonResult;
 import lombok.RequiredArgsConstructor;
 import com.ghtk.ecommercewebsite.models.dtos.LoginUserDto;
 import com.ghtk.ecommercewebsite.models.entities.User;
@@ -27,26 +28,26 @@ public class AdminController {
     private final AdminService adminService;
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto) throws AccessDeniedException {
-        return ResponseEntity.ok(adminService.authenticateAdminAndGetLoginResponse(loginUserDto));
+    public CommonResult<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto) throws AccessDeniedException {
+        return CommonResult.success(adminService.authenticateAdminAndGetLoginResponse(loginUserDto));
     }
 
     @GetMapping("/me")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<User> authenticatedAdmin() {
-        return ResponseEntity.ok(adminService.getAuthenticatedAdmin());
+    public CommonResult<User> authenticatedAdmin() {
+        return CommonResult.success(adminService.getAuthenticatedAdmin());
     }
 
     @GetMapping("/sellers")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<User>> allSellers() {
-        return ResponseEntity.ok(userService.allSellers());
+    public CommonResult<List<User>> allSellers() {
+        return CommonResult.success(userService.allSellers());
     }
 
     @GetMapping("/users")
     @PreAuthorize("hasRole('ADMIN')")
-    public ResponseEntity<List<User>> allUsers() {
-        return ResponseEntity.ok(userService.allUsers());
+    public CommonResult<List<User>> allUsers() {
+        return CommonResult.success(userService.allUsers());
     }
 
 }

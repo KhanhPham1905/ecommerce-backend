@@ -1,4 +1,4 @@
-package com.ghtk.ecommercewebsite.common.api;
+package com.ghtk.ecommercewebsite.models.enums;
 
 public enum ResultCode {
     SUCCESS(200, "Success"),
