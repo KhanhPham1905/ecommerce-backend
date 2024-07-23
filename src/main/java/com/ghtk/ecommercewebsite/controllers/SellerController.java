@@ -1,5 +1,6 @@
 package com.ghtk.ecommercewebsite.controllers;
 
+import com.ghtk.ecommercewebsite.common.api.CommonResult;
 import lombok.RequiredArgsConstructor;
 import com.ghtk.ecommercewebsite.exceptions.SellerAlreadyExistedException;
 import com.ghtk.ecommercewebsite.models.dtos.LoginUserDto;
@@ -24,18 +25,18 @@ public class SellerController {
     private final SellerService sellerService;
 
     @PostMapping("/signup")
-    public ResponseEntity<User> signup(@RequestBody RegisterUserDto registerUserDto) throws SellerAlreadyExistedException {
-        return ResponseEntity.ok(sellerService.signUpSeller(registerUserDto));
+    public CommonResult<User> signup(@RequestBody RegisterUserDto registerUserDto) throws SellerAlreadyExistedException {
+        return CommonResult.success(sellerService.signUpSeller(registerUserDto));
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto) throws AccessDeniedException {
-        return ResponseEntity.ok(sellerService.authenticateSellerAndGetLoginResponse(loginUserDto));
+    public CommonResult<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto) throws AccessDeniedException {
+        return CommonResult.success(sellerService.authenticateSellerAndGetLoginResponse(loginUserDto));
     }
 
     @GetMapping("/me")
     @PreAuthorize("hasAnyRole('SELLER')")
-    public ResponseEntity<User> authenticatedSeller() {
-        return ResponseEntity.ok(sellerService.getAuthenticatedSeller());
+    public CommonResult<User> authenticatedSeller() {
+        return CommonResult.success(sellerService.getAuthenticatedSeller());
     }
 }

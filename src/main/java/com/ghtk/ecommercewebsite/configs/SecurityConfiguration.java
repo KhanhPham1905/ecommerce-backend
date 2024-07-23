@@ -32,6 +32,7 @@ import java.util.Objects;
 @EnableMethodSecurity
 @RequiredArgsConstructor
 public class SecurityConfiguration {
+
     private final AuthenticationProvider authenticationProvider;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
