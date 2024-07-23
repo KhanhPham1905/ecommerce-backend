@@ -1,5 +1,6 @@
 package com.ghtk.ecommercewebsite.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.enums.RoleEnum;
@@ -11,7 +12,7 @@ import org.hibernate.annotations.UpdateTimestamp;
 
 import java.util.Date;
 import java.util.List;
-
+import java.util.Set;
 
 @Entity
 @Table(name = "roles")
@@ -34,9 +35,10 @@ public class Role {
     @Column(nullable = false)
     private String description;
 
-    @OneToMany(mappedBy = "role")
-    @JsonManagedReference
-    private List<User> users;
+    @ManyToMany(targetEntity = User.class, mappedBy = "roles",
+            cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH, CascadeType.REFRESH})
+    @JsonBackReference
+    private Set<User> users;
 
     @CreationTimestamp
     @Column(updatable = false, name = "created_at")

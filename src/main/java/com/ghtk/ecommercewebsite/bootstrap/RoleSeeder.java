@@ -1,14 +1,13 @@
 package com.ghtk.ecommercewebsite.bootstrap;
 
 import com.ghtk.ecommercewebsite.models.enums.RoleEnum;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import com.ghtk.ecommercewebsite.models.entities.Role;
-import com.ghtk.ecommercewebsite.models.enums.RoleEnum;
 import com.ghtk.ecommercewebsite.repositories.RoleRepository;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
 import java.util.Map;
@@ -21,6 +20,7 @@ public class RoleSeeder implements ApplicationListener<ContextRefreshedEvent> {
     private final RoleRepository roleRepository;
 
     @Override
+    @Transactional
     public void onApplicationEvent(ContextRefreshedEvent event) {
         loadRoles();
     }
