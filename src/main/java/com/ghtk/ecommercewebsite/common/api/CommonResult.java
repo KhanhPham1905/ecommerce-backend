@@ -1,6 +1,11 @@
 package com.ghtk.ecommercewebsite.common.api;
 
+import com.ghtk.ecommercewebsite.models.enums.ResultCode;
+import lombok.Getter;
+import lombok.Setter;
 
+@Getter
+@Setter
 public class CommonResult<T> {
     private Long code;
 
@@ -28,6 +33,19 @@ public class CommonResult<T> {
     public static <T> CommonResult<T> failed(String message) {
         return new CommonResult<T>(ResultCode.FAILED.getCode(), message, null);
     }
+
+    public static <T> CommonResult<T> validateFailed(String message) {
+        return new CommonResult<T>(ResultCode.VALIDATE_FAILED.getCode(), message, null);
+    }
+
+    public static <T> CommonResult<T> unauthorized(T data) {
+        return new CommonResult<T>(ResultCode.UNAUTHORIZED.getCode(), ResultCode.UNAUTHORIZED.getMessage(), data);
+    }
+
+    public static <T> CommonResult<T> forbidden(T data) {
+        return new CommonResult<T>(ResultCode.FORBIDDEN.getCode(), ResultCode.FORBIDDEN.getMessage(), data);
+    }
+
 
 
 }

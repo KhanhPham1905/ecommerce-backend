@@ -1,5 +1,8 @@
 package com.ghtk.ecommercewebsite.controllers;
 
+import com.ghtk.ecommercewebsite.common.api.CommonResult;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import com.ghtk.ecommercewebsite.exceptions.UserAlreadyExistedException;
 import com.ghtk.ecommercewebsite.models.dtos.LoginUserDto;
@@ -29,18 +32,27 @@ public class UserController {
     private final UserService userService;
 
     @PostMapping("/signup")
-    public ResponseEntity<User> signup(@RequestBody RegisterUserDto registerUserDto) throws UserAlreadyExistedException {
-        return ResponseEntity.ok(userService.signUp(registerUserDto));
+    public CommonResult<User> signup(@RequestBody RegisterUserDto registerUserDto) throws UserAlreadyExistedException {
+        User user = userService.signUp(registerUserDto);
+        return CommonResult.success(user);
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto) throws AccessDeniedException {
-        return ResponseEntity.ok(userService.authenticateUserAndGetLoginResponse(loginUserDto));
+    public CommonResult<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto, HttpServletResponse response) throws AccessDeniedException {
+
+        LoginResponse loginResponse = userService.authenticateUserAndGetLoginResponse(loginUserDto);
+
+        // add cookie after login
+        Cookie cookie = new Cookie("JWT_TOKEN", loginResponse.getToken());
+        cookie.setMaxAge(84600);
+        cookie.setPath("/");
+        response.addCookie(cookie);
+        return CommonResult.success(loginResponse);
     }
 
     @GetMapping("/me")
     @PreAuthorize("hasRole('USER')")
-    public ResponseEntity<User> authenticatedUser() {
-        return ResponseEntity.ok(userService.getAuthenticatedUser());
+    public CommonResult<User> authenticatedUser() {
+        return CommonResult.success(userService.getAuthenticatedUser());
     }
 }
