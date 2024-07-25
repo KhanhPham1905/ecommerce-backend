@@ -1,8 +1,10 @@
 package com.ghtk.ecommercewebsite.configs;
 
+//import com.ghtk.ecommercewebsite.filters.CookieJwtFilter;
+import com.ghtk.ecommercewebsite.filters.JwtAuthenticationFilter;
+import com.ghtk.ecommercewebsite.utils.WhitelistUrls;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -13,7 +15,6 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
@@ -22,8 +23,6 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
-import java.io.IOException;
-import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
@@ -35,19 +34,14 @@ public class SecurityConfiguration {
 
     private final AuthenticationProvider authenticationProvider;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
+//    private final CookieJwtFilter cookieJwtFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-//                .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/auth/**",
-                                "/api/v1/user/login",
-                                "/api/v1/user/signup",
-                                "/api/v1/seller/signup",
-                                "/api/v1/seller/login",
-                                "/api/v1/admin/login")
+                        .requestMatchers(WhitelistUrls.URLS)
                         .permitAll()
                         .anyRequest()
                         .authenticated())
@@ -61,6 +55,7 @@ public class SecurityConfiguration {
                         .permitAll())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
+//                .addFilterBefore(cookieJwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }

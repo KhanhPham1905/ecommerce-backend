@@ -2,6 +2,8 @@ package com.ghtk.ecommercewebsite.repositories;
 
 import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.enums.RoleEnum;
+import jakarta.transaction.Transactional;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
@@ -18,4 +20,8 @@ public interface UserRepository extends CrudRepository<User, Long> {
     @Query("SELECT u FROM User u JOIN u.roles r WHERE r.name = :roleName")
     List<User> findByRolesContaining(@Param("roleName") RoleEnum roleName);
 
+    @Transactional
+    @Modifying
+    @Query("UPDATE User u SET u.password = ?2 WHERE u.email = ?1")
+    void updatePassword(String email, String password);
 }
