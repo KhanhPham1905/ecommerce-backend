@@ -33,7 +33,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
-    private final com.ghtk.ecommercewebsite.services.AuthenticationService authenticationService;
+    private final AuthenticationService authenticationService;
+//    private final EmailService emailService;
 
     @Transactional
     public User signUp(RegisterUserDto input) throws UserAlreadyExistedException {
@@ -53,6 +54,7 @@ public class UserService {
             } else {
                 existingRoles.add(userRole);
                 existingUser.setRoles(existingRoles);
+//                sendMail(input.getEmail());
                 return userRepository.save(existingUser);
             }
         } else {
@@ -63,9 +65,16 @@ public class UserService {
                     .password(passwordEncoder.encode(input.getPassword()))
                     .roles(roles)
                     .build();
+//            sendMail(input.getEmail());
             return userRepository.save(user);
         }
     }
+
+//    private void sendMail(String mail) {
+//        emailService.sendSimpleMessage(mail,
+//                "Signed up successfully",
+//                "You have just created an account with " + mail);
+//    }
 
     public LoginResponse authenticateUserAndGetLoginResponse(LoginUserDto loginUserDto) throws AccessDeniedException {
         return authenticationService.authenticateUserAndGetLoginResponse(loginUserDto);
