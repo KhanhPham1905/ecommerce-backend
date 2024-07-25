@@ -1,7 +1,10 @@
 package com.ghtk.ecommercewebsite.services;
 
+import com.ghtk.ecommercewebsite.exceptions.ExpiredTokenException;
 import com.ghtk.ecommercewebsite.exceptions.SellerAlreadyExistedException;
+import com.ghtk.ecommercewebsite.models.entities.Token;
 import com.ghtk.ecommercewebsite.models.enums.RoleEnum;
+import com.ghtk.ecommercewebsite.repositories.TokenRepository;
 import lombok.RequiredArgsConstructor;
 import com.ghtk.ecommercewebsite.exceptions.UserAlreadyExistedException;
 import com.ghtk.ecommercewebsite.models.dtos.LoginUserDto;
@@ -33,6 +36,8 @@ public class UserService {
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
+    private final TokenRepository tokenRepository;
     private final com.ghtk.ecommercewebsite.services.AuthenticationService authenticationService;
 
     @Transactional
@@ -84,4 +89,17 @@ public class UserService {
     public List<User> allSellers() {
         return userRepository.findByRolesContaining(RoleEnum.SELLER);
     }
+
+    public User getUserDetailsFromToken(String token) throws Exception {
+        String username = jwtService.extractUsername(token);
+        Optional<User> user;
+        user = userRepository.findByEmail(username);
+        return user.orElseThrow(() -> new Exception("User not found"));
+    }
+
+    public User getUserDetailsFromRefreshToken(String refreshToken) throws Exception {
+        Token existingToken = tokenRepository.findByRefreshToken(refreshToken);
+        return getUserDetailsFromToken(existingToken.getToken());
+    }
+
 }

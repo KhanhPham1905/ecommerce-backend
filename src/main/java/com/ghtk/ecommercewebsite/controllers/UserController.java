@@ -1,27 +1,19 @@
 package com.ghtk.ecommercewebsite.controllers;
 
 import com.ghtk.ecommercewebsite.common.api.CommonResult;
-import jakarta.servlet.http.Cookie;
-import jakarta.servlet.http.HttpServletResponse;
+import com.ghtk.ecommercewebsite.models.dtos.RefreshTokenDTO;
+import com.ghtk.ecommercewebsite.models.entities.Token;
+import com.ghtk.ecommercewebsite.services.token.TokenServiceImpl;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import com.ghtk.ecommercewebsite.exceptions.UserAlreadyExistedException;
 import com.ghtk.ecommercewebsite.models.dtos.LoginUserDto;
 import com.ghtk.ecommercewebsite.models.dtos.RegisterUserDto;
 import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.responses.LoginResponse;
-import com.ghtk.ecommercewebsite.services.AuthenticationService;
-import com.ghtk.ecommercewebsite.services.JwtService;
 import com.ghtk.ecommercewebsite.services.UserService;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-
-import java.nio.file.AccessDeniedException;
-import java.util.HashMap;
-import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/user")
@@ -30,6 +22,8 @@ import java.util.Map;
 public class UserController {
 
     private final UserService userService;
+    private final TokenServiceImpl tokenService;
+
 
     @PostMapping("/signup")
     public CommonResult<User> signup(@RequestBody RegisterUserDto registerUserDto) throws UserAlreadyExistedException {
@@ -38,21 +32,39 @@ public class UserController {
     }
 
     @PostMapping("/login")
-    public CommonResult<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto, HttpServletResponse response) throws AccessDeniedException {
+    public CommonResult<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto) throws Exception {
+        String token = userService.authenticateUserAndGetLoginResponse(loginUserDto).getToken();
+        User userDetail = userService.getUserDetailsFromToken(token);
+        Token jwtToken = tokenService.addToken(userDetail, token);
 
-        LoginResponse loginResponse = userService.authenticateUserAndGetLoginResponse(loginUserDto);
-
-        // add cookie after login
-        Cookie cookie = new Cookie("JWT_TOKEN", loginResponse.getToken());
-        cookie.setMaxAge(84600);
-        cookie.setPath("/");
-        response.addCookie(cookie);
-        return CommonResult.success(loginResponse);
+        LoginResponse loginResponse = LoginResponse.builder()
+                .token(jwtToken.getToken())
+                .tokenType(jwtToken.getTokenType())
+                .refreshToken(jwtToken.getRefreshToken())
+                .build();
+          return CommonResult.success(loginResponse);
     }
 
     @GetMapping("/me")
     @PreAuthorize("hasRole('USER')")
     public CommonResult<User> authenticatedUser() {
         return CommonResult.success(userService.getAuthenticatedUser());
+    }
+
+
+    @PostMapping("/refreshToken")
+    public CommonResult<LoginResponse> refreshToken(
+            @Valid @RequestBody RefreshTokenDTO refreshTokenDTO
+            ) throws  Exception {
+
+        User userDetail = userService.getUserDetailsFromRefreshToken(refreshTokenDTO.getRefreshToken());
+        Token jwtToken = tokenService.refreshToken(refreshTokenDTO.getRefreshToken(), userDetail);
+        LoginResponse loginResponse = LoginResponse.builder()
+                .message("Refresh token successfully")
+                .token(jwtToken.getToken())
+                .tokenType(jwtToken.getTokenType())
+                .refreshToken(jwtToken.getRefreshToken())
+                .build();
+        return CommonResult.success(loginResponse);
     }
 }

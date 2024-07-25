@@ -1,6 +1,9 @@
 package com.ghtk.ecommercewebsite.controllers;
 
 import com.ghtk.ecommercewebsite.common.api.CommonResult;
+import com.ghtk.ecommercewebsite.models.entities.User;
+import com.ghtk.ecommercewebsite.services.UserService;
+import com.ghtk.ecommercewebsite.services.blacklisttoken.BlacklistTokenService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -23,15 +26,18 @@ import java.util.Map;
 public class LogoutController {
 
     public final InMemoryTokenBlacklist tokenBlacklist;
+    public final UserService userService;
+    public final BlacklistTokenService blacklistTokenService;
 
     @GetMapping("/loginAgain")
-    public CommonResult<Map<String, Object>> index(HttpServletRequest request) {
+    public CommonResult<Map<String, Object>> index(HttpServletRequest request) throws Exception{
         String token = null;
         String authorizationHeader = request.getHeader("Authorization");
         if (StringUtils.hasText(authorizationHeader) && authorizationHeader.startsWith("Bearer ")) {
             token = authorizationHeader.substring(7);
+            User userDetail = userService.getUserDetailsFromToken(token);
+            blacklistTokenService.addToBlackList(token, userDetail);
         }
-        tokenBlacklist.addToBlacklist(token);
 
         Map<String, Object> responseBody = new HashMap<>();
         responseBody.put("message", "Good");

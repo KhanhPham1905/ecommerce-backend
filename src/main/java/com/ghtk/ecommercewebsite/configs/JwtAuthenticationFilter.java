@@ -1,7 +1,9 @@
 package com.ghtk.ecommercewebsite.configs;
 
+import com.ghtk.ecommercewebsite.services.blacklisttoken.BlacklistTokenService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
@@ -18,6 +20,7 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
+import org.springframework.web.util.WebUtils;
 
 import java.io.IOException;
 
@@ -28,7 +31,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
     private final HandlerExceptionResolver handlerExceptionResolver;
     private final JwtService jwtService;
     private final UserDetailsService userDetailsService;
-    private final InMemoryTokenBlacklist tokenBlacklist;
+//    private final InMemoryTokenBlacklist tokenBlacklist;
+    private final BlacklistTokenService blacklistTokenService;
 
     @Override
     protected void doFilterInternal(
@@ -37,6 +41,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
             @NonNull FilterChain filterChain) throws ServletException, IOException {
         final String authHeader = request.getHeader("Authorization");
 
+
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
@@ -44,7 +49,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         try {
             final String jwt = authHeader.substring(7);
-            if (tokenBlacklist.isBlacklisted(jwt)) {
+            if (blacklistTokenService.isBlacklisted(jwt)) {
                 filterChain.doFilter(request, response);
                 return;
             }
