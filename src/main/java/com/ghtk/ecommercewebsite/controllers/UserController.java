@@ -1,5 +1,9 @@
 package com.ghtk.ecommercewebsite.controllers;
 
+import com.ghtk.ecommercewebsite.common.api.CommonResult;
+import com.ghtk.ecommercewebsite.services.OtpService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import com.ghtk.ecommercewebsite.models.responses.CommonResult;
 import com.ghtk.ecommercewebsite.models.dtos.RefreshTokenDTO;
 import com.ghtk.ecommercewebsite.models.entities.Token;
@@ -22,8 +26,6 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
-    private final TokenServiceImpl tokenService;
-
 
     @PostMapping("/signup")
     public CommonResult<User> signup(@RequestBody RegisterUserDto registerUserDto) throws UserAlreadyExistedException {

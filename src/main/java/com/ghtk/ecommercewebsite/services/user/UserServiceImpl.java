@@ -31,6 +31,8 @@ public class UserServiceImpl implements UserService{
     private final JwtService jwtService;
     private final TokenRepository tokenRepository;
     private final AuthenticationServiceImpl authenticationService;
+    private final AuthenticationService authenticationService;
+//    private final EmailService emailService;
 
     @Override
     @Transactional
@@ -51,6 +53,7 @@ public class UserServiceImpl implements UserService{
             } else {
                 existingRoles.add(userRole);
                 existingUser.setRoles(existingRoles);
+//                sendMail(input.getEmail());
                 return userRepository.save(existingUser);
             }
         } else {
@@ -61,9 +64,16 @@ public class UserServiceImpl implements UserService{
                     .password(passwordEncoder.encode(input.getPassword()))
                     .roles(roles)
                     .build();
+//            sendMail(input.getEmail());
             return userRepository.save(user);
         }
     }
+
+//    private void sendMail(String mail) {
+//        emailService.sendSimpleMessage(mail,
+//                "Signed up successfully",
+//                "You have just created an account with " + mail);
+//    }
 
     @Override
     public LoginResponse authenticateUserAndGetLoginResponse(LoginUserDto loginUserDto) throws AccessDeniedException {

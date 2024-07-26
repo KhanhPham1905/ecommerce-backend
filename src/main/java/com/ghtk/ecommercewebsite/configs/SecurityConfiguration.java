@@ -1,5 +1,8 @@
 package com.ghtk.ecommercewebsite.configs;
 
+//import com.ghtk.ecommercewebsite.filters.CookieJwtFilter;
+import com.ghtk.ecommercewebsite.filters.JwtAuthenticationFilter;
+import com.ghtk.ecommercewebsite.utils.WhitelistUrls;
 import com.ghtk.ecommercewebsite.filters.JwtAuthenticationFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -44,7 +47,6 @@ public class SecurityConfiguration {
                                 "/api/v1/user/signup",
                                 "/api/v1/seller/signup",
                                 "/api/v1/seller/login",
-                                "/api/v1/user/**",
                                 "/api/v1/admin/login")
                         .permitAll()
                         .anyRequest()
