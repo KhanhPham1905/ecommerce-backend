@@ -3,7 +3,7 @@ package com.ghtk.ecommercewebsite.services.token;
 import com.ghtk.ecommercewebsite.exceptions.DataNotFoundException;
 import com.ghtk.ecommercewebsite.exceptions.ExpiredTokenException;
 import com.ghtk.ecommercewebsite.models.entities.Token;
-import com.ghtk.ecommercewebsite.models.entities.User;
+import com.ghtk.ecommercewebsite.models.entities.Users;
 import com.ghtk.ecommercewebsite.repositories.TokenRepository;
 import com.ghtk.ecommercewebsite.services.JwtService;
 import jakarta.transaction.Transactional;
@@ -12,8 +12,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
-import java.util.HashSet;
-import java.util.Set;
 import java.util.UUID;
 
 @Service
@@ -32,7 +30,7 @@ public class TokenServiceImpl implements TokenService {
 
     @Transactional
     @Override
-    public Token addToken(User user, String token) {
+    public Token addToken(Users user, String token) {
         long expirationInSeconds = expiration;
         LocalDateTime expirationDateTime = LocalDateTime.now().plusSeconds(expirationInSeconds/1000);
         // Tạo mới một token cho người dùng
@@ -52,7 +50,7 @@ public class TokenServiceImpl implements TokenService {
     }
 
     @Override
-    public Token refreshToken(String refreshToken, User user) throws Exception {
+    public Token refreshToken(String refreshToken, Users user) throws Exception {
         Token existingToken = tokenRepository.findByRefreshToken(refreshToken);
         if(existingToken == null){
             throw new DataNotFoundException("Refresh token does not exist");

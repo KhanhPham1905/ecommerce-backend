@@ -2,7 +2,7 @@ package com.ghtk.ecommercewebsite.services.auth;
 
 import com.ghtk.ecommercewebsite.services.JwtService;
 import lombok.RequiredArgsConstructor;
-import com.ghtk.ecommercewebsite.models.entities.User;
+import com.ghtk.ecommercewebsite.models.entities.Users;
 import com.ghtk.ecommercewebsite.models.dtos.LoginUserDto;
 import com.ghtk.ecommercewebsite.models.dtos.RegisterUserDto;
 import com.ghtk.ecommercewebsite.models.responses.LoginResponse;
@@ -33,7 +33,7 @@ public class AuthenticationServiceImpl implements AuthenticationService{
     }
 
     @Override
-    public User authenticateByRole(LoginUserDto loginUserDto, String role) throws AccessDeniedException {
+    public Users authenticateByRole(LoginUserDto loginUserDto, String role) throws AccessDeniedException {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginUserDto.getEmail(),
@@ -52,24 +52,24 @@ public class AuthenticationServiceImpl implements AuthenticationService{
 
     @Override
     public LoginResponse authenticateUserAndGetLoginResponse(LoginUserDto loginUserDto) throws AccessDeniedException {
-        User authenticatedUser = authenticateByRole(loginUserDto, "USER");
+        Users authenticatedUser = authenticateByRole(loginUserDto, "USER");
         return buildLoginResponse(authenticatedUser);
     }
 
     @Override
     public LoginResponse authenticateSellerAndGetLoginResponse(LoginUserDto loginUserDto) throws AccessDeniedException {
-        User authenticatedUser = authenticateByRole(loginUserDto, "SELLER");
+        Users authenticatedUser = authenticateByRole(loginUserDto, "SELLER");
         return buildLoginResponse(authenticatedUser);
     }
 
     @Override
     public LoginResponse authenticateAdminAndGetLoginResponse(LoginUserDto loginUserDto) throws AccessDeniedException {
-        User authenticatedUser = authenticateByRole(loginUserDto, "ADMIN");
+        Users authenticatedUser = authenticateByRole(loginUserDto, "ADMIN");
         return buildLoginResponse(authenticatedUser);
     }
 
     @Override
-    public LoginResponse buildLoginResponse(User authenticatedUser) {
+    public LoginResponse buildLoginResponse(Users authenticatedUser) {
         String jwtToken = jwtService.generateToken(authenticatedUser);
 
         return LoginResponse.builder()

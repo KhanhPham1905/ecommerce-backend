@@ -6,28 +6,32 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
-import java.time.LocalDateTime;
+import java.math.BigDecimal;
 
 @Entity
-@Table(name = "supply")
+@Table(name = "product_orders")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Supply {
+public class ProductOrders {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    @Column(name = "product_order_id")
+    private Long productOrderId;
 
-    @Column(name = "supply_date")
-    private LocalDateTime supplyDate;
 
-    private int quantity;
-
-    @Column(name = "warehouse_id", nullable = false)
-    private Long warehouseId;
+    @Column(name = "orders_id", nullable = false)
+    private Long ordersId;
 
     @Column(name = "product_item_id", nullable = false)
     private Long productItemId;
+
+
+    @Column(name = "price", precision = 12, scale = 2)
+    private BigDecimal price;
+
+
+    private int quantity;
 }

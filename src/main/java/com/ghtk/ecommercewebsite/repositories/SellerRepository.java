@@ -1,21 +1,19 @@
 package com.ghtk.ecommercewebsite.repositories;
 
-import com.ghtk.ecommercewebsite.models.entities.Role;
-import com.ghtk.ecommercewebsite.models.entities.User;
+import com.ghtk.ecommercewebsite.models.entities.Users;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 
 import java.util.Optional;
-import java.util.Set;
 
-public interface SellerRepository extends CrudRepository<User, Long> {
+public interface SellerRepository extends CrudRepository<Users, Long> {
 
     @Query(
             "SELECT u FROM User u " +
             "JOIN u.roles r " +
             "WHERE u.email = :email AND r.name = 'SELLER'"
     )
-    Optional<User> findUserWithSellerRoleByEmail(@Param("email") String email);
+    Optional<Users> findUserWithSellerRoleByEmail(@Param("email") String email);
 
 }

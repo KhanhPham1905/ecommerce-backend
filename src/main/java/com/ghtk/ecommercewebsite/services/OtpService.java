@@ -2,7 +2,7 @@ package com.ghtk.ecommercewebsite.services;
 
 import com.ghtk.ecommercewebsite.models.dtos.MailBody;
 import com.ghtk.ecommercewebsite.models.entities.ForgotPassword;
-import com.ghtk.ecommercewebsite.models.entities.User;
+import com.ghtk.ecommercewebsite.models.entities.Users;
 import com.ghtk.ecommercewebsite.repositories.ForgotPasswordRepository;
 import com.ghtk.ecommercewebsite.repositories.UserRepository;
 import com.ghtk.ecommercewebsite.utils.ChangePassword;
@@ -28,7 +28,7 @@ public class OtpService {
     private final PasswordEncoder passwordEncoder;
 
     public ResponseEntity<String> verifyEmailAndSendOtp(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email)
+        Users user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Please provide a valid email!"));
 
         int otp = otpGenerator();
@@ -50,7 +50,7 @@ public class OtpService {
     }
 
     public ResponseEntity<String> verifyOtp(Integer otp, String email) {
-        User user = userRepository.findByEmail(email)
+        Users user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Please provide a valid email!"));
 
         ForgotPassword fp = forgotPasswordRepository.findByOtpAndUser(otp, user)
