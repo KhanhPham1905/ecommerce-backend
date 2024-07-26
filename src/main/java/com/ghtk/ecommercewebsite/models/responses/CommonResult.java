@@ -1,4 +1,4 @@
-package com.ghtk.ecommercewebsite.common.api;
+package com.ghtk.ecommercewebsite.models.responses;
 
 import com.ghtk.ecommercewebsite.models.enums.ResultCode;
 import lombok.Getter;

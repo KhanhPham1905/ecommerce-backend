@@ -1,5 +1,6 @@
-package com.ghtk.ecommercewebsite.services;
+package com.ghtk.ecommercewebsite.services.auth;
 
+import com.ghtk.ecommercewebsite.services.JwtService;
 import lombok.RequiredArgsConstructor;
 import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.dtos.LoginUserDto;
@@ -20,16 +21,18 @@ import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
-public class AuthenticationService {
+public class AuthenticationServiceImpl implements AuthenticationService{
 
     private final AuthenticationManager authenticationManager;
     private final UserRepository userRepository;
     private final JwtService jwtService;
 
+    @Override
     public Authentication getAuthentication() {
         return SecurityContextHolder.getContext().getAuthentication();
     }
 
+    @Override
     public User authenticateByRole(LoginUserDto loginUserDto, String role) throws AccessDeniedException {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
@@ -47,29 +50,35 @@ public class AuthenticationService {
         }
     }
 
+    @Override
     public LoginResponse authenticateUserAndGetLoginResponse(LoginUserDto loginUserDto) throws AccessDeniedException {
         User authenticatedUser = authenticateByRole(loginUserDto, "USER");
         return buildLoginResponse(authenticatedUser);
     }
 
+    @Override
     public LoginResponse authenticateSellerAndGetLoginResponse(LoginUserDto loginUserDto) throws AccessDeniedException {
         User authenticatedUser = authenticateByRole(loginUserDto, "SELLER");
         return buildLoginResponse(authenticatedUser);
     }
 
+    @Override
     public LoginResponse authenticateAdminAndGetLoginResponse(LoginUserDto loginUserDto) throws AccessDeniedException {
         User authenticatedUser = authenticateByRole(loginUserDto, "ADMIN");
         return buildLoginResponse(authenticatedUser);
     }
 
+    @Override
     public LoginResponse buildLoginResponse(User authenticatedUser) {
         String jwtToken = jwtService.generateToken(authenticatedUser);
+
         return LoginResponse.builder()
                 .token(jwtToken)
                 .expiresIn(jwtService.getExpirationTime())
                 .build();
     }
 
+    @Override
     public boolean checkValidEmail(RegisterUserDto registerUserDto) {
         String emailPattern = ".*@gmail\\.com$";
         Pattern pattern = Pattern.compile(emailPattern);

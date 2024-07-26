@@ -3,6 +3,7 @@ package com.ghtk.ecommercewebsite.configs;
 //import com.ghtk.ecommercewebsite.filters.CookieJwtFilter;
 import com.ghtk.ecommercewebsite.filters.JwtAuthenticationFilter;
 import com.ghtk.ecommercewebsite.utils.WhitelistUrls;
+import com.ghtk.ecommercewebsite.filters.JwtAuthenticationFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -34,14 +35,19 @@ public class SecurityConfiguration {
 
     private final AuthenticationProvider authenticationProvider;
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
-//    private final CookieJwtFilter cookieJwtFilter;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
+//                .cors(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers(WhitelistUrls.URLS)
+                        .requestMatchers("/auth/**",
+                                "/api/v1/user/login",
+                                "/api/v1/user/signup",
+                                "/api/v1/seller/signup",
+                                "/api/v1/seller/login",
+                                "/api/v1/admin/login")
                         .permitAll()
                         .anyRequest()
                         .authenticated())
@@ -55,7 +61,6 @@ public class SecurityConfiguration {
                         .permitAll())
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
-//                .addFilterBefore(cookieJwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
