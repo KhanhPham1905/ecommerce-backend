@@ -4,6 +4,7 @@ import com.ghtk.ecommercewebsite.models.entities.Token;
 import com.ghtk.ecommercewebsite.models.enums.RoleEnum;
 import com.ghtk.ecommercewebsite.repositories.TokenRepository;
 import com.ghtk.ecommercewebsite.services.JwtService;
+import com.ghtk.ecommercewebsite.services.auth.AuthenticationService;
 import com.ghtk.ecommercewebsite.services.auth.AuthenticationServiceImpl;
 import lombok.RequiredArgsConstructor;
 import com.ghtk.ecommercewebsite.exceptions.UserAlreadyExistedException;
@@ -30,7 +31,6 @@ public class UserServiceImpl implements UserService{
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final TokenRepository tokenRepository;
-    private final AuthenticationServiceImpl authenticationService;
     private final AuthenticationService authenticationService;
 //    private final EmailService emailService;
 
