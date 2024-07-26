@@ -6,9 +6,8 @@ import com.ghtk.ecommercewebsite.repositories.UserRepository;
 import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
-import com.ghtk.ecommercewebsite.models.dtos.RegisterUserDto;
 import com.ghtk.ecommercewebsite.models.entities.Role;
-import com.ghtk.ecommercewebsite.models.entities.User;
+import com.ghtk.ecommercewebsite.models.entities.Users;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -16,7 +15,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
@@ -40,12 +38,12 @@ public class AdminSeeder implements ApplicationListener<ContextRefreshedEvent> {
 
     // private to public
     public void createAdmin() {
-        Optional<User> optionalAdmin = userRepository.findByEmail("admin@gmail.com");
+        Optional<Users> optionalAdmin = userRepository.findByEmail("admin@gmail.com");
         if (optionalAdmin.isPresent()) return;
         Optional<Role> optionalAdminRole = roleRepository.findByName(RoleEnum.ADMIN);
         if (optionalAdminRole.isEmpty()) return;
 
-        var admin = User.builder()
+        var admin = Users.builder()
                 .fullName("Admin")
                 .email("admin@gmail.com")
                 .password(passwordEncoder.encode("123456"))

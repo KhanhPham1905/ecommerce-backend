@@ -5,13 +5,12 @@ import com.ghtk.ecommercewebsite.models.enums.RoleEnum;
 import com.ghtk.ecommercewebsite.repositories.TokenRepository;
 import com.ghtk.ecommercewebsite.services.JwtService;
 import com.ghtk.ecommercewebsite.services.auth.AuthenticationService;
-import com.ghtk.ecommercewebsite.services.auth.AuthenticationServiceImpl;
 import lombok.RequiredArgsConstructor;
 import com.ghtk.ecommercewebsite.exceptions.UserAlreadyExistedException;
 import com.ghtk.ecommercewebsite.models.dtos.LoginUserDto;
 import com.ghtk.ecommercewebsite.models.dtos.RegisterUserDto;
 import com.ghtk.ecommercewebsite.models.entities.Role;
-import com.ghtk.ecommercewebsite.models.entities.User;
+import com.ghtk.ecommercewebsite.models.entities.Users;
 import com.ghtk.ecommercewebsite.models.responses.LoginResponse;
 import com.ghtk.ecommercewebsite.repositories.RoleRepository;
 import com.ghtk.ecommercewebsite.repositories.UserRepository;
@@ -36,15 +35,15 @@ public class UserServiceImpl implements UserService{
 
     @Override
     @Transactional
-    public User signUp(RegisterUserDto input) throws UserAlreadyExistedException {
+    public Users signUp(RegisterUserDto input) throws UserAlreadyExistedException {
         Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.USER);
         if (optionalRole.isEmpty()) { return null; }
 
         Role userRole = optionalRole.get();
 
-        Optional<User> optionalUser = userRepository.findByEmail(input.getEmail());
+        Optional<Users> optionalUser = userRepository.findByEmail(input.getEmail());
         if (optionalUser.isPresent()) {
-            User existingUser = optionalUser.get();
+            Users existingUser = optionalUser.get();
             Set<Role> existingRoles = existingUser.getRoles();
 //            Role userRole = Role.builder().name(RoleEnum.USER).build();
 
@@ -58,7 +57,7 @@ public class UserServiceImpl implements UserService{
             }
         } else {
             Set<Role> roles = new HashSet<>(List.of(optionalRole.get()));
-            var user = User.builder()
+            var user = Users.builder()
                     .fullName(input.getFullName())
                     .email(input.getEmail())
                     .password(passwordEncoder.encode(input.getPassword()))
@@ -81,32 +80,32 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public User getAuthenticatedUser() {
-        return (User) authenticationService.getAuthentication().getPrincipal();
+    public Users getAuthenticatedUser() {
+        return (Users) authenticationService.getAuthentication().getPrincipal();
     }
 
     @Override
-    public List<User> allUsers() {
-        List<User> users = new ArrayList<>();
+    public List<Users> allUsers() {
+        List<Users> users = new ArrayList<>();
         userRepository.findAll().forEach(users::add);
         return users;
     }
 
     @Override
-    public List<User> allSellers() {
+    public List<Users> allSellers() {
         return userRepository.findByRolesContaining(RoleEnum.SELLER);
     }
 
     @Override
-    public User getUserDetailsFromToken(String token) throws Exception {
+    public Users getUserDetailsFromToken(String token) throws Exception {
         String username = jwtService.extractUsername(token);
-        Optional<User> user;
+        Optional<Users> user;
         user = userRepository.findByEmail(username);
         return user.orElseThrow(() -> new Exception("User not found"));
     }
 
     @Override
-    public User getUserDetailsFromRefreshToken(String refreshToken) throws Exception {
+    public Users getUserDetailsFromRefreshToken(String refreshToken) throws Exception {
         Token existingToken = tokenRepository.findByRefreshToken(refreshToken);
         return getUserDetailsFromToken(existingToken.getToken());
     }

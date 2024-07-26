@@ -5,7 +5,7 @@ import com.ghtk.ecommercewebsite.services.admin.AdminService;
 import com.ghtk.ecommercewebsite.services.user.UserService;
 import lombok.RequiredArgsConstructor;
 import com.ghtk.ecommercewebsite.models.dtos.LoginUserDto;
-import com.ghtk.ecommercewebsite.models.entities.User;
+import com.ghtk.ecommercewebsite.models.entities.Users;
 import com.ghtk.ecommercewebsite.models.responses.LoginResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -29,19 +29,19 @@ public class AdminController {
 
     @GetMapping("/me")
     @PreAuthorize("hasRole('ADMIN')")
-    public CommonResult<User> authenticatedAdmin() {
+    public CommonResult<Users> authenticatedAdmin() {
         return CommonResult.success(adminService.getAuthenticatedAdmin());
     }
 
     @GetMapping("/sellers")
     @PreAuthorize("hasRole('ADMIN')")
-    public CommonResult<List<User>> allSellers() {
+    public CommonResult<List<Users>> allSellers() {
         return CommonResult.success(userService.allSellers());
     }
 
     @GetMapping("/users")
     @PreAuthorize("hasRole('ADMIN')")
-    public CommonResult<List<User>> allUsers() {
+    public CommonResult<List<Users>> allUsers() {
         return CommonResult.success(userService.allUsers());
     }
 

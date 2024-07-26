@@ -1,7 +1,7 @@
 package com.ghtk.ecommercewebsite.controllers;
 
 import com.ghtk.ecommercewebsite.models.responses.CommonResult;
-import com.ghtk.ecommercewebsite.models.entities.User;
+import com.ghtk.ecommercewebsite.models.entities.Users;
 import com.ghtk.ecommercewebsite.services.user.UserService;
 import com.ghtk.ecommercewebsite.services.blacklisttoken.BlacklistTokenService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -26,7 +26,7 @@ public class LogoutController {
         String authorizationHeader = request.getHeader("Authorization");
         if (StringUtils.hasText(authorizationHeader) && authorizationHeader.startsWith("Bearer ")) {
             token = authorizationHeader.substring(7);
-            User userDetail = userService.getUserDetailsFromToken(token);
+            Users userDetail = userService.getUserDetailsFromToken(token);
             blacklistTokenService.addToBlackList(token, userDetail);
         }
 

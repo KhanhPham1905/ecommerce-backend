@@ -26,5 +26,5 @@ public class ForgotPassword {
     private Date expirationTime;
 
     @OneToOne
-    private User user;
+    private Users user;
 }

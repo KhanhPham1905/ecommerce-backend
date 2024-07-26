@@ -2,7 +2,7 @@ package com.ghtk.ecommercewebsite.services.admin;
 
 import com.ghtk.ecommercewebsite.services.auth.AuthenticationServiceImpl;
 import lombok.RequiredArgsConstructor;
-import com.ghtk.ecommercewebsite.models.entities.User;
+import com.ghtk.ecommercewebsite.models.entities.Users;
 import com.ghtk.ecommercewebsite.models.dtos.LoginUserDto;
 import com.ghtk.ecommercewebsite.models.responses.LoginResponse;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ public class AdminServiceImpl implements AdminService{
     }
 
     @Override
-    public User getAuthenticatedAdmin() {
-        return (User) authenticationService.getAuthentication().getPrincipal();
+    public Users getAuthenticatedAdmin() {
+        return (Users) authenticationService.getAuthentication().getPrincipal();
     }
 }
