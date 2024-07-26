@@ -52,7 +52,7 @@ public class Voucher {
     @Column(name = "name", length = 300, nullable = false)
     private String name;
 
-
+    // Khóa ngoại
     @Column(name = "shop_id", nullable = false)
     private Long shopId;
 
@@ -78,5 +78,6 @@ public class Voucher {
     protected void onUpdate() {
         modifiedAt = LocalDateTime.now();
     }
+
 
 }
