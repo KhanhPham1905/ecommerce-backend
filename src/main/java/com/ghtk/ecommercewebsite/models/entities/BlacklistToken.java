@@ -29,6 +29,6 @@ public class BlacklistToken {
 
     @ManyToOne
     @JoinColumn(name = "user_id")
-    private Users user;
+    private User user;
 
 }

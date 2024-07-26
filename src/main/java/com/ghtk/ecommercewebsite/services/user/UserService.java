@@ -3,18 +3,18 @@ package com.ghtk.ecommercewebsite.services.user;
 import com.ghtk.ecommercewebsite.exceptions.UserAlreadyExistedException;
 import com.ghtk.ecommercewebsite.models.dtos.LoginUserDto;
 import com.ghtk.ecommercewebsite.models.dtos.RegisterUserDto;
-import com.ghtk.ecommercewebsite.models.entities.Users;
+import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.responses.LoginResponse;
 
 import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 public interface UserService {
-    Users signUp(RegisterUserDto input) throws UserAlreadyExistedException;
+    User signUp(RegisterUserDto input) throws UserAlreadyExistedException;
     LoginResponse authenticateUserAndGetLoginResponse(LoginUserDto loginUserDto) throws AccessDeniedException;
-    Users getAuthenticatedUser();
-    List<Users> allUsers();
-    List<Users> allSellers();
-    Users getUserDetailsFromToken(String token) throws Exception;
-    Users getUserDetailsFromRefreshToken(String refreshToken) throws Exception;
+    User getAuthenticatedUser();
+    List<User> allUsers();
+    List<User> allSellers();
+    User getUserDetailsFromToken(String token) throws Exception;
+    User getUserDetailsFromRefreshToken(String refreshToken) throws Exception;
 }

@@ -1,5 +1,6 @@
 package com.ghtk.ecommercewebsite.services.seller;
 
+import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.enums.RoleEnum;
 import com.ghtk.ecommercewebsite.services.auth.AuthenticationServiceImpl;
 import lombok.RequiredArgsConstructor;
@@ -7,7 +8,6 @@ import com.ghtk.ecommercewebsite.exceptions.SellerAlreadyExistedException;
 import com.ghtk.ecommercewebsite.models.dtos.LoginUserDto;
 import com.ghtk.ecommercewebsite.models.dtos.RegisterUserDto;
 import com.ghtk.ecommercewebsite.models.entities.Role;
-import com.ghtk.ecommercewebsite.models.entities.Users;
 import com.ghtk.ecommercewebsite.models.responses.LoginResponse;
 import com.ghtk.ecommercewebsite.repositories.RoleRepository;
 import com.ghtk.ecommercewebsite.repositories.UserRepository;
@@ -29,15 +29,15 @@ public class SellerServiceImpl implements SellerService{
 
     @Override
     @Transactional
-    public Users signUpSeller(RegisterUserDto input) throws SellerAlreadyExistedException {
+    public User signUpSeller(RegisterUserDto input) throws SellerAlreadyExistedException {
         Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.SELLER);
         if (optionalRole.isEmpty()) { return null; }
 
         Role sellerRole = optionalRole.get();
 
-        Optional<Users> optionalUser = userRepository.findByEmail(input.getEmail());
+        Optional<User> optionalUser = userRepository.findByEmail(input.getEmail());
         if (optionalUser.isPresent()) {
-            Users existingUser = optionalUser.get();
+            User existingUser = optionalUser.get();
             Set<Role> existingRoles = existingUser.getRoles();
 //            Role sellerRole = Role.builder().name(RoleEnum.SELLER).build();
 
@@ -50,7 +50,7 @@ public class SellerServiceImpl implements SellerService{
             }
         } else {
             Set<Role> roles = new HashSet<>(List.of(optionalRole.get()));
-            var user = Users.builder()
+            var user = User.builder()
                     .fullName(input.getFullName())
                     .email(input.getEmail())
                     .password(passwordEncoder.encode(input.getPassword()))
@@ -66,7 +66,7 @@ public class SellerServiceImpl implements SellerService{
     }
 
     @Override
-    public Users getAuthenticatedSeller() {
-        return (Users) authenticationService.getAuthentication().getPrincipal();
+    public User getAuthenticatedSeller() {
+        return (User) authenticationService.getAuthentication().getPrincipal();
     }
 }

@@ -1,7 +1,7 @@
 package com.ghtk.ecommercewebsite.services.blacklisttoken;
 
 import com.ghtk.ecommercewebsite.models.entities.BlacklistToken;
-import com.ghtk.ecommercewebsite.models.entities.Users;
+import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.repositories.BlackListTokenRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +22,7 @@ public class BlacklistTokenServiceImpl implements BlacklistTokenService{
 
     @Override
     @Transactional
-    public void addToBlackList(String token, Users user) {
+    public void addToBlackList(String token, User user) {
         long expirationInSeconds = expiration;
         LocalDateTime expirationDateTime = LocalDateTime.now().plusSeconds(expirationInSeconds/1000);
         System.out.println("-expirationDateTime"+ expirationDateTime);

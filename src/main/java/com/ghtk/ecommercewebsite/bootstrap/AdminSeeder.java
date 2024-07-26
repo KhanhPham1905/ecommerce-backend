@@ -1,5 +1,6 @@
 package com.ghtk.ecommercewebsite.bootstrap;
 
+import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.enums.RoleEnum;
 import com.ghtk.ecommercewebsite.repositories.RoleRepository;
 import com.ghtk.ecommercewebsite.repositories.UserRepository;
@@ -7,7 +8,6 @@ import jakarta.persistence.EntityManager;
 import jakarta.persistence.PersistenceContext;
 import lombok.RequiredArgsConstructor;
 import com.ghtk.ecommercewebsite.models.entities.Role;
-import com.ghtk.ecommercewebsite.models.entities.Users;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.annotation.DependsOn;
 import org.springframework.context.event.ContextRefreshedEvent;
@@ -38,12 +38,12 @@ public class AdminSeeder implements ApplicationListener<ContextRefreshedEvent> {
 
     // private to public
     public void createAdmin() {
-        Optional<Users> optionalAdmin = userRepository.findByEmail("admin@gmail.com");
+        Optional<User> optionalAdmin = userRepository.findByEmail("admin@gmail.com");
         if (optionalAdmin.isPresent()) return;
         Optional<Role> optionalAdminRole = roleRepository.findByName(RoleEnum.ADMIN);
         if (optionalAdminRole.isEmpty()) return;
 
-        var admin = Users.builder()
+        var admin = User.builder()
                 .fullName("Admin")
                 .email("admin@gmail.com")
                 .password(passwordEncoder.encode("123456"))
