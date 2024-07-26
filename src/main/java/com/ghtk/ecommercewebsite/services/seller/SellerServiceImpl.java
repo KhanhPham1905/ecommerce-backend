@@ -1,22 +1,16 @@
-package com.ghtk.ecommercewebsite.services;
+package com.ghtk.ecommercewebsite.services.seller;
 
 import com.ghtk.ecommercewebsite.models.enums.RoleEnum;
-import com.ghtk.ecommercewebsite.repositories.SellerRepository;
+import com.ghtk.ecommercewebsite.services.auth.AuthenticationServiceImpl;
 import lombok.RequiredArgsConstructor;
 import com.ghtk.ecommercewebsite.exceptions.SellerAlreadyExistedException;
 import com.ghtk.ecommercewebsite.models.dtos.LoginUserDto;
 import com.ghtk.ecommercewebsite.models.dtos.RegisterUserDto;
 import com.ghtk.ecommercewebsite.models.entities.Role;
-import com.ghtk.ecommercewebsite.models.enums.RoleEnum;
 import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.responses.LoginResponse;
 import com.ghtk.ecommercewebsite.repositories.RoleRepository;
 import com.ghtk.ecommercewebsite.repositories.UserRepository;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -26,13 +20,14 @@ import java.util.*;
 
 @Service
 @RequiredArgsConstructor
-public class SellerService {
+public class SellerServiceImpl implements SellerService{
 
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
-    private final AuthenticationService authenticationService;
+    private final AuthenticationServiceImpl authenticationService;
 
+    @Override
     @Transactional
     public User signUpSeller(RegisterUserDto input) throws SellerAlreadyExistedException {
         Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.SELLER);
@@ -65,10 +60,12 @@ public class SellerService {
         }
     }
 
+    @Override
     public LoginResponse authenticateSellerAndGetLoginResponse(LoginUserDto loginUserDto) throws AccessDeniedException {
         return authenticationService.authenticateSellerAndGetLoginResponse(loginUserDto);
     }
 
+    @Override
     public User getAuthenticatedSeller() {
         return (User) authenticationService.getAuthentication().getPrincipal();
     }

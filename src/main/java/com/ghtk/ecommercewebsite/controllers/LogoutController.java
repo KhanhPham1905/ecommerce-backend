@@ -1,21 +1,14 @@
 package com.ghtk.ecommercewebsite.controllers;
 
-import com.ghtk.ecommercewebsite.common.api.CommonResult;
+import com.ghtk.ecommercewebsite.models.responses.CommonResult;
 import com.ghtk.ecommercewebsite.models.entities.User;
-import com.ghtk.ecommercewebsite.services.UserService;
+import com.ghtk.ecommercewebsite.services.user.UserService;
 import com.ghtk.ecommercewebsite.services.blacklisttoken.BlacklistTokenService;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import com.ghtk.ecommercewebsite.services.InMemoryTokenBlacklist;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.authentication.logout.SecurityContextLogoutHandler;
 import org.springframework.util.StringUtils;
 import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.HashMap;
@@ -24,8 +17,6 @@ import java.util.Map;
 @RestController
 @RequiredArgsConstructor
 public class LogoutController {
-
-    public final InMemoryTokenBlacklist tokenBlacklist;
     public final UserService userService;
     public final BlacklistTokenService blacklistTokenService;
 

@@ -1,9 +1,10 @@
 package com.ghtk.ecommercewebsite.controllers;
 
-import com.ghtk.ecommercewebsite.common.api.CommonResult;
+import com.ghtk.ecommercewebsite.models.responses.CommonResult;
 import com.ghtk.ecommercewebsite.models.dtos.RefreshTokenDTO;
 import com.ghtk.ecommercewebsite.models.entities.Token;
 import com.ghtk.ecommercewebsite.services.token.TokenServiceImpl;
+import com.ghtk.ecommercewebsite.services.user.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import com.ghtk.ecommercewebsite.exceptions.UserAlreadyExistedException;
@@ -11,7 +12,6 @@ import com.ghtk.ecommercewebsite.models.dtos.LoginUserDto;
 import com.ghtk.ecommercewebsite.models.dtos.RegisterUserDto;
 import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.responses.LoginResponse;
-import com.ghtk.ecommercewebsite.services.UserService;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 

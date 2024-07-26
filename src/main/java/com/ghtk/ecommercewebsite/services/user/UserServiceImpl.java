@@ -1,45 +1,38 @@
-package com.ghtk.ecommercewebsite.services;
+package com.ghtk.ecommercewebsite.services.user;
 
-import com.ghtk.ecommercewebsite.exceptions.ExpiredTokenException;
-import com.ghtk.ecommercewebsite.exceptions.SellerAlreadyExistedException;
 import com.ghtk.ecommercewebsite.models.entities.Token;
 import com.ghtk.ecommercewebsite.models.enums.RoleEnum;
 import com.ghtk.ecommercewebsite.repositories.TokenRepository;
+import com.ghtk.ecommercewebsite.services.JwtService;
+import com.ghtk.ecommercewebsite.services.auth.AuthenticationServiceImpl;
 import lombok.RequiredArgsConstructor;
 import com.ghtk.ecommercewebsite.exceptions.UserAlreadyExistedException;
 import com.ghtk.ecommercewebsite.models.dtos.LoginUserDto;
 import com.ghtk.ecommercewebsite.models.dtos.RegisterUserDto;
 import com.ghtk.ecommercewebsite.models.entities.Role;
-import com.ghtk.ecommercewebsite.models.enums.RoleEnum;
 import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.responses.LoginResponse;
 import com.ghtk.ecommercewebsite.repositories.RoleRepository;
 import com.ghtk.ecommercewebsite.repositories.UserRepository;
-import org.springframework.security.authentication.AuthenticationManager;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.file.AccessDeniedException;
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @Service
 @RequiredArgsConstructor
-public class UserService {
+public class UserServiceImpl implements UserService{
 
     private final UserRepository userRepository;
     private final RoleRepository roleRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final TokenRepository tokenRepository;
-    private final com.ghtk.ecommercewebsite.services.AuthenticationService authenticationService;
+    private final AuthenticationServiceImpl authenticationService;
 
+    @Override
     @Transactional
     public User signUp(RegisterUserDto input) throws UserAlreadyExistedException {
         Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.USER);
@@ -72,24 +65,29 @@ public class UserService {
         }
     }
 
+    @Override
     public LoginResponse authenticateUserAndGetLoginResponse(LoginUserDto loginUserDto) throws AccessDeniedException {
         return authenticationService.authenticateUserAndGetLoginResponse(loginUserDto);
     }
 
+    @Override
     public User getAuthenticatedUser() {
         return (User) authenticationService.getAuthentication().getPrincipal();
     }
 
+    @Override
     public List<User> allUsers() {
         List<User> users = new ArrayList<>();
         userRepository.findAll().forEach(users::add);
         return users;
     }
 
+    @Override
     public List<User> allSellers() {
         return userRepository.findByRolesContaining(RoleEnum.SELLER);
     }
 
+    @Override
     public User getUserDetailsFromToken(String token) throws Exception {
         String username = jwtService.extractUsername(token);
         Optional<User> user;
@@ -97,6 +95,7 @@ public class UserService {
         return user.orElseThrow(() -> new Exception("User not found"));
     }
 
+    @Override
     public User getUserDetailsFromRefreshToken(String refreshToken) throws Exception {
         Token existingToken = tokenRepository.findByRefreshToken(refreshToken);
         return getUserDetailsFromToken(existingToken.getToken());

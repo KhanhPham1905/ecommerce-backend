@@ -1,18 +1,13 @@
 package com.ghtk.ecommercewebsite.controllers;
 
-import com.ghtk.ecommercewebsite.common.api.CommonResult;
+import com.ghtk.ecommercewebsite.models.responses.CommonResult;
+import com.ghtk.ecommercewebsite.services.admin.AdminService;
+import com.ghtk.ecommercewebsite.services.user.UserService;
 import lombok.RequiredArgsConstructor;
 import com.ghtk.ecommercewebsite.models.dtos.LoginUserDto;
 import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.responses.LoginResponse;
-import com.ghtk.ecommercewebsite.services.AdminService;
-import com.ghtk.ecommercewebsite.services.AuthenticationService;
-import com.ghtk.ecommercewebsite.services.JwtService;
-import com.ghtk.ecommercewebsite.services.UserService;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.file.AccessDeniedException;

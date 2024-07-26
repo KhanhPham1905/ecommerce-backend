@@ -9,6 +9,4 @@ public interface BlacklistTokenService {
     void addToBlackList(String token, User user);
 
     boolean isBlacklisted(String token);
-
-
 }
