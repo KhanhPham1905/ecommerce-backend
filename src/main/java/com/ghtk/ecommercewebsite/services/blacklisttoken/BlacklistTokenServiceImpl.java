@@ -20,7 +20,7 @@ public class BlacklistTokenServiceImpl implements BlacklistTokenService{
     @Value("${security.jwt.expiration-time}")
     private int expiration;
 
-    public final UserService userService;
+//    public final UserService userService;
     private final BlackListTokenRepository blackListTokenRepository;
 
     @Override
