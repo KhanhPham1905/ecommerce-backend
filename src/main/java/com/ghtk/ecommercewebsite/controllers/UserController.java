@@ -11,7 +11,11 @@ import com.ghtk.ecommercewebsite.exceptions.UserAlreadyExistedException;
 import com.ghtk.ecommercewebsite.models.dtos.LoginUserDto;
 import com.ghtk.ecommercewebsite.models.dtos.RegisterUserDto;
 import com.ghtk.ecommercewebsite.models.responses.LoginResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class UserController {
 
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
     private final UserService userService;
     private final TokenService tokenService;
 
@@ -46,6 +51,8 @@ public class UserController {
     @GetMapping("/me")
     @PreAuthorize("hasRole('USER')")
     public CommonResult<User> authenticatedUser() {
+//        Authentication authentication1 = SecurityContextHolder.getContext().getAuthentication();
+//        System.out.println("heheheeeeeeeeeeeeee" + authentication1);
         return CommonResult.success(userService.getAuthenticatedUser());
     }
 
