@@ -1,4 +1,4 @@
-package com.ghtk.ecommercewebsite.services.Images;
+package com.ghtk.ecommercewebsite.services.images;
 
 public class ImagesServiceImpl implements ImagesService{
 }
