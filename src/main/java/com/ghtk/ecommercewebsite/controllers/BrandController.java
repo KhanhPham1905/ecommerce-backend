@@ -34,21 +34,17 @@ public class BrandController {
     public List<BrandDTO> getAllBrands() {
         return iBrandService.findAll().stream().map(brandMapper::toDTO).collect(Collectors.toList());
     }
-
     @GetMapping("/{id}")
     public ResponseEntity<BrandDTO> getBrandByID(@PathVariable Long id) {
         return iBrandService.findById(id).map(brand -> ResponseEntity.ok(brandMapper.toDTO(brand)))
                 .orElse(ResponseEntity.notFound().build());
-
     }
-
     @PostMapping
     public ResponseEntity<BrandDTO> createBrand(@RequestBody BrandDTO brandDTO) {
         Brand brand = brandMapper.toEntity(brandDTO);
         Brand savedBrand = iBrandService.save(brand);
         return ResponseEntity.ok(brandMapper.toDTO(savedBrand));
     }
-
     @PutMapping("/{id}")
     public ResponseEntity<BrandDTO> updateBrand(@PathVariable Long id, @RequestBody BrandDTO brandDetails) {
         return iBrandService.findById(id)

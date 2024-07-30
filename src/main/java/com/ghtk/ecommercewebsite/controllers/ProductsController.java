@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/products")
 public class ProductsController {
 
-    private final IProductService iProductService ;
+    private final IProductService iProductService;
     private final ProductMapper productMapper;
 
     @Autowired
@@ -112,4 +112,20 @@ public class ProductsController {
                 })
                 .orElse(ResponseEntity.notFound().build());
     }
+
+    @GetMapping("/searchName")
+    public List<ProductDTO> searchProductsByName(@RequestParam("keyword") String keyword) {
+        return iProductService.searchProductsByName(keyword).stream()
+                .map(productMapper::toDTO)
+                .collect(Collectors.toList());
+
+    }
+    @GetMapping("/searchDes")
+    public List<ProductDTO> searchProductsByDes(@RequestParam("keyword") String keyword) {
+        return iProductService.searchProductsByDes(keyword).stream()
+                .map(productMapper::toDTO)
+                .collect(Collectors.toList());
+
+    }
+
 }

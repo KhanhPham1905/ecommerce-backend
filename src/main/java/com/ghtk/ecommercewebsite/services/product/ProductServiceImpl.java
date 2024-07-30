@@ -42,9 +42,21 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     public void deleteBrandById(Long brandId) {
-        List<Product> products = findByBrandId(brandId) ;
-        for(Product product : products ){
+        List<Product> products = findByBrandId(brandId);
+        for (Product product : products) {
             deleteById(product.getId());
         }
     }
+
+    @Override
+    public List<Product> searchProductsByName(String keyword) {
+        return productsRepository.findByNameContaining(keyword);
+    }
+
+    @Override
+    public List<Product> searchProductsByDes(String keyword) {
+        return productsRepository.findByDescriptionContaining(keyword);
+    }
+
+
 }

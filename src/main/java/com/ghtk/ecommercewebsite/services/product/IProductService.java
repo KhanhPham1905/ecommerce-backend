@@ -17,5 +17,7 @@ public interface IProductService {
 
     List<Product> findByBrandId(Long brandId);
     void deleteBrandById(Long id);
+    List<Product> searchProductsByName(String keyword); // Phương thức tìm kiếm
 
+    List<Product> searchProductsByDes(String keyword); // Phương thức tìm kiếm
 }
