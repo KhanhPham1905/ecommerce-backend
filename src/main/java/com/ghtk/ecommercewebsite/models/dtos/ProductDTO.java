@@ -1,10 +1,13 @@
 package com.ghtk.ecommercewebsite.models.dtos;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+
+import java.time.LocalDateTime;
 
 @Data
 public class ProductDTO {
@@ -40,4 +43,11 @@ public class ProductDTO {
     @NotNull(message = "Shop ID is required")
     @JsonProperty("shop_id")
     private Long shopId;
+
+    @JsonIgnore
+    private LocalDateTime createdAt;
+
+    @JsonIgnore
+    private LocalDateTime modifiedAt;
+
 }

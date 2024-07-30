@@ -1,18 +1,18 @@
 package com.ghtk.ecommercewebsite.mapper;
 
-import com.ghtk.ecommercewebsite.models.dtos.ProductDTO;
-import com.ghtk.ecommercewebsite.models.entities.Product;
+import com.ghtk.ecommercewebsite.models.dtos.BrandDTO;
+import com.ghtk.ecommercewebsite.models.entities.Brand;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
-public interface ProductMapper {
+public interface BrandMapper {
 
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "modifiedAt", ignore = true)
-    Product toEntity(ProductDTO dto);
+    Brand toEntity(BrandDTO dto);
 
     @Mapping(target = "createdAt", ignore = true)
     @Mapping(target = "modifiedAt", ignore = true)
-    ProductDTO toDTO(Product product);
+    BrandDTO toDTO(Brand brand);
 }

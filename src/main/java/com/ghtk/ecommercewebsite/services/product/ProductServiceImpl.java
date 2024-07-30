@@ -10,12 +10,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-public class ProductService {
+public class ProductServiceImpl implements IProductService {
 
     private final ProductsRepository productsRepository;
 
     @Autowired
-    public ProductService(ProductsRepository productsRepository) {
+    public ProductServiceImpl(ProductsRepository productsRepository) {
         this.productsRepository = productsRepository;
     }
 
@@ -33,5 +33,18 @@ public class ProductService {
 
     public void deleteById(Long id) {
         productsRepository.deleteById(id);
+    }
+
+    @Override
+    public List<Product> findByBrandId(Long brandId) {
+        return productsRepository.findByBrandId(brandId);
+    }
+
+    @Override
+    public void deleteBrandById(Long brandId) {
+        List<Product> products = findByBrandId(brandId) ;
+        for(Product product : products ){
+            deleteById(product.getId());
+        }
     }
 }

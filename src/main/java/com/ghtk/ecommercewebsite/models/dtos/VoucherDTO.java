@@ -1,5 +1,6 @@
 package com.ghtk.ecommercewebsite.models.dtos;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.*;
 
@@ -7,6 +8,9 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public class VoucherDTO {
+
+    @JsonProperty("id")
+    private Long id;
 
     @NotBlank(message = "Title is required")
     @Size(min = 3, max = 200, message = "Coupon code must be between 3 and 200 characters")
@@ -47,6 +51,9 @@ public class VoucherDTO {
     @JsonProperty("start_at")
     @NotBlank(message = "Start date is required")
     private LocalDateTime startAt;
+
+    @JsonIgnore
+    private LocalDateTime createdAt;
 
     @JsonProperty("quantity")
     @Min(value = 0, message = "Quantity must be greater than or equal to 0")

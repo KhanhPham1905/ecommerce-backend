@@ -3,7 +3,8 @@ package com.ghtk.ecommercewebsite.controllers;
 import com.ghtk.ecommercewebsite.mapper.ProductMapper;
 import com.ghtk.ecommercewebsite.models.dtos.ProductDTO;
 import com.ghtk.ecommercewebsite.models.entities.Product;
-import com.ghtk.ecommercewebsite.services.product.ProductService;
+import com.ghtk.ecommercewebsite.services.product.IProductService;
+import com.ghtk.ecommercewebsite.services.product.ProductServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,25 +17,25 @@ import java.util.stream.Collectors;
 @RequestMapping("/api/products")
 public class ProductsController {
 
-    private final ProductService productService;
+    private final IProductService iProductService ;
     private final ProductMapper productMapper;
 
     @Autowired
-    public ProductsController(ProductService productService, ProductMapper productMapper) {
-        this.productService = productService;
+    public ProductsController(IProductService productService, ProductMapper productMapper) {
+        this.iProductService = productService;
         this.productMapper = productMapper;
     }
 
     @GetMapping
     public List<ProductDTO> getAllProducts() {
-        return productService.findAll().stream()
+        return iProductService.findAll().stream()
                 .map(productMapper::toDTO)
                 .collect(Collectors.toList());
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
-        return productService.findById(id)
+        return iProductService.findById(id)
                 .map(product -> ResponseEntity.ok(productMapper.toDTO(product)))
                 .orElse(ResponseEntity.notFound().build());
     }
@@ -42,13 +43,13 @@ public class ProductsController {
     @PostMapping
     public ResponseEntity<ProductDTO> createProduct(@RequestBody ProductDTO productDTO) {
         Product product = productMapper.toEntity(productDTO);
-        Product savedProduct = productService.save(product);
+        Product savedProduct = iProductService.save(product);
         return ResponseEntity.ok(productMapper.toDTO(savedProduct));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ProductDTO> updateProduct(@PathVariable Long id, @RequestBody ProductDTO productDetails) {
-        return productService.findById(id)
+        return iProductService.findById(id)
                 .map(product -> {
                     product.setName(productDetails.getName());
                     product.setDescription(productDetails.getDescription());
@@ -58,7 +59,7 @@ public class ProductsController {
                     product.setProductView(productDetails.getProductView());
                     product.setBrandId(productDetails.getBrandId());
                     product.setShopId(productDetails.getShopId());
-                    Product updatedProduct = productService.save(product);
+                    Product updatedProduct = iProductService.save(product);
                     return ResponseEntity.ok(productMapper.toDTO(updatedProduct));
                 })
                 .orElse(ResponseEntity.notFound().build());
@@ -66,7 +67,7 @@ public class ProductsController {
 
     @PatchMapping("/{id}")
     public ResponseEntity<ProductDTO> patchProduct(@PathVariable Long id, @RequestBody Map<String, Object> updates) {
-        return productService.findById(id)
+        return iProductService.findById(id)
                 .map(product -> {
                     updates.forEach((key, value) -> {
                         switch (key) {
@@ -96,7 +97,7 @@ public class ProductsController {
                                 break;
                         }
                     });
-                    Product updatedProduct = productService.save(product);
+                    Product updatedProduct = iProductService.save(product);
                     return ResponseEntity.ok(productMapper.toDTO(updatedProduct));
                 })
                 .orElse(ResponseEntity.notFound().build());
@@ -104,9 +105,9 @@ public class ProductsController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Object> deleteProduct(@PathVariable Long id) {
-        return productService.findById(id)
+        return iProductService.findById(id)
                 .map(product -> {
-                    productService.deleteById(id);
+                    iProductService.deleteById(id);
                     return ResponseEntity.noContent().build();
                 })
                 .orElse(ResponseEntity.notFound().build());

@@ -1,5 +1,6 @@
 package com.ghtk.ecommercewebsite.models.dtos;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -18,10 +19,10 @@ public class BrandDTO {
     @JsonProperty("id")
     private Long id;
 
-    @JsonProperty("created_at")
+     @JsonIgnore
     private LocalDateTime createdAt;
 
-    @JsonProperty("modified_at")
+    @JsonIgnore
     private LocalDateTime modifiedAt;
 
     @JsonProperty("description")
