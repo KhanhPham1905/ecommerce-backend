@@ -61,7 +61,9 @@ public class SecurityConfiguration {
                                 "/api/v1/user/signup",
                                 "/api/v1/seller/signup",
                                 "/api/v1/seller/login",
-                                "/api/v1/admin/login")
+                                "/api/v1/admin/login",
+                                "/categories/**"
+                                )
                         .permitAll()
                         .anyRequest()
                         .authenticated())
