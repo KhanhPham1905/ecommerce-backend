@@ -62,7 +62,7 @@ public class CategoryController {
             @Valid @RequestBody CategoryDTO categoryDTO
     )throws Exception{
         User user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Category category = categoryService.updateCategory(id, categoryDTO, user.getId() );
+        Category category = categoryService.updateCategory(id, categoryDTO, user.getId());
         return CommonResult.success(category, "Update category successfully");
     }
 }

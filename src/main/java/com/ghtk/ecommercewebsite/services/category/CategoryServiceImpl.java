@@ -59,7 +59,9 @@ public class CategoryServiceImpl implements CategoryService{
     @Transactional
     public Category updateCategory(Long categoryId, CategoryDTO categoryDTO, Long userId) throws  Exception {
         Long shopId = sellerRepository.findShopIdByUserId(userId);
-        if(!categoryDTO.getShopId().equals(shopId)) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new DataNotFoundException("Cannot find category by id"));
+        if(!category.getShopId().equals(shopId)) {
             throw new AccessDeniedException("account seller and shop not match");
         }
         Category existingCategory = getCategoryById(categoryId);
