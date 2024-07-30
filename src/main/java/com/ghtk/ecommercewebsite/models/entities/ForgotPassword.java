@@ -13,6 +13,7 @@ import java.util.Date;
 @AllArgsConstructor
 @Getter
 @Builder
+@Table(name = "forgot_password")
 public class ForgotPassword {
 
     @Id

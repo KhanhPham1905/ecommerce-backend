@@ -1,9 +1,7 @@
 package com.ghtk.ecommercewebsite.configs;
 
-//import com.ghtk.ecommercewebsite.filters.CookieJwtFilter;
 import com.ghtk.ecommercewebsite.filters.JwtAuthenticationFilter;
 import com.ghtk.ecommercewebsite.utils.WhitelistUrls;
-import com.ghtk.ecommercewebsite.filters.JwtAuthenticationFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -40,21 +38,15 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
-//                .cors(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/auth/**",
-                                "/api/v1/user/login",
-                                "/api/v1/user/signup",
-                                "/api/v1/seller/signup",
-                                "/api/v1/seller/login",
-                                "/api/v1/admin/login")
+                        .requestMatchers(WhitelistUrls.URLS)  // Cho phép truy cập vào các endpoint /api/products/**
                         .permitAll()
                         .anyRequest()
                         .authenticated())
                 .logout(logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                         .logoutSuccessHandler(logoutSuccessHandler())
-//                        .logoutSuccessUrl("/")
                         .deleteCookies("JWT_TOKEN")
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
@@ -68,9 +60,10 @@ public class SecurityConfiguration {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000"));
-        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "OPTIONS"));
+        corsConfiguration.setAllowedOrigins(List.of("http://localhost:8080"));
+        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         corsConfiguration.setAllowedHeaders(List.of("*"));
+        corsConfiguration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfiguration);
         return source;

@@ -4,19 +4,13 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import jakarta.validation.constraints.Min;
-import java.time.LocalDateTime;
+import lombok.Data;
 
+@Data
 public class ProductDTO {
 
     @JsonProperty("id")
     private Long id;
-
-    @JsonProperty("created_at")
-    private LocalDateTime createdAt;
-
-    @JsonProperty("modified_at")
-    private LocalDateTime modifiedAt;
 
     @NotBlank(message = "Description is required")
     @JsonProperty("description")
@@ -27,12 +21,11 @@ public class ProductDTO {
     @JsonProperty("name")
     private String name;
 
+    @JsonProperty("status")
+    private int status;
+
     @JsonProperty("slug")
     private String slug;
-
-    @NotNull(message = "Status is required")
-    @JsonProperty("status")
-    private Integer status;
 
     @JsonProperty("total_sold")
     private Long totalSold;
@@ -48,4 +41,3 @@ public class ProductDTO {
     @JsonProperty("shop_id")
     private Long shopId;
 }
-

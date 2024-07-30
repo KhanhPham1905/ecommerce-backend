@@ -17,11 +17,11 @@ public interface UserRepository extends CrudRepository<Users, Long> {
 
     Optional<Users> findByEmail(String email);
 
-    @Query("SELECT u FROM User u JOIN u.roles r WHERE r.name = :roleName")
+    @Query("SELECT u FROM Users u JOIN u.roles r WHERE r.name = :roleName")
     List<Users> findByRolesContaining(@Param("roleName") RoleEnum roleName);
 
     @Transactional
     @Modifying
-    @Query("UPDATE User u SET u.password = ?2 WHERE u.email = ?1")
+    @Query("UPDATE Users u SET u.password = ?2 WHERE u.email = ?1")
     void updatePassword(String email, String password);
 }

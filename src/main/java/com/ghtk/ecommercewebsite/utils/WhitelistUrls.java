@@ -7,6 +7,7 @@ public class WhitelistUrls {
             "/api/v1/seller/signup",
             "/api/v1/seller/login",
             "/api/v1/admin/login",
-            "/forgotPassword/**"
+            "/forgotPassword/**",
+            "/api/products/**"
     };
 }
