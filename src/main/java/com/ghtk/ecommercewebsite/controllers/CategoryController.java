@@ -24,7 +24,7 @@ public class CategoryController {
     @GetMapping("/{id}")
     public CommonResult<Category> getCategoryById(
             @PathVariable("id") Long categoryId
-    ){
+    )throws Exception{
         Category existingCategory = categoryService.getCategoryById(categoryId);
         return CommonResult.success(existingCategory, "Get category successfully");
     }

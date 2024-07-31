@@ -1,5 +1,6 @@
 package com.ghtk.ecommercewebsite.exceptions;
 
+import com.ghtk.ecommercewebsite.models.responses.CommonResult;
 import io.jsonwebtoken.security.SignatureException;
 import com.ghtk.ecommercewebsite.models.entities.ErrorMessage;
 import org.springframework.http.HttpStatus;
@@ -10,6 +11,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AccountStatusException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 
@@ -59,5 +61,10 @@ public class GlobalExceptionHandler {
     public ResponseEntity<ErrorMessage> userAlreadyExistedException(UserAlreadyExistedException exception, WebRequest request) {
         ErrorMessage message = new ErrorMessage(HttpStatus.BAD_REQUEST, exception.getMessage());
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(message);
+    }
+    @ExceptionHandler(DataNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public CommonResult handleResourceNotFoundException(DataNotFoundException exception) {
+        return CommonResult.validateFailed(exception.getMessage());
     }
 }
