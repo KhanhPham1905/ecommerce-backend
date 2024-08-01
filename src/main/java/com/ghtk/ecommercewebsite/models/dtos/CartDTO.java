@@ -1,5 +1,6 @@
 package com.ghtk.ecommercewebsite.models.dtos;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -19,21 +20,12 @@ public class CartDTO {
     @JsonProperty("id")
     private Long id;
 
-    @JsonProperty("quantity")
-    @Min(value = 1, message = "Quantity must be at least 1")
-    private int quantity;
-
-    @JsonProperty("size")
-    private int size;
-
-    @JsonProperty("user_id")
     @NotNull(message = "User ID is required")
+    @JsonProperty("user_id")
     private Long userId;
 
-    @JsonProperty("product_item_id")
-    @NotNull(message = "Product Item ID is required")
-    private Long productItemId;
 
+    @JsonIgnore
     @JsonProperty("created_at")
     private LocalDateTime createdAt;
 }

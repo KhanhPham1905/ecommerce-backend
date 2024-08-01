@@ -1,5 +1,6 @@
 package com.ghtk.ecommercewebsite.models.entities;
 
+
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,15 +21,8 @@ public class Cart {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private int quantity;
-
-    private int size;
-
     @Column(name = "user_id", nullable = false)
     private Long userId;
-
-    @Column(name = "product_item_id", nullable = false)
-    private Long productItemId;
 
     @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;

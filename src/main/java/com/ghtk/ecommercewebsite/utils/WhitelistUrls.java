@@ -10,6 +10,7 @@ public class WhitelistUrls {
             "/forgotPassword/**",
             "/api/products/**",
             "api/brands/**",
-            "/api/vouchers/**"
+            "/api/vouchers/**",
+            "/api/carts/**"
     };
 }
