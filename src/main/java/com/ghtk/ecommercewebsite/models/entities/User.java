@@ -1,7 +1,11 @@
 package com.ghtk.ecommercewebsite.models.entities;
 
 import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonProperty;
+import com.ghtk.ecommercewebsite.models.dtos.UserDTO;
+import com.ghtk.ecommercewebsite.models.enums.Gender;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CreationTimestamp;
@@ -24,13 +28,22 @@ import java.util.stream.Collectors;
 @Setter
 @Builder
 public class User implements UserDetails {
-
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
     @Column(nullable = false)
     private Long id;
 
-    @Column(nullable = false)
+    @Column
+    private String phone;
+
+//    @Column
+//    private boolean status;
+
+    @Column
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
+
+    @Column(name = "full_name",nullable = false)
     private String fullName;
 
     @Column(unique = true, nullable = false)
