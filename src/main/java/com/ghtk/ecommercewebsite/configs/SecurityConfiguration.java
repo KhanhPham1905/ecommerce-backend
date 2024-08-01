@@ -54,7 +54,8 @@ public class SecurityConfiguration {
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authenticationProvider(authenticationProvider)
                 .csrf(AbstractHttpConfigurer::disable)
-//                .cors(AbstractHttpConfigurer::disable)
+                .cors(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(request -> request
                         .requestMatchers("/auth/**",
                                 "/api/v1/user/login",
@@ -63,7 +64,7 @@ public class SecurityConfiguration {
                                 "/api/v1/seller/login",
                                 "/api/v1/admin/login",
                                 "/categories/**"
-                                )
+                        )
                         .permitAll()
                         .anyRequest()
                         .authenticated())
@@ -78,12 +79,24 @@ public class SecurityConfiguration {
         return http.build();
     }
 
+    //    @Bean
+//    CorsConfigurationSource corsConfigurationSource() {
+//        CorsConfiguration corsConfiguration = new CorsConfiguration();
+//        corsConfiguration.setAllowedOrigins(List.of("http://localhost:5173"));
+//        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "OPTIONS"));
+//        corsConfiguration.setAllowedHeaders(List.of("*"));
+//        corsConfiguration.setAllowCredentials(true);
+//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+//        source.registerCorsConfiguration("/**", corsConfiguration);
+//        return source;
+//    }
     @Bean
-    CorsConfigurationSource corsConfigurationSource() {
+    public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000"));
-        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "OPTIONS"));
+        corsConfiguration.setAllowedOrigins(List.of("http://localhost:5173"));
+        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
         corsConfiguration.setAllowedHeaders(List.of("*"));
+        corsConfiguration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfiguration);
         return source;
@@ -113,9 +126,9 @@ public class SecurityConfiguration {
 //
             String redirectUrl = request.getParameter("redirectUrl");
             redirectUrl = switch (redirectUrl) {
-                    case "/login-admin" -> "/logout-admin";
-                    case "/login-seller" -> "/logout-seller";
-                    default -> "/logout-user";
+                case "/login-admin" -> "/logout-admin";
+                case "/login-seller" -> "/logout-seller";
+                default -> "/logout-user";
             };
 //            response.setStatus(HttpServletResponse.SC_OK); // Đặt mã trạng thái HTTP 200 OK
 //            response.setHeader("Location", redirectUrl); // Đặt tiêu đề Location cho redirect

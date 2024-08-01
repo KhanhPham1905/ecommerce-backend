@@ -35,6 +35,6 @@ public class Address {
     private String addressDetail;
 
     @Column(name = "user_id", nullable = false)
-    private Long userID;
+    private Long userId;
 
 }
