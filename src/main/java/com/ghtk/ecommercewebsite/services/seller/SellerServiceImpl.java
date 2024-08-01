@@ -1,9 +1,6 @@
 package com.ghtk.ecommercewebsite.services.seller;
 
 import com.ghtk.ecommercewebsite.exceptions.DataNotFoundException;
-//import com.ghtk.ecommercewebsite.mapper.SellerMapper;
-import com.ghtk.ecommercewebsite.mapper.SellerMapper;
-import com.ghtk.ecommercewebsite.mapper.UserMapper;
 import com.ghtk.ecommercewebsite.models.dtos.*;
 import com.ghtk.ecommercewebsite.models.entities.*;
 import com.ghtk.ecommercewebsite.models.enums.RoleEnum;
@@ -31,8 +28,6 @@ public class SellerServiceImpl implements SellerService{
     private final UserRepository userRepository;
     private final AuthenticationServiceImpl authenticationService;
     private final SellerRepository sellerRepository;
-    private final SellerMapper sellerMapper;
-    private final UserMapper userMapper;
     private final AddressRepository addressRepository;
 
     @Override
@@ -99,7 +94,7 @@ public class SellerServiceImpl implements SellerService{
     @Override
     public DetailSellerInfoDTO getSellerInfo(Long userId) throws Exception{
         DetailSellerInfoDTO detailSellerInfoDTO = sellerRepository.getDetailSellerInfo(userId)
-                .orElseThrow(() -> new DataNotFoundException("Category not found"));;
+                .orElseThrow(() -> new DataNotFoundException("Category not found"));
         return detailSellerInfoDTO;
     }
 
