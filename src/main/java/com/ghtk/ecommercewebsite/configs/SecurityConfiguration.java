@@ -63,6 +63,9 @@ public class SecurityConfiguration {
                                 "/api/v1/seller/signup",
                                 "/api/v1/seller/login",
                                 "/api/v1/admin/login",
+                                "/api/v1/shop/**",
+                                "/api/v1/product-attribute/**",
+                                "/api/v1/warehouse/**",
                                 "/categories/**"
                         )
                         .permitAll()
