@@ -31,5 +31,4 @@ public class ShopController {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return  CommonResult.success(shopService.updateShopInfo(detailShopInfoDTO,user.getId()),"get information shop successfully");
     }
-
 }
