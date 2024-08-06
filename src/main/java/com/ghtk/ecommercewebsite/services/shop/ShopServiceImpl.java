@@ -4,12 +4,14 @@ import com.ghtk.ecommercewebsite.exceptions.DataNotFoundException;
 import com.ghtk.ecommercewebsite.models.dtos.DetailSellerInfoDTO;
 import com.ghtk.ecommercewebsite.models.dtos.DetailShopInfoDTO;
 import com.ghtk.ecommercewebsite.models.entities.Address;
+import com.ghtk.ecommercewebsite.models.entities.Seller;
 import com.ghtk.ecommercewebsite.models.entities.Shop;
 import com.ghtk.ecommercewebsite.repositories.AddressRepository;
 import com.ghtk.ecommercewebsite.repositories.SellerRepository;
 import com.ghtk.ecommercewebsite.repositories.ShopRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -48,6 +50,36 @@ public class ShopServiceImpl implements ShopService{
 
         shopRepository.save(shop);
         addressRepository.save(address);
+        return detailShopInfoDTO;
+    }
+
+    @Override
+    @Transactional
+    public DetailShopInfoDTO createInformationShop(DetailShopInfoDTO detailShopInfoDTO, Long userId) throws Exception {
+
+        Address address = Address.builder()
+                .addressDetail(detailShopInfoDTO.getAddressDetail())
+                .country(detailShopInfoDTO.getCountry())
+                .district(detailShopInfoDTO.getDistrict())
+                .province(detailShopInfoDTO.getProvince())
+                .commune(detailShopInfoDTO.getCommune())
+                .build();
+
+        Address newAddress = addressRepository.save(address);
+
+        Shop shop = Shop.builder()
+                .name(detailShopInfoDTO.getName())
+                .mail(detailShopInfoDTO.getMail())
+                .phone(detailShopInfoDTO.getPhone())
+                .addressId(newAddress.getId())
+                .build();
+
+        Shop newShop = shopRepository.save(shop);
+        Seller seller = sellerRepository.findByUserId(userId)
+                .orElseThrow(()-> new DataNotFoundException("Cannot found seller by user Id"));
+        seller.setShopId(newShop.getId());
+        sellerRepository.save(seller);
+
         return detailShopInfoDTO;
     }
 }

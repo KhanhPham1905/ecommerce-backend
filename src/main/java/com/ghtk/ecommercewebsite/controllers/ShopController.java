@@ -18,17 +18,26 @@ import org.springframework.web.bind.annotation.*;
 public class ShopController {
 
     private final ShopService shopService;
-    @GetMapping("")
+    @GetMapping
     @PreAuthorize("hasAnyRole('SELLER')")
     public CommonResult<DetailShopInfoDTO> getInformationShop() throws  Exception{
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return  CommonResult.success(shopService.getShopInfo(user.getId()),"get information shop successfully");
     }
 
-    @PutMapping("")
+    @PutMapping
     @PreAuthorize("hasAnyRole('SELLER')")
     public CommonResult updateInformationShop(@RequestBody DetailShopInfoDTO detailShopInfoDTO) throws  Exception{
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return  CommonResult.success(shopService.updateShopInfo(detailShopInfoDTO,user.getId()),"get information shop successfully");
+    }
+
+    @PostMapping
+    @PreAuthorize("hasAnyRole('SELLER')")
+    public CommonResult<DetailShopInfoDTO> createInformationShop(
+            @RequestBody DetailShopInfoDTO detailShopInfoDTO
+    ) throws  Exception{
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return CommonResult.success(shopService.createInformationShop(detailShopInfoDTO, user.getId()), "create information shop successfully");
     }
 }

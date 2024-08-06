@@ -65,4 +65,5 @@ public class WarehouseController {
         User user  = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return CommonResult.success(warehouseService.getAllWarehouse(user.getId()), "Get all categories");
     }
+
 }

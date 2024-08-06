@@ -8,4 +8,5 @@ public interface ShopService
 {
     DetailShopInfoDTO getShopInfo(Long userId) throws Exception;
     DetailShopInfoDTO updateShopInfo(DetailShopInfoDTO detailShopInfoDTO, Long userId) throws Exception;
+    DetailShopInfoDTO createInformationShop(DetailShopInfoDTO detailShopInfoDTO, Long userId) throws Exception;
 }

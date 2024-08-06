@@ -45,10 +45,6 @@ import java.time.LocalDateTime;
 
 
 
-
-
-
-
 @Entity
 @Table(name = "seller")
 @Data
@@ -85,9 +81,9 @@ public class  Seller {
         createdAt = LocalDateTime.now();
     }
 
-    public enum DeliveryType {
-        STANDARD,
-        EXPRESS,
-        OVERNIGHT
-    }
+//    public enum DeliveryType {
+//        STANDARD,
+//        EXPRESS,
+//        OVERNIGHT
+//    }
 }

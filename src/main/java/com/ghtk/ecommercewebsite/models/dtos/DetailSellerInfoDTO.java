@@ -64,7 +64,6 @@ public class DetailSellerInfoDTO {
     @Size(max = 255, message = "Address detail cannot be longer than 255 characters")
     private String addressDetail;
 
-    // Constructor khớp với thứ tự và loại dữ liệu của @ColumnResult
     public DetailSellerInfoDTO(String tax, String cccd, String email, String gender, String fullName, String phone,
                                String country, String province, String district,
                                String commune, String addressDetail) {

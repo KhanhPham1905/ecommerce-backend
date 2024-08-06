@@ -79,5 +79,4 @@ public class Voucher {
         modifiedAt = LocalDateTime.now();
     }
 
-
 }
