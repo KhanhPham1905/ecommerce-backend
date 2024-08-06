@@ -1,5 +1,6 @@
 package com.ghtk.ecommercewebsite.models.entities;
 
+import com.ghtk.ecommercewebsite.models.dtos.DetailShopInfoDTO;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,6 +8,30 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
+
+@NamedNativeQuery(
+        name = "Shop.getDetailShopInfo",
+        query = "SELECT s.name, s.mail, s.phone, a.country, a.province, a.district, a.commune, a.address_detail " +
+                "FROM shop s LEFT JOIN address a ON s.address_id = a.id WHERE s.id = :shopId",
+        resultSetMapping = "DetailShopInfoMapping"
+)
+@SqlResultSetMapping(
+        name = "DetailShopInfoMapping",
+        classes = @ConstructorResult(
+                targetClass = DetailShopInfoDTO.class,
+                columns = {
+                        @ColumnResult(name = "name", type = String.class),
+                        @ColumnResult(name = "mail", type = String.class),
+                        @ColumnResult(name = "phone", type = String.class),
+                        @ColumnResult(name = "country", type = String.class),
+                        @ColumnResult(name = "province", type = String.class),
+                        @ColumnResult(name = "district", type = String.class),
+                        @ColumnResult(name = "commune", type = String.class),
+                        @ColumnResult(name = "address_detail", type = String.class)
+                }
+        )
+)
+
 
 
 @Entity

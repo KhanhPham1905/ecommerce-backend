@@ -1,5 +1,6 @@
 package com.ghtk.ecommercewebsite.repositories;
 
+import com.ghtk.ecommercewebsite.models.dtos.DetailSellerInfoDTO;
 import com.ghtk.ecommercewebsite.models.entities.Seller;
 import com.ghtk.ecommercewebsite.models.entities.User;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -10,11 +11,14 @@ import org.springframework.stereotype.Repository;
 
 import java.util.Optional;
 
-public interface SellerRepository extends JpaRepository<User, Long> {
+@Repository
+public interface SellerRepository extends JpaRepository<Seller, Long> {
+    Optional<Seller> findById(Long userId);
+
+    Optional<Seller> findByUserId(Long userId);
 
     @Query("SELECT s.shopId FROM Seller s WHERE s.userId = :userId")
     Long findShopIdByUserId(Long userId);
-
 
     @Query(
             "SELECT u FROM User u " +
@@ -22,5 +26,8 @@ public interface SellerRepository extends JpaRepository<User, Long> {
             "WHERE u.email = :email AND r.name = 'SELLER'"
     )
     Optional<User> findUserWithSellerRoleByEmail(@Param("email") String email);
+
+    @Query(nativeQuery = true, name = "Seller.getDetailSellerInfo")
+    Optional<DetailSellerInfoDTO> getDetailSellerInfo(Long userId);
 
 }

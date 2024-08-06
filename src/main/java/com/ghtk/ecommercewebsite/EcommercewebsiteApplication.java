@@ -9,7 +9,6 @@ import org.springframework.transaction.annotation.EnableTransactionManagement;
 @EnableTransactionManagement
 @EnableScheduling
 public class EcommercewebsiteApplication {
-
 	public static void main(String[] args) {
 		SpringApplication.run(EcommercewebsiteApplication.class, args);
 	}

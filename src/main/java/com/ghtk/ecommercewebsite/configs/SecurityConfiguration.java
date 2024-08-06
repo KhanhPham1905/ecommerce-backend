@@ -1,7 +1,11 @@
 package com.ghtk.ecommercewebsite.configs;
 
 //import com.ghtk.ecommercewebsite.filters.CookieJwtFilter;
+//import com.ghtk.ecommercewebsite.filters.CustomLogoutFilter;
 import com.ghtk.ecommercewebsite.filters.JwtAuthenticationFilter;
+import com.ghtk.ecommercewebsite.models.entities.User;
+import com.ghtk.ecommercewebsite.services.blacklisttoken.BlacklistTokenService;
+import com.ghtk.ecommercewebsite.services.user.UserService;
 import com.ghtk.ecommercewebsite.utils.WhitelistUrls;
 import com.ghtk.ecommercewebsite.filters.JwtAuthenticationFilter;
 import jakarta.servlet.http.HttpServletRequest;
@@ -63,10 +67,7 @@ public class SecurityConfiguration {
                         .deleteCookies("JWT_TOKEN")
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
-                        .permitAll())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authenticationProvider(authenticationProvider)
-                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                        .permitAll());
         return http.build();
     }
 
@@ -105,9 +106,9 @@ public class SecurityConfiguration {
 //
             String redirectUrl = request.getParameter("redirectUrl");
             redirectUrl = switch (redirectUrl) {
-                    case "/login-admin" -> "/logout-admin";
-                    case "/login-seller" -> "/logout-seller";
-                    default -> "/logout-user";
+                case "/login-admin" -> "/logout-admin";
+                case "/login-seller" -> "/logout-seller";
+                default -> "/logout-user";
             };
 //            response.setStatus(HttpServletResponse.SC_OK); // Đặt mã trạng thái HTTP 200 OK
 //            response.setHeader("Location", redirectUrl); // Đặt tiêu đề Location cho redirect

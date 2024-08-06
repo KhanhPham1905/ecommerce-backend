@@ -11,5 +11,4 @@ public interface CategoryService {
     List<Category> getAllCategories(Long userId) throws Exception;
     Category updateCategory(Long categoryId, CategoryDTO categoryDTO,Long id) throws  Exception;
     Category deleteCategory(Long id, Long userId) throws Exception;
-
 }

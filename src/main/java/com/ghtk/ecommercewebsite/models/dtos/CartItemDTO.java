@@ -23,7 +23,6 @@ public class CartItemDTO {
     private Long productItemId;
 
     private int quantity;
-
     private Long shopId;
     private Long voucherId;
 }

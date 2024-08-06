@@ -5,27 +5,21 @@ import com.ghtk.ecommercewebsite.models.dtos.request.CheckoutRequestDTO;
 import com.ghtk.ecommercewebsite.models.dtos.request.CheckoutDirectRequestDTO;
 import com.ghtk.ecommercewebsite.models.responses.CommonResult;
 import com.ghtk.ecommercewebsite.services.checkout.ICheckoutService;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/checkout")
 public class CheckoutController {
 
     private final ICheckoutService checkoutService;
 
-    @Autowired
-    public CheckoutController(ICheckoutService checkoutService) {
-        this.checkoutService = checkoutService;
-    }
 
-    /**
-     * Thực hiện checkout với giỏ hàng của người dùng.
-     * @param checkoutRequest DTO chứa thông tin yêu cầu checkout.
-     * @return Đơn hàng đã được tạo.
-     */
     @PostMapping("/checkout_cart")
     public ResponseEntity<CommonResult<OrdersDTO>> checkout(@RequestBody CheckoutRequestDTO checkoutRequest) {
         try {
@@ -49,7 +43,7 @@ public class CheckoutController {
      * @return Đơn hàng đã được tạo.
      */
     @PostMapping("/checkout_direct")
-    public ResponseEntity<CommonResult<OrdersDTO>> checkoutDirect(@RequestBody CheckoutDirectRequestDTO checkoutDirectRequest) {
+    public ResponseEntity<CommonResult<OrdersDTO>> checkoutDirect(@Valid @RequestBody CheckoutDirectRequestDTO checkoutDirectRequest) {
         try {
             OrdersDTO ordersDTO = checkoutService.checkoutDirect(
                     checkoutDirectRequest.getUserId(),

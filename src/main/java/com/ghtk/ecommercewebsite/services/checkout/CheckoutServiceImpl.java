@@ -1,22 +1,22 @@
 package com.ghtk.ecommercewebsite.services.checkout;
 
-import com.ghtk.ecommercewebsite.mapper.OrderItemMapper;
 import com.ghtk.ecommercewebsite.mapper.OrderMapper;
 import com.ghtk.ecommercewebsite.models.dtos.OrdersDTO;
 import com.ghtk.ecommercewebsite.models.entities.*;
 import com.ghtk.ecommercewebsite.repositories.*;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
+@RequiredArgsConstructor
 public class CheckoutServiceImpl implements ICheckoutService {
 
     private final CartItemRepository cartItemRepository;
@@ -25,24 +25,7 @@ public class CheckoutServiceImpl implements ICheckoutService {
     private final VoucherRepository voucherRepository;
     private final ProductItemRepository productItemRepository;
     private final OrderMapper orderMapper;
-    private final OrderItemMapper orderItemMapper;
 
-    @Autowired
-    public CheckoutServiceImpl(CartItemRepository cartItemRepository,
-                               OrdersRepository orderRepository,
-                               OrderItemRepository orderItemRepository,
-                               VoucherRepository voucherRepository,
-                               ProductItemRepository productItemRepository,
-                               OrderMapper orderMapper,
-                               OrderItemMapper orderItemMapper) {
-        this.cartItemRepository = cartItemRepository;
-        this.orderRepository = orderRepository;
-        this.orderItemRepository = orderItemRepository;
-        this.voucherRepository = voucherRepository;
-        this.productItemRepository = productItemRepository;
-        this.orderMapper = orderMapper;
-        this.orderItemMapper = orderItemMapper;
-    }
 
     @Transactional
     @Override
@@ -56,10 +39,9 @@ public class CheckoutServiceImpl implements ICheckoutService {
 
         Map<Long, ProductItem> productItemMap = fetchProductItems(cartItemList);
         Map<Long, Voucher> voucherMap = fetchVouchers(cartItemList);
-
         BigDecimal totalPrice = processCartItems(cartItemList, orders, productItemMap, voucherMap);
-
         orders.setTotalPrice(totalPrice);
+
         orderRepository.save(orders);
 
         cartItemRepository.deleteByUserId(userId);
@@ -96,7 +78,7 @@ public class CheckoutServiceImpl implements ICheckoutService {
     private Map<Long, Voucher> fetchVouchers(List<CartItem> cartItemList) {
         List<Long> voucherIds = cartItemList.stream()
                 .map(CartItem::getVoucherId)
-                .filter(voucherID -> voucherID != null)
+                .filter(Objects::nonNull)
                 .collect(Collectors.toList());
         return voucherRepository.findAllById(voucherIds)
                 .stream()
@@ -116,7 +98,7 @@ public class CheckoutServiceImpl implements ICheckoutService {
             BigDecimal finalPrice = unitPrice.subtract(discount).multiply(BigDecimal.valueOf(cartItem.getQuantity()));
             totalPrice = totalPrice.add(finalPrice);
 
-            saveOrderItem(orders, cartItem, unitPrice, discount);
+            saveOrderItem(orders, cartItem, unitPrice);
 
             updateProductStock(productItem, cartItem.getQuantity());
         }
@@ -134,7 +116,7 @@ public class CheckoutServiceImpl implements ICheckoutService {
         return discount;
     }
 
-    private void saveOrderItem(Orders orders, CartItem cartItem, BigDecimal unitPrice, BigDecimal discount) {
+    private void saveOrderItem(Orders orders, CartItem cartItem, BigDecimal unitPrice) {
         OrderItem orderItem = OrderItem.builder()
                 .orderId(orders.getId())
                 .productItemId(cartItem.getProductItemId())
@@ -148,7 +130,7 @@ public class CheckoutServiceImpl implements ICheckoutService {
 
     private void updateProductStock(ProductItem productItem, int quantity) {
         if (productItem.getQuantity() < quantity) throw new IllegalArgumentException("Số lượng sản phẩm không đủ");
-        productItem.setQuantity(productItem.getQuantity() - quantity);
+        else productItem.setQuantity(productItem.getQuantity() - quantity);
         productItemRepository.save(productItem);
     }
 
@@ -160,7 +142,7 @@ public class CheckoutServiceImpl implements ICheckoutService {
                                     Long voucherId,
                                     String note,
                                     boolean method) {
-        validateDirectCheckout(userId, addressID, productItemId, quantity);
+        validateDirectCheckout(addressID, productItemId, quantity);
 
         ProductItem productItem = productItemRepository.findById(productItemId)
                 .orElseThrow(() -> new IllegalArgumentException("Product item not found"));
@@ -183,7 +165,7 @@ public class CheckoutServiceImpl implements ICheckoutService {
         return orderMapper.toDto(orders);
     }
 
-    private void validateDirectCheckout(Long userId, Long addressID, Long productItemId, int quantity) {
+    private void validateDirectCheckout(Long addressID, Long productItemId, int quantity) {
         if (addressID == null) throw new IllegalArgumentException("Bạn cần có thông tin nhận hàng");
         if (productItemId == null || quantity <= 0) throw new IllegalArgumentException("Invalid product item or quantity");
     }
