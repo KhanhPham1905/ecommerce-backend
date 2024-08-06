@@ -1,7 +1,9 @@
 package com.ghtk.ecommercewebsite.configs;
 
+//import com.ghtk.ecommercewebsite.filters.CookieJwtFilter;
 import com.ghtk.ecommercewebsite.filters.JwtAuthenticationFilter;
 import com.ghtk.ecommercewebsite.utils.WhitelistUrls;
+import com.ghtk.ecommercewebsite.filters.JwtAuthenticationFilter;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -14,13 +16,18 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContext;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.security.web.authentication.logout.LogoutFilter;
 import org.springframework.security.web.authentication.logout.LogoutSuccessHandler;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
+import org.springframework.util.StringUtils;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.servlet.config.annotation.EnableWebMvc;
 
 import java.util.List;
 import java.util.Objects;
@@ -29,6 +36,7 @@ import java.util.Objects;
 @EnableWebSecurity
 @EnableMethodSecurity
 @RequiredArgsConstructor
+@EnableWebMvc
 public class SecurityConfiguration {
 
     private final AuthenticationProvider authenticationProvider;
@@ -37,16 +45,21 @@ public class SecurityConfiguration {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+//                .addFilterBefore(jwtAuthenticationFilter, LogoutFilter.class)
+                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .authenticationProvider(authenticationProvider)
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers(WhitelistUrls.URLS)  // Cho phép truy cập vào các endpoint /api/products/**
+                        .requestMatchers(WhitelistUrls.URLS)
                         .permitAll()
                         .anyRequest()
                         .authenticated())
                 .logout(logout -> logout
                         .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                         .logoutSuccessHandler(logoutSuccessHandler())
+//                        .logoutSuccessUrl("/")
                         .deleteCookies("JWT_TOKEN")
                         .invalidateHttpSession(true)
                         .clearAuthentication(true)
@@ -60,10 +73,9 @@ public class SecurityConfiguration {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(List.of("http://localhost:8080"));
+        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000"));
         corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         corsConfiguration.setAllowedHeaders(List.of("*"));
-        corsConfiguration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfiguration);
         return source;
@@ -74,20 +86,31 @@ public class SecurityConfiguration {
         return (HttpServletRequest request,
                 HttpServletResponse response,
                 Authentication authentication) -> {
-            String redirectUrl;
-            if (authentication != null) {
-                String userRole = authentication.getAuthorities().stream()
-                        .map(Objects::toString)
-                        .findFirst()
-                        .orElse("");
-                redirectUrl = switch (userRole) {
-                    case "ROLE_ADMIN" -> "/admin/login";
-                    case "ROLE_SELLER" -> "/seller/login";
-                    default -> "/login";
-                };
-            } else {
-                redirectUrl = "/loginAgain";
-            }
+//            String redirectUrl;
+//            System.out.println("qua lowps logoutttt");
+//            Authentication a = SecurityContextHolder.getContext().getAuthentication();
+//            if (authentication != null) {
+//                String userRole = authentication.getAuthorities().stream()
+//                        .map(Objects::toString)
+//                        .findFirst()
+//                        .orElse("");
+//                redirectUrl = switch (userRole) {
+//                    case "ROLE_ADMIN" -> "/admin/login";
+//                    case "ROLE_SELLER" -> "/seller/login";
+//                    default -> "/login";
+//                };
+//            } else {
+//                redirectUrl = "/loginAgain";
+//            }
+//
+            String redirectUrl = request.getParameter("redirectUrl");
+            redirectUrl = switch (redirectUrl) {
+                    case "/login-admin" -> "/logout-admin";
+                    case "/login-seller" -> "/logout-seller";
+                    default -> "/logout-user";
+            };
+//            response.setStatus(HttpServletResponse.SC_OK); // Đặt mã trạng thái HTTP 200 OK
+//            response.setHeader("Location", redirectUrl); // Đặt tiêu đề Location cho redirect
             response.sendRedirect(redirectUrl);
         };
     }

@@ -3,10 +3,9 @@ package com.ghtk.ecommercewebsite.controllers;
 import com.ghtk.ecommercewebsite.mapper.ProductMapper;
 import com.ghtk.ecommercewebsite.models.dtos.ProductDTO;
 import com.ghtk.ecommercewebsite.models.entities.Product;
+import com.ghtk.ecommercewebsite.models.responses.CommonResult;
 import com.ghtk.ecommercewebsite.services.product.IProductService;
-import com.ghtk.ecommercewebsite.services.product.ProductServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -27,28 +26,29 @@ public class ProductsController {
     }
 
     @GetMapping
-    public List<ProductDTO> getAllProducts() {
-        return iProductService.findAll().stream()
+    public CommonResult<List<ProductDTO>> getAllProducts() {
+        List<ProductDTO> products = iProductService.findAll().stream()
                 .map(productMapper::toDTO)
                 .collect(Collectors.toList());
+        return CommonResult.success(products, "Get all products successfully");
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ProductDTO> getProductById(@PathVariable Long id) {
+    public CommonResult<ProductDTO> getProductById(@PathVariable Long id) {
         return iProductService.findById(id)
-                .map(product -> ResponseEntity.ok(productMapper.toDTO(product)))
-                .orElse(ResponseEntity.notFound().build());
+                .map(product -> CommonResult.success(productMapper.toDTO(product), "Get product successfully"))
+                .orElse(CommonResult.error(404, "Product not found"));
     }
 
     @PostMapping
-    public ResponseEntity<ProductDTO> createProduct(@RequestBody ProductDTO productDTO) {
+    public CommonResult<ProductDTO> createProduct(@RequestBody ProductDTO productDTO) {
         Product product = productMapper.toEntity(productDTO);
         Product savedProduct = iProductService.save(product);
-        return ResponseEntity.ok(productMapper.toDTO(savedProduct));
+        return CommonResult.success(productMapper.toDTO(savedProduct), "Create product successfully");
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<ProductDTO> updateProduct(@PathVariable Long id, @RequestBody ProductDTO productDetails) {
+    public CommonResult<ProductDTO> updateProduct(@PathVariable Long id, @RequestBody ProductDTO productDetails) {
         return iProductService.findById(id)
                 .map(product -> {
                     product.setName(productDetails.getName());
@@ -60,13 +60,13 @@ public class ProductsController {
                     product.setBrandId(productDetails.getBrandId());
                     product.setShopId(productDetails.getShopId());
                     Product updatedProduct = iProductService.save(product);
-                    return ResponseEntity.ok(productMapper.toDTO(updatedProduct));
+                    return CommonResult.success(productMapper.toDTO(updatedProduct), "Update product successfully");
                 })
-                .orElse(ResponseEntity.notFound().build());
+                .orElse(CommonResult.error(404, "Product not found"));
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<ProductDTO> patchProduct(@PathVariable Long id, @RequestBody Map<String, Object> updates) {
+    public CommonResult<ProductDTO> patchProduct(@PathVariable Long id, @RequestBody Map<String, Object> updates) {
         return iProductService.findById(id)
                 .map(product -> {
                     updates.forEach((key, value) -> {
@@ -98,34 +98,34 @@ public class ProductsController {
                         }
                     });
                     Product updatedProduct = iProductService.save(product);
-                    return ResponseEntity.ok(productMapper.toDTO(updatedProduct));
+                    return CommonResult.success(productMapper.toDTO(updatedProduct), "Patch product successfully");
                 })
-                .orElse(ResponseEntity.notFound().build());
+                .orElse(CommonResult.error(404, "Product not found"));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteProduct(@PathVariable Long id) {
+    public CommonResult<String> deleteProduct(@PathVariable Long id) {
         return iProductService.findById(id)
                 .map(product -> {
                     iProductService.deleteById(id);
-                    return ResponseEntity.noContent().build();
+                    return CommonResult.success("Product with ID " + id + " has been deleted.");
                 })
-                .orElse(ResponseEntity.notFound().build());
+                .orElse(CommonResult.error(404, "Product not found"));
     }
 
     @GetMapping("/searchName")
-    public List<ProductDTO> searchProductsByName(@RequestParam("keyword") String keyword) {
-        return iProductService.searchProductsByName(keyword).stream()
+    public CommonResult<List<ProductDTO>> searchProductsByName(@RequestParam("keyword") String keyword) {
+        List<ProductDTO> products = iProductService.searchProductsByName(keyword).stream()
                 .map(productMapper::toDTO)
                 .collect(Collectors.toList());
-
+        return CommonResult.success(products, "Search products by name successfully");
     }
+
     @GetMapping("/searchDes")
-    public List<ProductDTO> searchProductsByDes(@RequestParam("keyword") String keyword) {
-        return iProductService.searchProductsByDes(keyword).stream()
+    public CommonResult<List<ProductDTO>> searchProductsByDes(@RequestParam("keyword") String keyword) {
+        List<ProductDTO> products = iProductService.searchProductsByDes(keyword).stream()
                 .map(productMapper::toDTO)
                 .collect(Collectors.toList());
-
+        return CommonResult.success(products, "Search products by description successfully");
     }
-
 }

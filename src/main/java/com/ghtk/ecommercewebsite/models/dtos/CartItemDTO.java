@@ -1,24 +1,29 @@
 package com.ghtk.ecommercewebsite.models.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class CartItemDTO {
 
     @JsonProperty("id")
     @NotNull
     private Long id;
 
-    @JsonProperty("cart_id")
-    @NotNull
-    private Long cartId;
+    private Long userId;
 
-    @JsonProperty("product_item_id")
-    @NotNull
     private Long productItemId;
 
-    @JsonProperty("quantity")
     private int quantity;
+
+    private Long shopId;
+    private Long voucherId;
 }

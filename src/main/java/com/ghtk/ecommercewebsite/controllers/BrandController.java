@@ -1,83 +1,86 @@
 package com.ghtk.ecommercewebsite.controllers;
 
-
 import com.ghtk.ecommercewebsite.mapper.BrandMapper;
 import com.ghtk.ecommercewebsite.models.dtos.BrandDTO;
 import com.ghtk.ecommercewebsite.models.entities.Brand;
+import com.ghtk.ecommercewebsite.models.responses.CommonResult;
 import com.ghtk.ecommercewebsite.services.brand.IBrandService;
 import com.ghtk.ecommercewebsite.services.product.IProductService;
-import com.ghtk.ecommercewebsite.services.product.ProductServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @RestController
-@RequestMapping("api/brands")
+@RequestMapping("/api/brands")
 public class BrandController {
 
     private final BrandMapper brandMapper;
     private final IBrandService iBrandService;
-
-    private  final IProductService iProductService ;
+    private final IProductService iProductService;
 
     @Autowired
-    public BrandController(BrandMapper brandMapper, IBrandService iBrandService, ProductServiceImpl productService, IProductService iProductService) {
+    public BrandController(BrandMapper brandMapper, IBrandService iBrandService, IProductService iProductService) {
         this.brandMapper = brandMapper;
         this.iBrandService = iBrandService;
         this.iProductService = iProductService;
     }
 
     @GetMapping
-    public List<BrandDTO> getAllBrands() {
-        return iBrandService.findAll().stream().map(brandMapper::toDTO).collect(Collectors.toList());
+    public CommonResult<List<BrandDTO>> getAllBrands() {
+        List<BrandDTO> brands = iBrandService.findAll().stream().map(brandMapper::toDTO).collect(Collectors.toList());
+        return CommonResult.success(brands, "Get all brands successfully");
     }
+
     @GetMapping("/{id}")
-    public ResponseEntity<BrandDTO> getBrandByID(@PathVariable Long id) {
-        return iBrandService.findById(id).map(brand -> ResponseEntity.ok(brandMapper.toDTO(brand)))
-                .orElse(ResponseEntity.notFound().build());
+    public CommonResult<BrandDTO> getBrandByID(@PathVariable Long id) {
+        return iBrandService.findById(id)
+                .map(brand -> CommonResult.success(brandMapper.toDTO(brand), "Get brand successfully"))
+                .orElse(CommonResult.error(404, "Brand not found"));
     }
+
     @PostMapping
-    public ResponseEntity<BrandDTO> createBrand(@RequestBody BrandDTO brandDTO) {
+    public CommonResult<BrandDTO> createBrand(@RequestBody BrandDTO brandDTO) {
         Brand brand = brandMapper.toEntity(brandDTO);
         Brand savedBrand = iBrandService.save(brand);
-        return ResponseEntity.ok(brandMapper.toDTO(savedBrand));
+        return CommonResult.success(brandMapper.toDTO(savedBrand), "Create brand successfully");
     }
+
     @PutMapping("/{id}")
-    public ResponseEntity<BrandDTO> updateBrand(@PathVariable Long id, @RequestBody BrandDTO brandDetails) {
+    public CommonResult<BrandDTO> updateBrand(@PathVariable Long id, @RequestBody BrandDTO brandDetails) {
         return iBrandService.findById(id)
                 .map(brand -> {
                     brand.setDescription(brandDetails.getDescription());
                     brand.setName(brandDetails.getName());
                     brand.setStatus(brandDetails.isStatus());
                     brand.setShopId(brandDetails.getShopId());
-                    Brand updateBrand = iBrandService.save(brand);
-                    return ResponseEntity.ok(brandMapper.toDTO(updateBrand));
-                }).orElse(ResponseEntity.notFound().build());
+                    Brand updatedBrand = iBrandService.save(brand);
+                    return CommonResult.success(brandMapper.toDTO(updatedBrand), "Update brand successfully");
+                }).orElse(CommonResult.error(404, "Brand not found"));
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<BrandDTO> patchBrand(@PathVariable Long id, @RequestBody BrandDTO brandDetails) {
+    public CommonResult<BrandDTO> patchBrand(@PathVariable Long id, @RequestBody BrandDTO brandDetails) {
         return iBrandService.findById(id)
                 .map(brand -> {
                     if (brandDetails.getDescription() != null) brand.setDescription(brandDetails.getDescription());
                     if (brandDetails.getName() != null) brand.setName(brandDetails.getName());
                     if (brandDetails.getShopId() != null) brand.setShopId(brandDetails.getShopId());
                     Brand updatedBrand = iBrandService.save(brand);
-                    return ResponseEntity.ok(brandMapper.toDTO(updatedBrand));
-                }).orElse(ResponseEntity.notFound().build());
+                    return CommonResult.success(brandMapper.toDTO(updatedBrand), "Patch brand successfully");
+                }).orElse(CommonResult.error(404, "Brand not found"));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteBrand(@PathVariable Long id) {
+    public CommonResult<String> deleteBrand(@PathVariable Long id) {
         return iBrandService.findById(id)
                 .map(brand -> {
                     iProductService.deleteBrandById(id);
                     iBrandService.deleteById(id);
-                    return ResponseEntity.ok("Brand with ID " + id + " has been deleted.");
+                    return CommonResult.success("Brand with ID " + id + " has been deleted.");
                 })
-                .orElse(ResponseEntity.notFound().build());
+                .orElse(CommonResult.error(404, "Brand not found"));
     }
 }

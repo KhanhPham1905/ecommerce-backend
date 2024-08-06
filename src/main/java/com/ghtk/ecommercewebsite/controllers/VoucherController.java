@@ -3,13 +3,12 @@ package com.ghtk.ecommercewebsite.controllers;
 import com.ghtk.ecommercewebsite.mapper.VoucherMapper;
 import com.ghtk.ecommercewebsite.models.dtos.VoucherDTO;
 import com.ghtk.ecommercewebsite.models.entities.Voucher;
+import com.ghtk.ecommercewebsite.models.responses.CommonResult;
 import com.ghtk.ecommercewebsite.services.voucher.IVoucherService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -27,28 +26,29 @@ public class VoucherController {
     }
 
     @GetMapping
-    public List<VoucherDTO> getAllVoucher() {
-        return iVoucherService.findAll().stream()
+    public CommonResult<List<VoucherDTO>> getAllVoucher() {
+        List<VoucherDTO> vouchers = iVoucherService.findAll().stream()
                 .map(voucherMapper::toDTO)
                 .collect(Collectors.toList());
+        return CommonResult.success(vouchers, "Get all vouchers successfully");
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<VoucherDTO> getVoucherById(@PathVariable Long id) {
-        return iVoucherService.findById(id).map(
-                        voucher -> ResponseEntity.ok(voucherMapper.toDTO(voucher)))
-                .orElse(ResponseEntity.notFound().build());
+    public CommonResult<VoucherDTO> getVoucherById(@PathVariable Long id) {
+        return iVoucherService.findById(id)
+                .map(voucher -> CommonResult.success(voucherMapper.toDTO(voucher), "Get voucher successfully"))
+                .orElse(CommonResult.error(404, "Voucher not found"));
     }
 
     @PostMapping
-    public ResponseEntity<VoucherDTO> createVoucher(@RequestBody VoucherDTO voucherDTO) {
+    public CommonResult<VoucherDTO> createVoucher(@RequestBody VoucherDTO voucherDTO) {
         Voucher voucher = voucherMapper.toEntity(voucherDTO);
         Voucher savedVoucher = iVoucherService.save(voucher);
-        return ResponseEntity.ok(voucherMapper.toDTO(savedVoucher));
+        return CommonResult.success(voucherMapper.toDTO(savedVoucher), "Create voucher successfully");
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<VoucherDTO> updateVoucher(@PathVariable Long id, @RequestBody VoucherDTO voucherDetails) {
+    public CommonResult<VoucherDTO> updateVoucher(@PathVariable Long id, @RequestBody VoucherDTO voucherDetails) {
         return iVoucherService.findById(id)
                 .map(voucher -> {
                     voucher.setCouponCode(voucherDetails.getCouponCode());
@@ -64,12 +64,12 @@ public class VoucherController {
                     voucher.setMinimumQuantityNeeded(voucherDetails.getMinimumQuantityNeeded());
                     voucher.setTypeRepeat(voucherDetails.isTypeRepeat());
                     Voucher updatedVoucher = iVoucherService.save(voucher);
-                    return ResponseEntity.ok(voucherMapper.toDTO(updatedVoucher));
-                }).orElse(ResponseEntity.notFound().build());
+                    return CommonResult.success(voucherMapper.toDTO(updatedVoucher), "Update voucher successfully");
+                }).orElse(CommonResult.error(404, "Voucher not found"));
     }
 
     @PatchMapping("/{id}")
-    public ResponseEntity<VoucherDTO> patchVoucher(@PathVariable Long id, @RequestBody VoucherDTO voucherDetails) {
+    public CommonResult<VoucherDTO> patchVoucher(@PathVariable Long id, @RequestBody VoucherDTO voucherDetails) {
         Optional<Voucher> optionalVoucher = iVoucherService.findById(id);
         if (optionalVoucher.isPresent()) {
             Voucher voucher = optionalVoucher.get();
@@ -88,18 +88,26 @@ public class VoucherController {
             if (voucherDetails.isTypeRepeat() != voucher.isTypeRepeat())
                 voucher.setTypeRepeat(voucherDetails.isTypeRepeat());
             Voucher updatedVoucher = iVoucherService.save(voucher);
-            return ResponseEntity.ok(voucherMapper.toDTO(updatedVoucher));
-        } else return ResponseEntity.notFound().build();
+            return CommonResult.success(voucherMapper.toDTO(updatedVoucher), "Patch voucher successfully");
+        } else {
+            return CommonResult.error(404, "Voucher not found");
+        }
     }
 
-
     @DeleteMapping("/{id}")
-    public ResponseEntity<Object> deleteVoucher(@PathVariable Long id) {
+    public CommonResult<String> deleteVoucher(@PathVariable Long id) {
         return iVoucherService.findById(id)
                 .map(voucher -> {
                     iVoucherService.deleteById(id);
-                    return ResponseEntity.noContent().build();
+                    return CommonResult.success("Voucher with ID " + id + " has been deleted.");
                 })
-                .orElse(ResponseEntity.notFound().build());
+                .orElse(CommonResult.error(404, "Voucher not found"));
+    }
+
+    @GetMapping("/shop/{shopId}")
+    public CommonResult<List<VoucherDTO>> getVouchersByShopId(@PathVariable Long shopId) {
+        List<Voucher> vouchers = iVoucherService.findByShopId(shopId);
+        List<VoucherDTO> voucherDTOs = vouchers.stream().map(voucherMapper::toDTO).collect(Collectors.toList());
+        return CommonResult.success(voucherDTOs, "Get vouchers by shop ID successfully");
     }
 }

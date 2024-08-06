@@ -19,23 +19,18 @@ public class BrandDTO {
     @JsonProperty("id")
     private Long id;
 
-     @JsonIgnore
-    private LocalDateTime createdAt;
 
-    @JsonIgnore
-    private LocalDateTime modifiedAt;
 
-    @JsonProperty("description")
     private String description;
 
-    @JsonProperty("name")
+
     @NotNull(message = "Name is required")
     private String name;
 
-    @JsonProperty("status")
+
     private boolean status;
 
-    @JsonProperty("shop_id")
+
     @NotNull(message = "Shop ID is required")
     private Long shopId;
 }

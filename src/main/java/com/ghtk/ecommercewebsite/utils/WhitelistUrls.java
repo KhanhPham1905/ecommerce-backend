@@ -9,8 +9,10 @@ public class WhitelistUrls {
             "/api/v1/admin/login",
             "/forgotPassword/**",
             "/api/products/**",
-            "api/brands/**",
+            "/api/brands/**",
             "/api/vouchers/**",
-            "/api/carts/**"
+            "/api/cart/**",
+            "/api/orders/**",
+            "/api/checkout/**"
     };
 }

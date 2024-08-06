@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import com.ghtk.ecommercewebsite.exceptions.SellerAlreadyExistedException;
 import com.ghtk.ecommercewebsite.models.dtos.LoginUserDto;
 import com.ghtk.ecommercewebsite.models.dtos.RegisterUserDto;
-import com.ghtk.ecommercewebsite.models.entities.Users;
+import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.responses.LoginResponse;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
@@ -22,7 +22,7 @@ public class SellerController {
     private final SellerService sellerService;
 
     @PostMapping("/signup")
-    public CommonResult<Users> signup(@RequestBody RegisterUserDto registerUserDto) throws SellerAlreadyExistedException {
+    public CommonResult<User> signup(@RequestBody RegisterUserDto registerUserDto) throws SellerAlreadyExistedException {
         return CommonResult.success(sellerService.signUpSeller(registerUserDto));
     }
 
@@ -33,7 +33,7 @@ public class SellerController {
 
     @GetMapping("/me")
     @PreAuthorize("hasAnyRole('SELLER')")
-    public CommonResult<Users> authenticatedSeller() {
+    public CommonResult<User> authenticatedSeller() {
         return CommonResult.success(sellerService.getAuthenticatedSeller());
     }
 }

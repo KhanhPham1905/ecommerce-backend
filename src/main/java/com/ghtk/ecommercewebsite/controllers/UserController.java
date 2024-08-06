@@ -1,4 +1,5 @@
 package com.ghtk.ecommercewebsite.controllers;
+import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.responses.CommonResult;
 import com.ghtk.ecommercewebsite.models.dtos.RefreshTokenDTO;
 import com.ghtk.ecommercewebsite.models.entities.Token;
@@ -9,9 +10,12 @@ import lombok.RequiredArgsConstructor;
 import com.ghtk.ecommercewebsite.exceptions.UserAlreadyExistedException;
 import com.ghtk.ecommercewebsite.models.dtos.LoginUserDto;
 import com.ghtk.ecommercewebsite.models.dtos.RegisterUserDto;
-import com.ghtk.ecommercewebsite.models.entities.Users;
 import com.ghtk.ecommercewebsite.models.responses.LoginResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -20,19 +24,20 @@ import org.springframework.web.bind.annotation.*;
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class UserController {
 
+    private static final Logger log = LoggerFactory.getLogger(UserController.class);
     private final UserService userService;
     private final TokenService tokenService;
 
     @PostMapping("/signup")
-    public CommonResult<Users> signup(@RequestBody RegisterUserDto registerUserDto) throws UserAlreadyExistedException {
-        Users user = userService.signUp(registerUserDto);
+    public CommonResult<User> signup(@RequestBody RegisterUserDto registerUserDto) throws UserAlreadyExistedException {
+        User user = userService.signUp(registerUserDto);
         return CommonResult.success(user);
     }
 
     @PostMapping("/login")
     public CommonResult<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto) throws Exception {
         String token = userService.authenticateUserAndGetLoginResponse(loginUserDto).getToken();
-        Users userDetail = userService.getUserDetailsFromToken(token);
+        User userDetail = userService.getUserDetailsFromToken(token);
         Token jwtToken = tokenService.addToken(userDetail, token);
 
         LoginResponse loginResponse = LoginResponse.builder()
@@ -45,7 +50,9 @@ public class UserController {
 
     @GetMapping("/me")
     @PreAuthorize("hasRole('USER')")
-    public CommonResult<Users> authenticatedUser() {
+    public CommonResult<User> authenticatedUser() {
+//        Authentication authentication1 = SecurityContextHolder.getContext().getAuthentication();
+//        System.out.println("heheheeeeeeeeeeeeee" + authentication1);
         return CommonResult.success(userService.getAuthenticatedUser());
     }
 
@@ -55,7 +62,7 @@ public class UserController {
             @Valid @RequestBody RefreshTokenDTO refreshTokenDTO
             ) throws  Exception {
 
-        Users userDetail = userService.getUserDetailsFromRefreshToken(refreshTokenDTO.getRefreshToken());
+        User userDetail = userService.getUserDetailsFromRefreshToken(refreshTokenDTO.getRefreshToken());
         Token jwtToken = tokenService.refreshToken(refreshTokenDTO.getRefreshToken(), userDetail);
         LoginResponse loginResponse = LoginResponse.builder()
                 .message("Refresh token successfully")

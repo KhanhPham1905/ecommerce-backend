@@ -1,4 +1,4 @@
 package com.ghtk.ecommercewebsite.repositories;
 
-public interface ProductItem {
+public interface ImagesRepository {
 }

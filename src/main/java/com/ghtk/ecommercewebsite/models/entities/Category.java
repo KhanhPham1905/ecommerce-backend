@@ -32,7 +32,6 @@ public class Category {
     @Column(name = "slug")
     private String slug;
 
-
     private boolean status;
 
     // Khóa ngoại

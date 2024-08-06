@@ -15,4 +15,6 @@ public interface IVoucherService {
     Voucher save(Voucher voucher);
 
     void deleteById(Long id);
+
+    List<Voucher> findByShopId(Long shopId) ;
 }

@@ -3,6 +3,7 @@ package com.ghtk.ecommercewebsite.models.entities;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.Cascade;
 import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 import org.springframework.security.core.GrantedAuthority;
@@ -14,6 +15,7 @@ import java.util.Date;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+
 @Entity
 @Table(name = "users")
 @NoArgsConstructor
@@ -21,7 +23,7 @@ import java.util.stream.Collectors;
 @Getter
 @Setter
 @Builder
-public class Users implements UserDetails {
+public class User implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.AUTO)
@@ -45,7 +47,8 @@ public class Users implements UserDetails {
     @Column(name = "updated_at")
     private Date updatedAt;
 
-    @ManyToMany(fetch = FetchType.EAGER,
+    @ManyToMany(targetEntity = Role.class,
+            fetch = FetchType.EAGER,
             cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH, CascadeType.REFRESH})
     @JoinTable(
             name = "users_roles",

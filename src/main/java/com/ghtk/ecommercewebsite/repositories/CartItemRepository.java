@@ -2,12 +2,21 @@ package com.ghtk.ecommercewebsite.repositories;
 
 import com.ghtk.ecommercewebsite.models.entities.CartItem;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
+import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Repository
 public interface CartItemRepository extends JpaRepository<CartItem, Long> {
-    @Query(value = "INSERT INTO cart_item (cart_id, product_item_id, quantity) VALUES (:cartId, :productItemId, :quantity)", nativeQuery = true)
-    void addProductToCart(@Param("cartId") Long cartId, @Param("productItemId") Long productItemId, @Param("quantity") int quantity);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM CartItem ci WHERE ci.userId = :userId AND ci.productItemId = :productItemId")
+    void deleteByUserIdAndProductId(Long userId, Long productItemId);
+
+    List<CartItem> findByUserId(Long userId);
+    void deleteByUserId(Long userId);
 }

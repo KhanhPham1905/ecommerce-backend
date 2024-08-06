@@ -40,4 +40,9 @@ public class VoucherServiceImpl implements IVoucherService {
     public void deleteById(Long id) {
         voucherRepository.deleteById(id);
     }
+
+    @Override
+    public List<Voucher> findByShopId(Long shopId) {
+        return voucherRepository.findByShopId(shopId);
+    }
 }
