@@ -119,7 +119,7 @@ public class SellerServiceImpl implements SellerService{
 
         seller.setTax(detailSellerInfoDTO.getTax());
         seller.setCccd(detailSellerInfoDTO.getCccd());
-//        user.setEmail(detailSellerInfoDTO.getEmail());
+//      user.setEmail(detailSellerInfoDTO.getEmail());
         user.setFullName(detailSellerInfoDTO.getFullName());
         user.setPhone(detailSellerInfoDTO.getPhone());
         address.setAddressDetail(detailSellerInfoDTO.getAddressDetail());

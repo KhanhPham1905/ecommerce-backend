@@ -1,5 +1,6 @@
 package com.ghtk.ecommercewebsite.models.responses;
 
+import com.ghtk.ecommercewebsite.models.dtos.BrandDTO;
 import com.ghtk.ecommercewebsite.models.enums.ResultCode;
 import lombok.Getter;
 import lombok.Setter;
@@ -52,4 +53,7 @@ public class CommonResult<T> {
 
 
 
+    public static <T> CommonResult<T> error(int code, String message) {
+        return new CommonResult<>(code, message, null);
+    }
 }
