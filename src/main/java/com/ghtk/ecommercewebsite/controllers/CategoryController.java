@@ -12,6 +12,7 @@ import org.springframework.http.RequestEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
 @RestController
@@ -64,5 +65,4 @@ public class CategoryController {
         Category category = categoryService.updateCategory(id, categoryDTO, user.getId());
         return CommonResult.success(category, "Update category successfully");
     }
-
 }
