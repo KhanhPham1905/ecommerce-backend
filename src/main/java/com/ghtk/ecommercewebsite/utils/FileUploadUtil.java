@@ -1,7 +1,12 @@
 package com.ghtk.ecommercewebsite.utils;
 
+import de.mkammerer.snowflakeid.SnowflakeIdGenerator;
+import lombok.RequiredArgsConstructor;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.io.FilenameUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.text.DateFormat;
@@ -10,8 +15,12 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-@UtilityClass
+//@UtilityClass
+@Component
+
 public class FileUploadUtil {
+//    private final SnowflakeIdGenerator snowflakeIdGenerator ;
+
     public static final long MAX_FILE_SIZE = 2 * 1024 * 1024;
 
     public static final String IMAGE_PATTERN = "([^\\s]+(\\.(?i)(jpg|png|gif|bmp))$)";
@@ -19,6 +28,11 @@ public class FileUploadUtil {
     public static final String DATE_FORMAT = "yyyyMMddHHmmss";
 
     public static final String FILE_NAME_FORMAT = "%s_%s";
+
+//    @Autowired
+//    public FileUploadUtil(SnowflakeIdGenerator snowflakeIdGenerator) {
+//        this.snowflakeIdGenerator = snowflakeIdGenerator;
+//    }
 
     public static boolean isAllowedExtension(final String fileName, final String pattern) {
         final Matcher matcher = Pattern.compile(pattern, Pattern.CASE_INSENSITIVE).matcher(fileName);
@@ -34,13 +48,15 @@ public class FileUploadUtil {
         final String fileName = file.getOriginalFilename();
         final String extension = FilenameUtils.getExtension(fileName);
         if (!isAllowedExtension(fileName, pattern)) {
-            throw new IllegalStateException("Only jpg, png, gif, bmp files are allowed");
+            throw new IllegalStateException( "Only jpg, png, gif, bmp files are allowed");
         }
     }
 
     public static String getFileName(final String name) {
         final DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
         final String date = dateFormat.format(System.currentTimeMillis());
+//        Long snowFlakeId = snowflakeIdGenerator.next();
+//        System.out.println("snowFlakeId: " + snowFlakeId);
         return String.format(FILE_NAME_FORMAT, name, date);
     }
 }

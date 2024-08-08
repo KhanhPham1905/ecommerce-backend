@@ -1,29 +1,35 @@
 package com.ghtk.ecommercewebsite.controllers;
 
+import com.cloudinary.Cloudinary;
+import com.ghtk.ecommercewebsite.configs.Contant;
 import com.ghtk.ecommercewebsite.mapper.ProductMapper;
 import com.ghtk.ecommercewebsite.models.dtos.ProductDTO;
 import com.ghtk.ecommercewebsite.models.entities.Product;
+import com.ghtk.ecommercewebsite.models.entities.ProductItem;
+import com.ghtk.ecommercewebsite.models.responses.CloudinaryResponse;
 import com.ghtk.ecommercewebsite.models.responses.CommonResult;
+import com.ghtk.ecommercewebsite.services.CloudinaryService;
 import com.ghtk.ecommercewebsite.services.product.IProductService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/products")
+@RequiredArgsConstructor
 public class ProductsController {
 
     private final IProductService iProductService;
     private final ProductMapper productMapper;
-
-    @Autowired
-    public ProductsController(IProductService productService, ProductMapper productMapper) {
-        this.iProductService = productService;
-        this.productMapper = productMapper;
-    }
+    private  final CloudinaryService cloudinaryService;
 
     @GetMapping
     public CommonResult<List<ProductDTO>> getAllProducts() {
@@ -128,4 +134,32 @@ public class ProductsController {
                 .collect(Collectors.toList());
         return CommonResult.success(products, "Search products by description successfully");
     }
+
+    @PostMapping(value = "uploads/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PreAuthorize("hasRole('ROLE_SELLER')")
+    public CommonResult<?> uploadImages(
+            @PathVariable("id") Long id,
+            @ModelAttribute("files") List<MultipartFile> files
+    ) throws  Exception{
+        files = files == null ? new ArrayList<MultipartFile>() : files;
+        if(files.size() > Contant.MAXIMUM_IMAGES_PER_PRODUCT){
+            return  CommonResult.failed("You can only upload max : " + Contant.MAXIMUM_IMAGES_PER_PRODUCT);
+        }
+
+        for (MultipartFile file: files){
+            if(file.getSize() == 0){
+                continue;
+            }
+            if (file.getSize() > 10*1024*1024){
+                return CommonResult.failed("you can only upload file Maximum 10MB");
+            }
+            String contentType = file.getContentType();
+            if (contentType == null && ! contentType.startsWith("image/")){
+                return CommonResult.failed("you must up load file is image");
+            }
+            CloudinaryResponse cloudinaryResponse = cloudinaryService.uploadImage(file);
+        }
+        return CommonResult.success("sac set");
+    }
+
 }

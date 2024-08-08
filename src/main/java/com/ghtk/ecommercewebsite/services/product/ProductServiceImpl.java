@@ -12,13 +12,12 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
 public class ProductServiceImpl implements IProductService {
     private final CloudinaryService cloudinaryService;
     private final ProductRepository productsRepository;
 
-    @Autowired
-    public ProductServiceImpl(ProductRepository productsRepository) {
+    public ProductServiceImpl(CloudinaryService cloudinaryService, ProductRepository productsRepository) {
+        this.cloudinaryService = cloudinaryService;
         this.productsRepository = productsRepository;
     }
 
