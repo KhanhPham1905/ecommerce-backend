@@ -1,63 +1,65 @@
 package com.ghtk.ecommercewebsite.models.dtos;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import jakarta.validation.constraints.*;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Positive;
+import jakarta.validation.constraints.Size;
+import lombok.Data;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
-
+import com.fasterxml.jackson.annotation.JsonFormat;
+@Data
 public class VoucherDTO {
 
-    @NotBlank(message = "Title is required")
-    @Size(min = 3, max = 200, message = "Coupon code must be between 3 and 200 characters")
-    @JsonProperty("coupon_code")
+    @JsonProperty("id")
+    private Long id;
+
+    @NotBlank(message = "Coupon code is required")
+    @Size(max = 255, message = "Coupon code cannot exceed 255 characters")
     private String couponCode;
 
-    @Min(value = 0, message = "discount value must be greater than or equal to 0")
-    @Max(value = 10000000, message = "discount value must be less than or equal to 10,000,000")
-    @JsonProperty("discount_value")
+    @NotNull(message = "Discount type is required")
+    private int discountType;
+
+    @NotNull(message = "Discount value is required")
+    @DecimalMin(value = "0.0", inclusive = false, message = "Discount value must be greater than 0")
     private BigDecimal discountValue;
 
-    @JsonProperty("discount_type")
-    private Integer discountType;
-
-    @JsonProperty("expired_at")
-    @NotBlank(message = "Expiration date is required")
+    @NotNull(message = "Expiration date is required")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime expiredAt;
 
-    @JsonProperty("is_active")
-    private Boolean isActive;
+    @NotNull(message = "Active status is required")
+    private boolean isActive;
 
-    @JsonProperty("is_public")
-    private Boolean isPublic;
+    @NotNull(message = "Public status is required")
+    private boolean isPublic;
 
-    @JsonProperty("maximum_discount_value")
-    @Min(value = 0, message = "maximum discount value must be greater than or equal to 0")
-    @Max(value = 10000000, message = "maximum discount value must be less than or equal to 10,000,000")
+    @NotNull(message = "Maximum discount value is required")
+    @DecimalMin(value = "0.0", inclusive = false, message = "Maximum discount value must be greater than 0")
     private BigDecimal maximumDiscountValue;
 
-    @JsonProperty("name")
-    @NotBlank(message = "Name cannot be blank")
+    @NotBlank(message = "Name is required")
+    @Size(max = 300, message = "Name cannot exceed 300 characters")
     private String name;
 
-    @JsonProperty("shop_id")
-    @Min(value=1, message = "Shop ID is required")
+    @NotNull(message = "Shop ID is required")
     private Long shopId;
 
-    @JsonProperty("start_at")
-    @NotBlank(message = "Start date is required")
+    @NotNull(message = "Start date is required")
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime startAt;
 
-    @JsonProperty("quantity")
-    @Min(value = 0, message = "Quantity must be greater than or equal to 0")
-    @Max(value = 10000000, message = "Quantity must be less than or equal to 10,000,000")
-    private Integer quantity;
+    @Positive(message = "Quantity must be positive")
+    private int quantity;
 
-    @JsonProperty("minimum_quantity_needed")
-    @NotNull(message = "Minimum quantity needed is required")
-    private Integer minimumQuantityNeeded;
+    @Positive(message = "Minimum quantity needed must be positive")
+    private int minimumQuantityNeeded;
 
-    @JsonProperty("type_repeat")
-    @NotNull(message = "type repeat needed is required")
-    private Boolean typeRepeat;
+    @NotNull(message = "Type repeat is required")
+    private boolean typeRepeat;
 }
