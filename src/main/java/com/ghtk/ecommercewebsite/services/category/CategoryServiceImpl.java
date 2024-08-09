@@ -24,9 +24,9 @@ public class CategoryServiceImpl implements CategoryService{
     private final ProductRepository productRepository;
 
     @Override
-    public Category getCategoryById(Long id) {
+    public Category getCategoryById(Long id) throws Exception{
         return categoryRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Category not found"));
+                .orElseThrow(() -> new DataNotFoundException("Category not found"));
     }
 
     @Override
@@ -59,7 +59,9 @@ public class CategoryServiceImpl implements CategoryService{
     @Transactional
     public Category updateCategory(Long categoryId, CategoryDTO categoryDTO, Long userId) throws  Exception {
         Long shopId = sellerRepository.findShopIdByUserId(userId);
-        if(!categoryDTO.getShopId().equals(shopId)) {
+        Category category = categoryRepository.findById(categoryId)
+                .orElseThrow(() -> new DataNotFoundException("Cannot find category by id"));
+        if(!category.getShopId().equals(shopId)) {
             throw new AccessDeniedException("account seller and shop not match");
         }
         Category existingCategory = getCategoryById(categoryId);

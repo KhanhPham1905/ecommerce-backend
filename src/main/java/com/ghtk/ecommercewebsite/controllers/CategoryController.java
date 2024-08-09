@@ -24,7 +24,7 @@ public class CategoryController {
     @GetMapping("/{id}")
     public CommonResult<Category> getCategoryById(
             @PathVariable("id") Long categoryId
-    ){
+    )throws Exception{
         Category existingCategory = categoryService.getCategoryById(categoryId);
         return CommonResult.success(existingCategory, "Get category successfully");
     }
@@ -62,7 +62,7 @@ public class CategoryController {
             @Valid @RequestBody CategoryDTO categoryDTO
     )throws Exception{
         User user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Category category = categoryService.updateCategory(id, categoryDTO, user.getId() );
+        Category category = categoryService.updateCategory(id, categoryDTO, user.getId());
         return CommonResult.success(category, "Update category successfully");
     }
 }

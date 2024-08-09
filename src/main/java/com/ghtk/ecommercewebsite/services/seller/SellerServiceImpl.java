@@ -1,13 +1,14 @@
 package com.ghtk.ecommercewebsite.services.seller;
 
-import com.ghtk.ecommercewebsite.models.entities.User;
+import com.ghtk.ecommercewebsite.exceptions.DataNotFoundException;
+import com.ghtk.ecommercewebsite.models.dtos.*;
+import com.ghtk.ecommercewebsite.models.entities.*;
 import com.ghtk.ecommercewebsite.models.enums.RoleEnum;
+import com.ghtk.ecommercewebsite.repositories.AddressRepository;
+import com.ghtk.ecommercewebsite.repositories.SellerRepository;
 import com.ghtk.ecommercewebsite.services.auth.AuthenticationServiceImpl;
 import lombok.RequiredArgsConstructor;
 import com.ghtk.ecommercewebsite.exceptions.SellerAlreadyExistedException;
-import com.ghtk.ecommercewebsite.models.dtos.LoginUserDto;
-import com.ghtk.ecommercewebsite.models.dtos.RegisterUserDto;
-import com.ghtk.ecommercewebsite.models.entities.Role;
 import com.ghtk.ecommercewebsite.models.responses.LoginResponse;
 import com.ghtk.ecommercewebsite.repositories.RoleRepository;
 import com.ghtk.ecommercewebsite.repositories.UserRepository;
@@ -26,6 +27,8 @@ public class SellerServiceImpl implements SellerService{
     private final PasswordEncoder passwordEncoder;
     private final UserRepository userRepository;
     private final AuthenticationServiceImpl authenticationService;
+    private final SellerRepository sellerRepository;
+    private final AddressRepository addressRepository;
 
     @Override
     @Transactional
@@ -68,5 +71,95 @@ public class SellerServiceImpl implements SellerService{
     @Override
     public User getAuthenticatedSeller() {
         return (User) authenticationService.getAuthentication().getPrincipal();
+    }
+
+//    @Override
+//    public Map<String, Object>  getInformation(Long useId) throws  Exception {
+//        Seller seller = sellerRepository.findByUserId(useId)
+//                .orElseThrow(() -> new DataNotFoundException("information not found"));
+//        User user = userRepository.findById(useId)
+//                .orElseThrow(() -> new DataNotFoundException("information not found"));
+//        List<Address> address = addressRepository.findByUserId(userId)
+//                .orElseThrow(() -> new DataNotFoundException("information not found"));
+//
+//        SellerDTO sellerDTO = sellerMapper.toDTO(seller);
+//        UserDTO userDTO = userMapper.toDTO(user);
+//        Map<String, Object>  response = new HashMap<>();
+//        response.put("seller", sellerDTO);
+//        response.put("user", userDTO);
+//        response.put("address", address);
+//        return response;
+//    }
+
+    @Override
+    public DetailSellerInfoDTO getSellerInfo(Long userId) throws Exception{
+        DetailSellerInfoDTO detailSellerInfoDTO = sellerRepository.getDetailSellerInfo(userId)
+                .orElseThrow(() -> new DataNotFoundException("Category not found"));
+        return detailSellerInfoDTO;
+    }
+
+    @Override
+    @Transactional
+    public DetailSellerInfoDTO updateSellerInfo(DetailSellerInfoDTO detailSellerInfoDTO,Long userId) throws Exception{
+        Seller seller = sellerRepository.findByUserId(userId)
+                .orElseThrow(() -> new DataNotFoundException("Cannot find seller by id"));
+
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new DataNotFoundException("Cannot find user by id"));
+
+        Address address = addressRepository.findByUserId(userId)
+                .orElseThrow(() -> new DataNotFoundException("Cannot find user by id"));
+//        List<Address> address = addressRepository.findByUserId(userId)
+//                .orElseThrow(() -> new DataNotFoundException("Cannot find address by id"));
+//        if(!category.getShopId().equals(shopId)) {
+//            throw new AccessDeniedException("Account seller and shop not match");
+//        }
+//                .orElseThrow(() -> new DataNotFoundException("Category not found"));;
+        ;
+
+        seller.setTax(detailSellerInfoDTO.getTax());
+        seller.setCccd(detailSellerInfoDTO.getCccd());
+//      user.setEmail(detailSellerInfoDTO.getEmail());
+        user.setFullName(detailSellerInfoDTO.getFullName());
+        user.setPhone(detailSellerInfoDTO.getPhone());
+        address.setAddressDetail(detailSellerInfoDTO.getAddressDetail());
+        address.setCommune(detailSellerInfoDTO.getCommune());
+        address.setCountry(detailSellerInfoDTO.getCountry());
+        address.setProvince(detailSellerInfoDTO.getProvince());
+        address.setDistrict(detailSellerInfoDTO.getDistrict());
+        sellerRepository.save(seller);
+        userRepository.save(user);
+//        for (Address addressTemp : address) {
+            // Giả sử bạn có thể cập nhật địa chỉ dựa trên thông tin từ DTO
+            // Bạn cần phải logic điều kiện và cập nhật theo cách của bạn
+            addressRepository.save(address);
+//        }
+        return detailSellerInfoDTO;
+    }
+
+    @Override
+    public User viewDetailsOfAnSeller(Long id) throws DataNotFoundException {
+        Optional<User> user = sellerRepository.findUserWithSellerRoleById(id);
+        if (user.isEmpty()) {
+            throw new DataNotFoundException("There is no seller with this id");
+        } else {
+            return user.get();
+        }
+    }
+
+    @Override
+    public Seller updateSellerInfo(SellerDTO sellerDTO) throws DataNotFoundException {
+        Optional<Seller> optionalSeller = sellerRepository.findById(sellerDTO.getUserId());
+
+        if (optionalSeller.isEmpty()) {
+            throw new DataNotFoundException("There is no seller with this id");
+        }
+        Seller seller = optionalSeller.get();
+        seller.setTax(sellerDTO.getTax());
+        seller.setCccd(sellerDTO.getCccd());
+
+        Optional<User> user = userRepository.findById(sellerDTO.getUserId());
+        // The data is separated (data from UserDto and SellerDto)
+        return sellerRepository.save(seller);
     }
 }

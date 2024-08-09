@@ -1,14 +1,23 @@
 package com.ghtk.ecommercewebsite.models.dtos;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.ghtk.ecommercewebsite.models.enums.Gender;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
+import lombok.*;
+
 import java.time.LocalDateTime;
 
+@Getter
+@Setter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class UserDTO {
-
     @Email(message = "Email should be valid")
     @NotBlank(message = "Email is required")
     @Size(max = 200, message = "Email cannot exceed 200 characters")
@@ -22,6 +31,7 @@ public class UserDTO {
 
     @NotBlank(message = "Password is required")
     @JsonProperty("password")
+    @JsonIgnore
     private String password;
 
     @NotBlank(message = "Phone number is required")
@@ -36,9 +46,9 @@ public class UserDTO {
     @NotBlank(message = "gender is required")
     private Gender gender;
 
-    public enum Gender {
-        MALE,
-        FEMALE,
-        OTHER
-    }
+//    public enum Gender {
+//        MALE,
+//        FEMALE,
+//        OTHER
+//    }
 }

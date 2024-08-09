@@ -2,9 +2,16 @@ package com.ghtk.ecommercewebsite.models.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotNull;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
+@Getter
+@Setter
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class SellerDTO {
 
     @JsonProperty("tax")
