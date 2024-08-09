@@ -9,6 +9,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ProductItemRepository extends JpaRepository<ProductItem, Long> {
 
+    void deleteByProductId(Long productId);
     @Query(value = "SELECT p.shop_id FROM product_item pi JOIN product p ON pi.product_id = p.id WHERE pi.id = :productItemId", nativeQuery = true)
     Long findShopIdByProductItemId(@Param("productItemId") Long productItemId);
 }

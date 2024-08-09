@@ -133,7 +133,6 @@ public class CheckoutServiceImpl implements ICheckoutService {
         else productItem.setQuantity(productItem.getQuantity() - quantity);
         productItemRepository.save(productItem);
     }
-
     @Override
     public OrdersDTO checkoutDirect(Long userId,
                                     Long addressID,
@@ -147,7 +146,8 @@ public class CheckoutServiceImpl implements ICheckoutService {
         ProductItem productItem = productItemRepository.findById(productItemId)
                 .orElseThrow(() -> new IllegalArgumentException("Product item not found"));
 
-        if (productItem.getQuantity() < quantity) throw new IllegalArgumentException("Insufficient stock for the product item");
+        if (productItem.getQuantity() < quantity)
+            throw new IllegalArgumentException("Insufficient stock for the product item");
 
         Orders orders = createOrder(userId, method, addressID, note);
 
@@ -159,7 +159,6 @@ public class CheckoutServiceImpl implements ICheckoutService {
 
         orders.setTotalPrice(finalPrice);
         orderRepository.save(orders);
-
         updateProductStock(productItem, quantity);
 
         return orderMapper.toDto(orders);
@@ -167,7 +166,8 @@ public class CheckoutServiceImpl implements ICheckoutService {
 
     private void validateDirectCheckout(Long addressID, Long productItemId, int quantity) {
         if (addressID == null) throw new IllegalArgumentException("Bạn cần có thông tin nhận hàng");
-        if (productItemId == null || quantity <= 0) throw new IllegalArgumentException("Invalid product item or quantity");
+        if (productItemId == null || quantity <= 0)
+            throw new IllegalArgumentException("Invalid product item or quantity");
     }
 
     private BigDecimal calculateDirectDiscount(Long voucherId, int quantity, BigDecimal unitPrice) {

@@ -1,19 +1,14 @@
-package com.ghtk.ecommercewebsite.models.dtos;
+package com.ghtk.ecommercewebsite.models.dtos.request;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.ghtk.ecommercewebsite.models.entities.Comment;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
-import java.time.LocalDateTime;
-
 @Data
-public class CommentDTO {
+public class AddCommentRequestDTO {
 
-    private Long id;
 
     @Size(max = 500, message = "Content must be less than 500 characters")
     @NotNull(message = "Content cannot be null")
@@ -30,11 +25,4 @@ public class CommentDTO {
     private Integer rateStars;
 
     private Long replyTo;
-
-    private String status;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime createdAt;
-
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
-    private LocalDateTime modifiedAt;
 }
