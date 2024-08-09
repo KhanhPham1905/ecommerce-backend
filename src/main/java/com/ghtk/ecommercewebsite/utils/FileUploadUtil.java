@@ -1,12 +1,7 @@
 package com.ghtk.ecommercewebsite.utils;
 
-import de.mkammerer.snowflakeid.SnowflakeIdGenerator;
-import lombok.RequiredArgsConstructor;
 import lombok.experimental.UtilityClass;
 import org.apache.commons.io.FilenameUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.text.DateFormat;
@@ -15,11 +10,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
-//@UtilityClass
-@Component
-
-public class FileUploadUtil {
-//    private final SnowflakeIdGenerator snowflakeIdGenerator ;
+@UtilityClass
+public class FileUploadUtil { ;
 
     public static final long MAX_FILE_SIZE = 2 * 1024 * 1024;
 
@@ -52,11 +44,10 @@ public class FileUploadUtil {
         }
     }
 
-    public static String getFileName(final String name) {
-        final DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
-        final String date = dateFormat.format(System.currentTimeMillis());
-//        Long snowFlakeId = snowflakeIdGenerator.next();
-//        System.out.println("snowFlakeId: " + snowFlakeId);
-        return String.format(FILE_NAME_FORMAT, name, date);
+    public static String getFileName(final Long name) {
+//        final DateFormat dateFormat = new SimpleDateFormat(DATE_FORMAT);
+//        final String date = dateFormat.format(System.currentTimeMillis());
+        return String.format(name.toString());
     }
+
 }

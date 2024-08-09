@@ -9,6 +9,7 @@ import com.ghtk.ecommercewebsite.models.entities.ProductItem;
 import com.ghtk.ecommercewebsite.models.responses.CloudinaryResponse;
 import com.ghtk.ecommercewebsite.models.responses.CommonResult;
 import com.ghtk.ecommercewebsite.services.CloudinaryService;
+import com.ghtk.ecommercewebsite.services.images.ImagesService;
 import com.ghtk.ecommercewebsite.services.product.IProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ public class ProductsController {
 
     private final IProductService iProductService;
     private final ProductMapper productMapper;
-    private  final CloudinaryService cloudinaryService;
+    private final CloudinaryService cloudinaryService;
 
     @GetMapping
     public CommonResult<List<ProductDTO>> getAllProducts() {
@@ -47,14 +48,13 @@ public class ProductsController {
     }
 
     @PostMapping
-    public CommonResult<ProductDTO> createProduct(@RequestBody ProductDTO productDTO) {
-        Product product = productMapper.toEntity(productDTO);
-        Product savedProduct = iProductService.save(product);
+    public CommonResult<ProductDTO> createProduct(@ModelAttribute ProductDTO productDTO) throws Exception{
+        Product savedProduct = iProductService.save(productDTO);
         return CommonResult.success(productMapper.toDTO(savedProduct), "Create product successfully");
     }
 
     @PutMapping("/{id}")
-    public CommonResult<ProductDTO> updateProduct(@PathVariable Long id, @RequestBody ProductDTO productDetails) {
+    public CommonResult<ProductDTO> updateProduct(@PathVariable Long id, @ModelAttribute ProductDTO productDetails){
         return iProductService.findById(id)
                 .map(product -> {
                     product.setName(productDetails.getName());
@@ -65,49 +65,54 @@ public class ProductsController {
                     product.setProductView(productDetails.getProductView());
                     product.setBrandId(productDetails.getBrandId());
                     product.setShopId(productDetails.getShopId());
-                    Product updatedProduct = iProductService.save(product);
+                    Product updatedProduct = null;
+                    try {
+                        updatedProduct = iProductService.save(productDetails);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
                     return CommonResult.success(productMapper.toDTO(updatedProduct), "Update product successfully");
                 })
                 .orElse(CommonResult.error(404, "Product not found"));
     }
-
-    @PatchMapping("/{id}")
-    public CommonResult<ProductDTO> patchProduct(@PathVariable Long id, @RequestBody Map<String, Object> updates) {
-        return iProductService.findById(id)
-                .map(product -> {
-                    updates.forEach((key, value) -> {
-                        switch (key) {
-                            case "name":
-                                product.setName((String) value);
-                                break;
-                            case "description":
-                                product.setDescription((String) value);
-                                break;
-                            case "slug":
-                                product.setSlug((String) value);
-                                break;
-                            case "status":
-                                product.setStatus((Integer) value);
-                                break;
-                            case "totalSold":
-                                product.setTotalSold(((Number) value).longValue());
-                                break;
-                            case "productView":
-                                product.setProductView((Integer) value);
-                                break;
-                            case "brandId":
-                                product.setBrandId(((Number) value).longValue());
-                                break;
-                            case "shopId":
-                                product.setShopId(((Number) value).longValue());
-                                break;
-                        }
-                    });
-                    Product updatedProduct = iProductService.save(product);
-                    return CommonResult.success(productMapper.toDTO(updatedProduct), "Patch product successfully");
-                })
-                .orElse(CommonResult.error(404, "Product not found"));
-    }
+//
+//    @PatchMapping("/{id}")
+//    public CommonResult<ProductDTO> patchProduct(@PathVariable Long id, @RequestBody Map<String, Object> updates) {
+//        return iProductService.findById(id)
+//                .map(product -> {
+//                    updates.forEach((key, value) -> {
+//                        switch (key) {
+//                            case "name":
+//                                product.setName((String) value);
+//                                break;
+//                            case "description":
+//                                product.setDescription((String) value);
+//                                break;
+//                            case "slug":
+//                                product.setSlug((String) value);
+//                                break;
+//                            case "status":
+//                                product.setStatus((Integer) value);
+//                                break;
+//                            case "totalSold":
+//                                product.setTotalSold(((Number) value).longValue());
+//                                break;
+//                            case "productView":
+//                                product.setProductView((Integer) value);
+//                                break;
+//                            case "brandId":
+//                                product.setBrandId(((Number) value).longValue());
+//                                break;
+//                            case "shopId":
+//                                product.setShopId(((Number) value).longValue());
+//                                break;
+//                        }
+//                    });
+//                    Product updatedProduct = iProductService.save(product);
+//                    return CommonResult.success(productMapper.toDTO(updatedProduct), "Patch product successfully");
+//                })
+//                .orElse(CommonResult.error(404, "Product not found"));
+//    }
 
     @DeleteMapping("/{id}")
     public CommonResult<String> deleteProduct(@PathVariable Long id) {
@@ -136,7 +141,6 @@ public class ProductsController {
     }
 
     @PostMapping(value = "uploads/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    @PreAuthorize("hasRole('ROLE_SELLER')")
     public CommonResult<?> uploadImages(
             @PathVariable("id") Long id,
             @ModelAttribute("files") List<MultipartFile> files

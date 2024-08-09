@@ -1,5 +1,6 @@
 package com.ghtk.ecommercewebsite.services.product;
 
+import com.ghtk.ecommercewebsite.models.dtos.ProductDTO;
 import com.ghtk.ecommercewebsite.models.entities.Product;
 
 import java.util.List;
@@ -11,7 +12,7 @@ public interface IProductService {
 
     Optional<Product> findById(Long id);
 
-    Product save(Product product);
+    Product save(ProductDTO productDTO) throws Exception;
 
     void deleteById(Long id);
 
