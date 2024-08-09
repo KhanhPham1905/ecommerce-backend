@@ -27,7 +27,15 @@ public interface SellerRepository extends JpaRepository<Seller, Long> {
     )
     Optional<User> findUserWithSellerRoleByEmail(@Param("email") String email);
 
+    @Query(
+            "SELECT u FROM User u " +
+                    "JOIN u.roles r " +
+                    "WHERE u.id = :userId AND r.name = 'SELLER'"
+    )
+    Optional<User> findUserWithSellerRoleById(@Param("userId") Long userId);
+
     @Query(nativeQuery = true, name = "Seller.getDetailSellerInfo")
     Optional<DetailSellerInfoDTO> getDetailSellerInfo(Long userId);
+
 
 }

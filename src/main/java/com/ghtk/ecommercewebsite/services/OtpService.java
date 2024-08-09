@@ -47,6 +47,15 @@ public class OtpService {
         emailService.sendSimpleMessage(mailBody);
         forgotPasswordRepository.save(fp);
         return ResponseEntity.ok("Email sent for verification!");
+//        try {
+//            emailService.sendSimpleMessage(mailBody);
+//            forgotPasswordRepository.save(fp);
+//            return ResponseEntity.ok("Email sent for verification!");
+//        } catch (Exception e) {
+//            // Log the exception
+//            logger.error("Error sending email: ", e);
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error");
+//        }
     }
 
     public ResponseEntity<String> verifyOtp(Integer otp, String email) {

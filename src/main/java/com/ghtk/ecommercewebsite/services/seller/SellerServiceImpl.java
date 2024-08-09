@@ -136,4 +136,30 @@ public class SellerServiceImpl implements SellerService{
 //        }
         return detailSellerInfoDTO;
     }
+
+    @Override
+    public User viewDetailsOfAnSeller(Long id) throws DataNotFoundException {
+        Optional<User> user = sellerRepository.findUserWithSellerRoleById(id);
+        if (user.isEmpty()) {
+            throw new DataNotFoundException("There is no seller with this id");
+        } else {
+            return user.get();
+        }
+    }
+
+    @Override
+    public Seller updateSellerInfo(SellerDTO sellerDTO) throws DataNotFoundException {
+        Optional<Seller> optionalSeller = sellerRepository.findById(sellerDTO.getUserId());
+
+        if (optionalSeller.isEmpty()) {
+            throw new DataNotFoundException("There is no seller with this id");
+        }
+        Seller seller = optionalSeller.get();
+        seller.setTax(sellerDTO.getTax());
+        seller.setCccd(sellerDTO.getCccd());
+
+        Optional<User> user = userRepository.findById(sellerDTO.getUserId());
+        // The data is separated (data from UserDto and SellerDto)
+        return sellerRepository.save(seller);
+    }
 }

@@ -1,5 +1,8 @@
 package com.ghtk.ecommercewebsite.services.user;
 
+import com.ghtk.ecommercewebsite.exceptions.DataNotFoundException;
+import com.ghtk.ecommercewebsite.models.dtos.UserDTO;
+import com.ghtk.ecommercewebsite.models.entities.Image;
 import com.ghtk.ecommercewebsite.models.entities.Token;
 import com.ghtk.ecommercewebsite.models.enums.RoleEnum;
 import com.ghtk.ecommercewebsite.repositories.TokenRepository;
@@ -14,6 +17,11 @@ import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.responses.LoginResponse;
 import com.ghtk.ecommercewebsite.repositories.RoleRepository;
 import com.ghtk.ecommercewebsite.repositories.UserRepository;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -32,9 +40,11 @@ public class UserServiceImpl implements UserService{
     private final TokenRepository tokenRepository;
     private final AuthenticationService authenticationService;
 //    private final EmailService emailService;
+//    public static final String KEY = "cacheKey";
 
     @Override
     @Transactional
+    @CacheEvict(value = "sellers", allEntries = true)
     public User signUp(RegisterUserDto input) throws UserAlreadyExistedException {
         Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.USER);
         if (optionalRole.isEmpty()) { return null; }
@@ -84,16 +94,61 @@ public class UserServiceImpl implements UserService{
         return (User) authenticationService.getAuthentication().getPrincipal();
     }
 
+//    @Override
+//    public List<User> allUsers() {
+//        List<User> users = new ArrayList<>();
+//        userRepository.findAll().forEach(users::add);
+//        return users;
+//    }
+
+//    @Override
+//    public List<User> allSellers() {
+//        return userRepository.findByRolesContaining(RoleEnum.SELLER);
+//    }
+
     @Override
-    public List<User> allUsers() {
-        List<User> users = new ArrayList<>();
-        userRepository.findAll().forEach(users::add);
-        return users;
+//    @Cacheable(value = "sellers")
+    public List<User> findAllSellers() {
+        Optional<Role> roleOptional = roleRepository.findByName(RoleEnum.SELLER);
+        if (roleOptional.isPresent()) {
+            return userRepository.findByRolesContaining(roleOptional.get().getName());
+        } else {
+            return Collections.emptyList();
+        }
+    }
+
+    private Page<User> convertListToPage(List<User> sellers, Pageable pageable) {
+        int pageSize = pageable.getPageSize();
+        int currentPage = pageable.getPageNumber();
+        int startItem = currentPage * pageSize;
+
+        List<User> pagedSellers;
+
+        if (sellers.size() < startItem) {
+            pagedSellers = Collections.emptyList();
+        } else {
+            int toIndex = Math.min(startItem + pageSize, sellers.size());
+            pagedSellers = sellers.subList(startItem, toIndex);
+        }
+
+        return new PageImpl<>(pagedSellers, pageable, sellers.size());
+    }
+
+    // From controller
+    @Override
+    public Page<User> allSellers(Pageable pageable) {
+        List<User> sellers = findAllSellers();
+        return convertListToPage(sellers, pageable);
     }
 
     @Override
-    public List<User> allSellers() {
-        return userRepository.findByRolesContaining(RoleEnum.SELLER);
+    public Page<User> allUsers(Pageable pageable) {
+        Optional<Role> roleOptional = roleRepository.findByName(RoleEnum.USER);
+        if (roleOptional.isPresent()) {
+            return userRepository.findByRolesContaining(roleOptional.get(), pageable);
+        } else {
+            return Page.empty();
+        }
     }
 
     @Override
@@ -108,6 +163,32 @@ public class UserServiceImpl implements UserService{
     public User getUserDetailsFromRefreshToken(String refreshToken) throws Exception {
         Token existingToken = tokenRepository.findByRefreshToken(refreshToken);
         return getUserDetailsFromToken(existingToken.getToken());
+    }
+
+    @Override
+    public UserDTO viewDetailsOfAnUser(Long id) {
+        Optional<User> user = userRepository.findById(id);
+        return user.map(value -> UserDTO.builder()
+                .fullName(value.getFullName())
+                .email(value.getEmail())
+                .phone(value.getPhone())
+                .gender(value.getGender())
+                .build()).orElse(null);
+    }
+
+    @Override
+    public User updateUserInfo(UserDTO userDTO) throws DataNotFoundException {
+        Optional<User> optionalUser = userRepository.findUserByEmail(userDTO.getEmail());
+
+        if (optionalUser.isEmpty()) {
+            throw new DataNotFoundException("There is no user with this email");
+        }
+
+        User user = optionalUser.get();
+        user.setFullName(userDTO.getFullName());
+        user.setPhone(userDTO.getPhone());
+        user.setGender(userDTO.getGender());
+        return userRepository.save(user);
     }
 
 }
