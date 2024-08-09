@@ -10,4 +10,5 @@ public interface IOrdersService {
     Optional<Orders> findById(Long id);
     Orders save(Orders order);
     void deleteById(Long id);
+    List<Orders> findByUserId(Long userId); // Thêm phương thức này
 }

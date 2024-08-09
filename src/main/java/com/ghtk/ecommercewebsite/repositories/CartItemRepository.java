@@ -12,6 +12,9 @@ import java.util.List;
 @Repository
 public interface CartItemRepository extends JpaRepository<CartItem, Long> {
 
+    @Transactional
+    void deleteByProductItemId(Long productItemId);
+
     @Modifying
     @Transactional
     @Query("DELETE FROM CartItem ci WHERE ci.userId = :userId AND ci.productItemId = :productItemId")

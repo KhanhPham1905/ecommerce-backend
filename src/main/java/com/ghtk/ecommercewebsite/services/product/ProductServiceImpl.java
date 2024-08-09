@@ -5,14 +5,17 @@ import com.ghtk.ecommercewebsite.configs.Contant;
 import com.ghtk.ecommercewebsite.mapper.ProductMapper;
 import com.ghtk.ecommercewebsite.models.dtos.ProductDTO;
 import com.ghtk.ecommercewebsite.models.entities.Product;
+import com.ghtk.ecommercewebsite.repositories.ProductItemRepository;
 import com.ghtk.ecommercewebsite.models.responses.CloudinaryResponse;
 import com.ghtk.ecommercewebsite.repositories.ProductRepository;
+import com.ghtk.ecommercewebsite.services.productitem.ProductItemServiceImpl;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import com.ghtk.ecommercewebsite.services.CloudinaryService;
 import com.ghtk.ecommercewebsite.services.images.ImagesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
@@ -24,6 +27,10 @@ import java.util.Optional;
 public class ProductServiceImpl implements IProductService {
     private final CloudinaryService cloudinaryService;
     private final ProductRepository productsRepository;
+
+    private final ProductItemServiceImpl productItemService;
+    private final ProductItemRepository productItemRepository;
+
     private final ProductMapper productMapper;
     private final ImagesService imagesService;
 
@@ -63,7 +70,10 @@ public class ProductServiceImpl implements IProductService {
         return product;
     }
 
+
+    @Transactional
     public void deleteById(Long id) {
+        productItemService.deleteProductItemById(id);
         productsRepository.deleteById(id);
     }
 

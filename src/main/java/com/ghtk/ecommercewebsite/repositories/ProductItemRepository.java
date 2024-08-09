@@ -17,6 +17,7 @@ public interface ProductItemRepository extends JpaRepository<ProductItem, Long> 
     List<DetailProductItemDTO> findAllProductItemByProductId(@Param("product_id") Long productId);
 
     List<ProductItem> findAllByProductId(Long productId);
+    void deleteByProductId(Long productId);
     @Query(value = "SELECT p.shop_id FROM product_item pi JOIN product p ON pi.product_id = p.id WHERE pi.id = :productItemId", nativeQuery = true)
     Long findShopIdByProductItemId(@Param("productItemId") Long productItemId);
 }

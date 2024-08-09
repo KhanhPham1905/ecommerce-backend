@@ -14,5 +14,6 @@ public class WhitelistUrls {
             "/api/cart/**",
             "/api/orders/**",
             "/api/checkout/**"
+            ,"/api/comments/**"
     };
 }
