@@ -67,4 +67,10 @@ public class GlobalExceptionHandler {
     public CommonResult handleResourceNotFoundException(DataNotFoundException exception) {
         return CommonResult.validateFailed(exception.getMessage());
     }
+
+    @ExceptionHandler(OrderNotFoundException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public CommonResult handleResourceNotFoundException(OrderNotFoundException exception) {
+        return CommonResult.validateFailed(exception.getMessage());
+    }
 }

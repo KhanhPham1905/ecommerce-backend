@@ -21,25 +21,8 @@ public class Orders {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
-    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
-    private LocalDateTime createdAt;
-
-    @Column(name = "modified_at", columnDefinition = "DATETIME(6)")
-    private LocalDateTime modifiedAt;
-
-
     private String note;
 
-
-    @Column(name = "price", precision = 12, scale = 2)
-    private BigDecimal price;
-
-    @Column(name = "receiver_name")
-    private String receiverName;
-
-    @Column(name = "receiver_phone")
-    private String receiverPhone;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false)
@@ -48,27 +31,21 @@ public class Orders {
     @Column(name = "total_price", precision = 12, scale = 2)
     private BigDecimal totalPrice;
 
-    @Column(name = "voucher_id")
-    private Long voucher;
-
-    @Column(name = "buyer")
-    private Long buyer;
-
-    @Column(name = "created_by")
-    private Long createdBy;
-
-    @Column(name = "modified_by")
-    private Long modifiedBy;
-
-    @Column(name = "shop_id", nullable = false)
-    private Long shopId;
 
     private boolean method;
 
-    private String address;
+    @Column(name = "user_id", nullable = false)
+    private Long userId;
 
-    @Column(name = "address_detail")
-    private String addressDetail;
+    @Column(name = "address_id", nullable = false)
+    private Long addressID;
+
+    @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    private LocalDateTime createdAt;
+
+    @Column(name = "modified_at", columnDefinition = "DATETIME(6)")
+    private LocalDateTime modifiedAt;
+
 
     @PrePersist
     protected void onCreate() {

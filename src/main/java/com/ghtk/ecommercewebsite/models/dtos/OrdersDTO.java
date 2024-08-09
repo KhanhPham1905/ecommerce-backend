@@ -1,14 +1,25 @@
 package com.ghtk.ecommercewebsite.models.dtos;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import jakarta.validation.constraints.DecimalMin;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class OrdersDTO {
 
     @JsonProperty("id")
@@ -60,11 +71,10 @@ public class OrdersDTO {
     @JsonProperty("method")
     private boolean method;
 
-    @JsonProperty("address")
-    private String address;
+    private Long userId;
 
-    @JsonProperty("address_detail")
-    private String addressDetail;
+    private Long addressID;
+
 
     public enum OrderStatus {
         PENDING,

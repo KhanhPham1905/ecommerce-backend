@@ -57,14 +57,7 @@ public class SecurityConfiguration {
                 .cors(AbstractHttpConfigurer::disable)
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests(request -> request
-                        .requestMatchers("/auth/**",
-                                "/api/v1/user/login",
-                                "/api/v1/user/signup",
-                                "/api/v1/seller/signup",
-                                "/api/v1/seller/login",
-                                "/api/v1/admin/login",
-                                "/categories/**"
-                        )
+                        .requestMatchers(WhitelistUrls.URLS)
                         .permitAll()
                         .anyRequest()
                         .authenticated())
@@ -79,24 +72,12 @@ public class SecurityConfiguration {
         return http.build();
     }
 
-    //    @Bean
-//    CorsConfigurationSource corsConfigurationSource() {
-//        CorsConfiguration corsConfiguration = new CorsConfiguration();
-//        corsConfiguration.setAllowedOrigins(List.of("http://localhost:5173"));
-//        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "OPTIONS"));
-//        corsConfiguration.setAllowedHeaders(List.of("*"));
-//        corsConfiguration.setAllowCredentials(true);
-//        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-//        source.registerCorsConfiguration("/**", corsConfiguration);
-//        return source;
-//    }
     @Bean
-    public CorsConfigurationSource corsConfigurationSource() {
+    CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration corsConfiguration = new CorsConfiguration();
-        corsConfiguration.setAllowedOrigins(List.of("http://localhost:5173"));
-        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "DELETE", "OPTIONS"));
+        corsConfiguration.setAllowedOrigins(List.of("http://localhost:3000"));
+        corsConfiguration.setAllowedMethods(List.of("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         corsConfiguration.setAllowedHeaders(List.of("*"));
-        corsConfiguration.setAllowCredentials(true);
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", corsConfiguration);
         return source;

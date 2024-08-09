@@ -1,9 +1,6 @@
 package com.ghtk.ecommercewebsite.services.seller;
 
 import com.ghtk.ecommercewebsite.exceptions.DataNotFoundException;
-//import com.ghtk.ecommercewebsite.mapper.SellerMapper;
-import com.ghtk.ecommercewebsite.mapper.SellerMapper;
-import com.ghtk.ecommercewebsite.mapper.UserMapper;
 import com.ghtk.ecommercewebsite.models.dtos.*;
 import com.ghtk.ecommercewebsite.models.entities.*;
 import com.ghtk.ecommercewebsite.models.enums.RoleEnum;
@@ -31,8 +28,6 @@ public class SellerServiceImpl implements SellerService{
     private final UserRepository userRepository;
     private final AuthenticationServiceImpl authenticationService;
     private final SellerRepository sellerRepository;
-    private final SellerMapper sellerMapper;
-    private final UserMapper userMapper;
     private final AddressRepository addressRepository;
 
     @Override
@@ -99,7 +94,7 @@ public class SellerServiceImpl implements SellerService{
     @Override
     public DetailSellerInfoDTO getSellerInfo(Long userId) throws Exception{
         DetailSellerInfoDTO detailSellerInfoDTO = sellerRepository.getDetailSellerInfo(userId)
-                .orElseThrow(() -> new DataNotFoundException("Category not found"));;
+                .orElseThrow(() -> new DataNotFoundException("Category not found"));
         return detailSellerInfoDTO;
     }
 
@@ -124,7 +119,7 @@ public class SellerServiceImpl implements SellerService{
 
         seller.setTax(detailSellerInfoDTO.getTax());
         seller.setCccd(detailSellerInfoDTO.getCccd());
-//        user.setEmail(detailSellerInfoDTO.getEmail());
+//      user.setEmail(detailSellerInfoDTO.getEmail());
         user.setFullName(detailSellerInfoDTO.getFullName());
         user.setPhone(detailSellerInfoDTO.getPhone());
         address.setAddressDetail(detailSellerInfoDTO.getAddressDetail());
@@ -140,5 +135,31 @@ public class SellerServiceImpl implements SellerService{
             addressRepository.save(address);
 //        }
         return detailSellerInfoDTO;
+    }
+
+    @Override
+    public User viewDetailsOfAnSeller(Long id) throws DataNotFoundException {
+        Optional<User> user = sellerRepository.findUserWithSellerRoleById(id);
+        if (user.isEmpty()) {
+            throw new DataNotFoundException("There is no seller with this id");
+        } else {
+            return user.get();
+        }
+    }
+
+    @Override
+    public Seller updateSellerInfo(SellerDTO sellerDTO) throws DataNotFoundException {
+        Optional<Seller> optionalSeller = sellerRepository.findById(sellerDTO.getUserId());
+
+        if (optionalSeller.isEmpty()) {
+            throw new DataNotFoundException("There is no seller with this id");
+        }
+        Seller seller = optionalSeller.get();
+        seller.setTax(sellerDTO.getTax());
+        seller.setCccd(sellerDTO.getCccd());
+
+        Optional<User> user = userRepository.findById(sellerDTO.getUserId());
+        // The data is separated (data from UserDto and SellerDto)
+        return sellerRepository.save(seller);
     }
 }

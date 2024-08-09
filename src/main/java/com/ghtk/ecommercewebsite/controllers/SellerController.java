@@ -11,6 +11,7 @@ import com.ghtk.ecommercewebsite.models.dtos.LoginUserDto;
 import com.ghtk.ecommercewebsite.models.dtos.RegisterUserDto;
 import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.responses.LoginResponse;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -25,6 +26,7 @@ import java.util.Objects;
 @CrossOrigin(origins = "*", allowedHeaders = "*")
 public class SellerController {
 
+    @Autowired
     private final SellerService sellerService;
 
     @PostMapping("/signup")

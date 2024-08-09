@@ -1,9 +1,12 @@
 package com.ghtk.ecommercewebsite.services.seller;
 
+import com.ghtk.ecommercewebsite.exceptions.DataNotFoundException;
 import com.ghtk.ecommercewebsite.exceptions.SellerAlreadyExistedException;
 import com.ghtk.ecommercewebsite.models.dtos.DetailSellerInfoDTO;
 import com.ghtk.ecommercewebsite.models.dtos.LoginUserDto;
 import com.ghtk.ecommercewebsite.models.dtos.RegisterUserDto;
+import com.ghtk.ecommercewebsite.models.dtos.SellerDTO;
+import com.ghtk.ecommercewebsite.models.entities.Seller;
 import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.responses.LoginResponse;
 
@@ -18,4 +21,8 @@ public interface SellerService {
     User getAuthenticatedSeller();
     DetailSellerInfoDTO getSellerInfo(Long useId) throws  Exception;
     DetailSellerInfoDTO updateSellerInfo(DetailSellerInfoDTO detailSellerInfoDTO,Long useId) throws  Exception;
+
+    User viewDetailsOfAnSeller(Long id) throws DataNotFoundException;
+
+    Seller updateSellerInfo(SellerDTO sellerDTO) throws DataNotFoundException;
 }
