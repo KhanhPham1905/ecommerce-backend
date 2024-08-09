@@ -2,7 +2,11 @@ package com.ghtk.ecommercewebsite.services.product;
 
 
 import com.ghtk.ecommercewebsite.models.entities.Product;
+import com.ghtk.ecommercewebsite.repositories.ProductItemRepository;
 import com.ghtk.ecommercewebsite.repositories.ProductRepository;
+import com.ghtk.ecommercewebsite.services.productitem.ProductItemServiceImpl;
+import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -10,14 +14,14 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class ProductServiceImpl implements IProductService {
 
     private final ProductRepository productsRepository;
 
-    @Autowired
-    public ProductServiceImpl(ProductRepository productsRepository) {
-        this.productsRepository = productsRepository;
-    }
+    private final ProductItemServiceImpl productItemService;
+    private final ProductItemRepository productItemRepository;
+
 
     public List<Product> findAll() {
         return productsRepository.findAll();
@@ -31,7 +35,10 @@ public class ProductServiceImpl implements IProductService {
         return productsRepository.save(product);
     }
 
+
+    @Transactional
     public void deleteById(Long id) {
+        productItemService.deleteProductItemById(id);
         productsRepository.deleteById(id);
     }
 

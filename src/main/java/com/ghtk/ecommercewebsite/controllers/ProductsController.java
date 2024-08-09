@@ -118,7 +118,8 @@ public class ProductsController {
         List<ProductDTO> products = iProductService.searchProductsByName(keyword).stream()
                 .map(productMapper::toDTO)
                 .collect(Collectors.toList());
-        return CommonResult.success(products, "Search products by name successfully");
+        if (products.isEmpty()) return CommonResult.error( 404 , "notfounbd");
+        else return CommonResult.success(products, "Search products by name successfully");
     }
 
     @GetMapping("/searchDes")
