@@ -1,11 +1,44 @@
 package com.ghtk.ecommercewebsite.models.entities;
 
+import com.ghtk.ecommercewebsite.models.dtos.DetailInventoryDTO;
+import com.ghtk.ecommercewebsite.models.dtos.ProductItemAttributesDTO;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import java.math.BigDecimal;
+import java.util.List;
+
+@SqlResultSetMapping(
+        name = "DetailProductItem",
+        classes = @ConstructorResult(
+                targetClass = DetailInventoryDTO.class,
+                columns = {
+                        @ColumnResult(name = "price", type = BigDecimal.class),
+                        @ColumnResult(name = "quantity", type = Integer.class),
+                        @ColumnResult(name = "name", type = String.class),
+                        @ColumnResult(name = "sku_code", type = String.class),
+                        @ColumnResult(name = "product_id", type = Long.class),
+                        @ColumnResult(name = "list_product_item", type = ProductItemAttributesDTO.class),
+                }
+        )
+)
+
+@NamedNativeQuery(
+        name = "ProductItem.GetAllProductItemByProductId",
+        query = "SELECT s.quantity, pi.sku_code, p.name, s.supplier, s.unit_price, w.name AS warehouse, s.location " +
+                "FROM Supply s " +
+                "INNER JOIN Product_item pi ON pi.id = s.product_item_Id " +
+                "INNER JOIN Warehouse w ON w.id = s.warehouse_Id " +
+                "INNER JOIN Product p ON p.id = pi.product_Id " +
+                "WHERE  s.status = 1 AND w.shop_Id = :shop_id ",
+        resultSetMapping = "DetailProductItem"
+)
+
+
+
+
 
 @Entity
 @Table(name = "product_item")
@@ -23,11 +56,14 @@ public class ProductItem {
     private BigDecimal price;
 
     @Column(name = "quantity")
-    private int quantity;
+    private Integer quantity;
 
     @Column(name = "sale_price", precision = 12, scale = 2)
     private BigDecimal salePrice;
 
     @Column(name = "product_id", nullable = false)
     private Long productId;
+
+    @Column(name = "sku_code")
+    private String skuCode;
 }

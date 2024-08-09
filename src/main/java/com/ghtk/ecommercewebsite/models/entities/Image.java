@@ -24,7 +24,7 @@ public class Image {
     @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
 
-    @Column(name = "link", columnDefinition = "JSON")
+    @Column(name = "link")
     private String link;
 
     private Long size;

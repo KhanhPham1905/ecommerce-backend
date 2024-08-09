@@ -15,7 +15,6 @@ import com.ghtk.ecommercewebsite.repositories.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.nio.file.AccessDeniedException;
 import java.util.*;
 
@@ -108,20 +107,12 @@ public class SellerServiceImpl implements SellerService{
                 .orElseThrow(() -> new DataNotFoundException("Cannot find user by id"));
 
         Address address = addressRepository.findByUserId(userId)
-                .orElseThrow(() -> new DataNotFoundException("Cannot find user by id"));
-//        List<Address> address = addressRepository.findByUserId(userId)
-//                .orElseThrow(() -> new DataNotFoundException("Cannot find address by id"));
-//        if(!category.getShopId().equals(shopId)) {
-//            throw new AccessDeniedException("Account seller and shop not match");
-//        }
-//                .orElseThrow(() -> new DataNotFoundException("Category not found"));;
-        ;
-
+                .orElseThrow(() -> new DataNotFoundException("Cannot find address by id"));
         seller.setTax(detailSellerInfoDTO.getTax());
         seller.setCccd(detailSellerInfoDTO.getCccd());
-//      user.setEmail(detailSellerInfoDTO.getEmail());
         user.setFullName(detailSellerInfoDTO.getFullName());
         user.setPhone(detailSellerInfoDTO.getPhone());
+        user.setGender(detailSellerInfoDTO.getGender());
         address.setAddressDetail(detailSellerInfoDTO.getAddressDetail());
         address.setCommune(detailSellerInfoDTO.getCommune());
         address.setCountry(detailSellerInfoDTO.getCountry());
@@ -129,11 +120,8 @@ public class SellerServiceImpl implements SellerService{
         address.setDistrict(detailSellerInfoDTO.getDistrict());
         sellerRepository.save(seller);
         userRepository.save(user);
-//        for (Address addressTemp : address) {
-            // Giả sử bạn có thể cập nhật địa chỉ dựa trên thông tin từ DTO
-            // Bạn cần phải logic điều kiện và cập nhật theo cách của bạn
             addressRepository.save(address);
-//        }
+
         return detailSellerInfoDTO;
     }
 

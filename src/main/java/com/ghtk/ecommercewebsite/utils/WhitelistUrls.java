@@ -13,7 +13,15 @@ public class WhitelistUrls {
             "/api/vouchers/**",
             "/api/cart/**",
             "/api/orders/**",
-            "/api/checkout/**"
-            ,"/api/comments/**"
+            "/api/checkout/**",
+            "/api/comments/**",
+            "/categories/**",
+            "/api/v1/seller/**",
+            "/api/v1/shop/**",
+            "/api/v1/warehouse/**",
+            "/api/v1/product-attribute/**",
+            "/api/v1/inventory/**",
+            "/api/v1/sku/**",
+
     };
 }

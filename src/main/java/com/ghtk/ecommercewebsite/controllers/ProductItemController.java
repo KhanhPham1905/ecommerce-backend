@@ -1,0 +1,68 @@
+package com.ghtk.ecommercewebsite.controllers;
+
+import com.ghtk.ecommercewebsite.models.dtos.DetailProductItemDTO;
+import com.ghtk.ecommercewebsite.models.entities.User;
+import com.ghtk.ecommercewebsite.models.responses.CommonResult;
+import com.ghtk.ecommercewebsite.services.productitem.ProductItemService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/api/v1/sku")
+@RequiredArgsConstructor
+public class ProductItemController {
+
+    private final ProductItemService productItemService;
+
+    @PostMapping
+    @PreAuthorize("hasRole('ROLE_SELLER')")
+    public CommonResult<DetailProductItemDTO> createProductItem(
+            @RequestBody DetailProductItemDTO detailProductItemDTO
+    ) throws  Exception {
+        User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return CommonResult.success(productItemService.createProductItem(detailProductItemDTO, user.getId()), "create product item successfully");
+    }
+
+    @GetMapping("/list-sku/{id}")
+    @PreAuthorize("hasRole('ROLE_SELLER')")
+    public  CommonResult<Object> getAllProductItem(
+        @PathVariable Long id
+    ) throws  Exception{
+        User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return CommonResult.success(productItemService.getAllProductItem(id,user.getId()),"get all product item successfully");
+    }
+
+    @PutMapping
+    @PreAuthorize("hasRole('ROLE_SELLER')")
+    public CommonResult<DetailProductItemDTO> updateProductItem(
+            @RequestBody DetailProductItemDTO detailProductItemDTO
+    ) throws Exception{
+        User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return CommonResult.success(productItemService.updateProductItem(detailProductItemDTO,user.getId()),"update product item successfully");
+    }
+
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_SELLER')")
+    public CommonResult<String> deleteProductItem(
+            @PathVariable Long id
+    ) throws Exception{
+        User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        productItemService.deleteProductItem(id, user.getId());
+        return CommonResult.success("Delete product item id = " + id + " successfully");
+
+    }
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_SELLER')")
+    public  CommonResult<DetailProductItemDTO> getProductItemById(
+            @PathVariable Long id
+    ) throws  Exception{
+        User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return CommonResult.success(productItemService.getProductItemById(id,user.getId()),"get all product item successfully");
+    }
+
+}

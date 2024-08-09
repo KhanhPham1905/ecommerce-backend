@@ -3,9 +3,17 @@ package com.ghtk.ecommercewebsite.models.dtos;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
-public class ProductItemAtrributes {
+
+@Getter
+@Setter
+@AllArgsConstructor
+@NoArgsConstructor
+public class ProductItemAttributesDTO {
 
     @NotBlank(message = "Value cannot be blank")
     @JsonProperty("value")
@@ -15,7 +23,11 @@ public class ProductItemAtrributes {
     @JsonProperty("product_attributes_id")
     private Long productAttributesId;
 
-    @Min(value=1, message =  "Product item ID is required")
-    @JsonProperty("product_item_id")
-    private Long productItemId;
+    private Long id;
+
+    public ProductItemAttributesDTO(String value, Long productAttributesId) {
+    }
+//    @Min(value=1, message =  "Product item ID is required")
+//    @JsonProperty("product_item_id")
+//    private Long productItemId;
 }
