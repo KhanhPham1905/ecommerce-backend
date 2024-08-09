@@ -33,6 +33,11 @@ public class ProductItemServiceImpl implements ProductItemService
 
     private final OrderItemRepository orderItemRepository ;
 
+    private final ProductItemAttributesRepository productItemAttributesRepository;
+
+    private final ProductRepository productRepository;
+
+
     @Transactional
     public void deleteProductItemById(Long id) {
         // Xóa các bản ghi trong cart_item tham chiếu đến product_item
@@ -40,10 +45,6 @@ public class ProductItemServiceImpl implements ProductItemService
         // Xóa bản ghi trong product_item
         productItemRepository.deleteById(id);
     }
-
-    private final ProductItemRepository productItemRepository;
-    private final ProductItemAttributesRepository productItemAttributesRepository;
-    private final ProductRepository productRepository;
 
     @Override
     @Transactional

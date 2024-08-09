@@ -1,6 +1,7 @@
 package com.ghtk.ecommercewebsite.models.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.enums.RoleEnum;
@@ -37,6 +38,7 @@ public class Role {
     @ManyToMany(targetEntity = User.class, mappedBy = "roles",
             cascade = {CascadeType.MERGE, CascadeType.PERSIST, CascadeType.DETACH, CascadeType.REFRESH})
     @JsonBackReference
+//    @JsonIgnore
     private Set<User> users;
 
     @CreationTimestamp
