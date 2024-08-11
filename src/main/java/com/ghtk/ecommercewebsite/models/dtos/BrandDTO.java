@@ -19,17 +19,12 @@ public class BrandDTO {
     @JsonProperty("id")
     private Long id;
 
-
-
     private String description;
-
 
     @NotNull(message = "Name is required")
     private String name;
 
-
     private boolean status;
-
 
     @NotNull(message = "Shop ID is required")
     private Long shopId;

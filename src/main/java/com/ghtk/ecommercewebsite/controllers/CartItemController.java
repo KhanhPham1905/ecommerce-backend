@@ -5,28 +5,20 @@ import com.ghtk.ecommercewebsite.models.dtos.CartItemDTO;
 import com.ghtk.ecommercewebsite.models.entities.CartItem;
 import com.ghtk.ecommercewebsite.models.responses.CommonResult;
 import com.ghtk.ecommercewebsite.services.cart.ICartItemService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/cart")
 public class CartItemController {
 
     private final ICartItemService cartItemService;
+    private final CartItemMapper cartItemMapper;
 
-    private final CartItemMapper cartItemMapper ;
 
-    @Autowired
-    public CartItemController(ICartItemService cartItemService, CartItemMapper cartItemMapper) {
-        this.cartItemService = cartItemService;
-        this.cartItemMapper = cartItemMapper;
-    }
 
-    @PostMapping("/create_cart_item")
-    public CommonResult<CartItemDTO> createCartItem(@RequestBody CartItemDTO cartItemDTO) {
-        CartItem savedCartItem = cartItemService.save(cartItemMapper.toEntity(cartItemDTO));
-        return CommonResult.success(cartItemMapper.toDTO(savedCartItem), "Create cart item successfully");
-    }
     @PostMapping("/add")
     public CommonResult<Object> addProductToCart(@RequestBody CartItemDTO cartItemDTO) {
         try {
@@ -37,11 +29,11 @@ public class CartItemController {
         }
     }
 
-    @DeleteMapping("/delete")
-    public CommonResult<Object> deleteCartItems(@RequestBody CartItemDTO cartItemDTO) {
+    @PutMapping("/update")
+    public CommonResult<Object> updateCartItem(@RequestBody CartItemDTO cartItemDTO) {
         try {
-            cartItemService.deleteCartItems(cartItemDTO.getUserId(), cartItemDTO.getProductItemId());
-            return CommonResult.success(null, "Cart items deleted successfully");
+            cartItemService.updateCartItem(cartItemDTO);
+            return CommonResult.success(null, "Cart item updated successfully");
         } catch (IllegalArgumentException e) {
             return CommonResult.failed(e.getMessage());
         }

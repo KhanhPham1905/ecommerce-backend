@@ -16,12 +16,12 @@ public class ProductMapper {
         product.setId(dto.getId());
         product.setName(dto.getName());
         product.setDescription(dto.getDescription());
-        product.setStatus(dto.getStatus());
         product.setProductView(dto.getProductView());
         product.setTotalSold(dto.getTotalSold());
         product.setSlug(dto.getSlug());
         product.setBrandId(dto.getBrandId());
         product.setShopId(dto.getShopId());
+        product.setStatus(dto.getStatus());
         // Ignore createdAt and modifiedAt as per the requirement
         return product;
     }
@@ -35,12 +35,12 @@ public class ProductMapper {
         dto.setId(product.getId());
         dto.setName(product.getName());
         dto.setDescription(product.getDescription());
-        dto.setStatus(product.getStatus());
         dto.setProductView(product.getProductView());
         dto.setTotalSold(product.getTotalSold());
         dto.setSlug(product.getSlug());
         dto.setBrandId(product.getBrandId());
         dto.setShopId(product.getShopId());
+        dto.setStatus(product.getStatus());
         // Ignore createdAt and modifiedAt as per the requirement
         return dto;
     }

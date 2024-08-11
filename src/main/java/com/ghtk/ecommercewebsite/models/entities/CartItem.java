@@ -36,6 +36,8 @@ public class CartItem {
     @Column(name = "voucher_id")
     private Long voucherId;
 
+    @Column(name = "status", nullable = false, columnDefinition = "BOOLEAN DEFAULT TRUE")
+    private Boolean status = true;
 
     @Column(name = "shop_id", nullable = false)
     private Long shopId;

@@ -1,5 +1,6 @@
 package com.ghtk.ecommercewebsite.services.voucher;
 
+import com.ghtk.ecommercewebsite.models.dtos.VoucherDTO;
 import com.ghtk.ecommercewebsite.models.entities.Voucher;
 
 import java.util.List;
@@ -17,4 +18,13 @@ public interface IVoucherService {
     void deleteById(Long id);
 
     List<Voucher> findByShopId(Long shopId) ;
+
+    // Các phương thức mới
+    List<VoucherDTO> getAllVouchers();
+    VoucherDTO getVoucherById(Long id);
+    VoucherDTO createVoucher(VoucherDTO voucherDTO);
+    VoucherDTO updateVoucher(Long id, VoucherDTO voucherDetails);
+    VoucherDTO patchVoucher(Long id, VoucherDTO voucherDetails);
+    void softDeleteVoucher(Long id);
+    List<VoucherDTO> getVouchersByShopId(Long shopId);
 }

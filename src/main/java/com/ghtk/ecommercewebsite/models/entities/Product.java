@@ -33,7 +33,9 @@ public class Product {
     private String name;
 
     private String slug;
-    private int status;
+
+    @Column(name = "status", nullable = false)
+    private Boolean status;
 
     @Column(name = "total_sold")
     private Long totalSold;

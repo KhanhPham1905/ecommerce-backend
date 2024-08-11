@@ -34,10 +34,10 @@ public class VoucherDTO {
     private LocalDateTime expiredAt;
 
     @NotNull(message = "Active status is required")
-    private boolean isActive;
+    private Boolean isActive;
 
     @NotNull(message = "Public status is required")
-    private boolean isPublic;
+    private Boolean isPublic;
 
     @NotNull(message = "Maximum discount value is required")
     @DecimalMin(value = "0.0", inclusive = false, message = "Maximum discount value must be greater than 0")

@@ -30,4 +30,7 @@ public class ProductItem {
 
     @Column(name = "product_id", nullable = false)
     private Long productId;
+
+    @Column(name = "status", nullable = false)
+    private Boolean status ;
 }

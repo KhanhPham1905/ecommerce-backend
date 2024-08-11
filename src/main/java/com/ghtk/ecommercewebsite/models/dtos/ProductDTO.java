@@ -20,7 +20,8 @@ public class ProductDTO {
     @Size(max = 300, message = "Name cannot exceed 300 characters")
     private String name;
 
-    private int status;
+    @NotNull(message = "Status is required")
+    private Boolean status;
 
     private String slug;
 

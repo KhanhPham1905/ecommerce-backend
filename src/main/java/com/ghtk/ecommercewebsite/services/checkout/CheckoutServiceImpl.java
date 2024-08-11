@@ -195,7 +195,7 @@ public class CheckoutServiceImpl implements ICheckoutService {
     }
 
     private boolean isVoucherApplicable(Voucher voucher, int quantity) {
-        return voucher.isActive() &&
+        return voucher.getIsActive() &&
                 LocalDateTime.now().isBefore(voucher.getExpiredAt()) &&
                 quantity >= voucher.getMinimumQuantityNeeded();
     }

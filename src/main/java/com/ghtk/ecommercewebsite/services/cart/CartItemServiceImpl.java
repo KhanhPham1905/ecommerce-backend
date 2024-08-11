@@ -6,67 +6,69 @@ import com.ghtk.ecommercewebsite.models.entities.ProductItem;
 import com.ghtk.ecommercewebsite.repositories.CartItemRepository;
 import com.ghtk.ecommercewebsite.mapper.CartItemMapper;
 import com.ghtk.ecommercewebsite.repositories.ProductItemRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
 import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
 
 @Service
+@RequiredArgsConstructor
 public class CartItemServiceImpl implements ICartItemService {
 
     private final CartItemRepository cartItemRepository;
     private final CartItemMapper cartMapper;
     private final ProductItemRepository productItemRepository;
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
-    @Autowired
-    public CartItemServiceImpl(CartItemRepository cartItemRepository, CartItemMapper cartMapper, ProductItemRepository productItemRepository) {
-        this.cartItemRepository = cartItemRepository;
-        this.cartMapper = cartMapper;
-        this.productItemRepository = productItemRepository;
-    }
-
     @Override
     @Transactional
-    public CartItem save(CartItem cartItem) {
-        Long shopId = productItemRepository.findShopIdByProductItemId(cartItem.getProductItemId());
-        if (shopId == null) {
-            throw new IllegalArgumentException("Product item not found or no associated shop");
-        }
-        // Gán giá trị shopId cho cartItem
-        cartItem.setShopId(shopId);
-        // Lưu cartItem
-        return cartItemRepository.save(cartItem);
-    }
-
-    @Transactional
-    @Override
-    public void addProductToCart(@RequestBody CartItemDTO cartItemDTO) {
-        // Kiểm tra số lượng sản phẩm
+    public void addProductToCart(CartItemDTO cartItemDTO) {
+        // Lấy thông tin sản phẩm từ cơ sở dữ liệu
         ProductItem productItem = productItemRepository.findById(cartItemDTO.getProductItemId())
                 .orElseThrow(() -> new IllegalArgumentException("Product item not found"));
-
+        // Kiểm tra số lượng sản phẩm
         if (productItem.getQuantity() < cartItemDTO.getQuantity()) {
             throw new IllegalArgumentException("Not enough quantity available");
         }
+        // Cập nhật số lượng sản phẩm trong giỏ hàng nếu đã có
+        CartItem existingCartItem = cartItemRepository.findByProductItemIdAndUserId(cartItemDTO.getProductItemId(), cartItemDTO.getUserId());
+        if (existingCartItem != null) {
+            // Nếu sản phẩm đã có trong giỏ hàng, cập nhật số lượng
+            existingCartItem.setQuantity(existingCartItem.getQuantity() + cartItemDTO.getQuantity());
+            cartItemRepository.save(existingCartItem);
+        } else {
+            // Nếu sản phẩm chưa có trong giỏ hàng, tạo mới
+            CartItem cartItem = cartMapper.toEntity(cartItemDTO);
+            // Lấy shopId và gán cho cartItem
+            Long shopId = productItemRepository.findShopIdByProductItemId(cartItemDTO.getProductItemId());
+            cartItem.setShopId(shopId);
+            cartItem.setStatus(true); // Đặt giá trị status trước khi lưu
+            cartItemRepository.save(cartItem);
+        }
 
+        // Cập nhật số lượng sản phẩm trong kho
+        productItem.setQuantity(productItem.getQuantity() - cartItemDTO.getQuantity());
         productItemRepository.save(productItem);
-        // Chuyển đổi DTO thành Entity
-        CartItem cartItem = cartMapper.toEntity(cartItemDTO);
-        // Lấy shopId và gán cho cartItem
-        Long shopId = productItemRepository.findShopIdByProductItemId(cartItemDTO.getProductItemId());
-        cartItem.setShopId(shopId);
-        // Lưu cartItem vào cơ sở dữ liệu
-        cartItemRepository.save(cartItem);
     }
-    @Override
+
     @Transactional
-    public void deleteCartItems(@RequestParam Long userId, @RequestParam Long productItemId) {
-        cartItemRepository.deleteByUserIdAndProductId(userId, productItemId);
+    @Override
+    public void updateCartItem(CartItemDTO cartItemDTO) {
+        ProductItem productItem = productItemRepository.findById(cartItemDTO.getProductItemId()).orElseThrow(()
+                -> new IllegalArgumentException("Product item not found"));
+        if (productItem.getQuantity() < cartItemDTO.getQuantity()) {
+            throw new IllegalArgumentException("Not enough quantity available");
+        }
+        CartItem existingCartItem = cartItemRepository.findById(cartItemDTO.getId())
+                .orElseThrow(() -> new IllegalArgumentException("Cart item not found"));
+        existingCartItem.setQuantity(cartItemDTO.getQuantity());
+        cartItemRepository.save(existingCartItem);
+    }
+
+    @Transactional
+    @Override
+    public void softDeleteCartItem(Long id) {
+        CartItem cartItem = cartItemRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Cart item not found"));
+        cartItem.setStatus(false);  // Soft delete
+        cartItemRepository.save(cartItem);
     }
 }

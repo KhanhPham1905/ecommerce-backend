@@ -19,8 +19,8 @@ public class VoucherMapper {
         voucher.setDiscountType(dto.getDiscountType());
         voucher.setDiscountValue(dto.getDiscountValue());
         voucher.setExpiredAt(dto.getExpiredAt());
-        voucher.setActive(dto.isActive());
-        voucher.setPublic(dto.isPublic());
+        voucher.setIsPublic(dto.getIsActive());
+        voucher.setIsPublic(dto.getIsPublic());
         voucher.setMaximumDiscountValue(dto.getMaximumDiscountValue());
         voucher.setName(dto.getName());
         voucher.setShopId(dto.getShopId());
@@ -28,6 +28,7 @@ public class VoucherMapper {
         voucher.setQuantity(dto.getQuantity());
         voucher.setMinimumQuantityNeeded(dto.getMinimumQuantityNeeded());
         voucher.setTypeRepeat(dto.isTypeRepeat());
+        voucher.setStartAt(dto.getStartAt());
         // Ignore createdAt and modifiedAt as per the requirement
         return voucher;
     }
@@ -43,8 +44,8 @@ public class VoucherMapper {
         dto.setDiscountType(voucher.getDiscountType());
         dto.setDiscountValue(voucher.getDiscountValue());
         dto.setExpiredAt(voucher.getExpiredAt());
-        dto.setActive(voucher.isActive());
-        dto.setPublic(voucher.isPublic());
+        dto.setIsActive(voucher.getIsActive());
+        dto.setIsPublic(voucher.getIsPublic());
         dto.setMaximumDiscountValue(voucher.getMaximumDiscountValue());
         dto.setName(voucher.getName());
         dto.setShopId(voucher.getShopId());
@@ -52,6 +53,7 @@ public class VoucherMapper {
         dto.setQuantity(voucher.getQuantity());
         dto.setMinimumQuantityNeeded(voucher.getMinimumQuantityNeeded());
         dto.setTypeRepeat(voucher.isTypeRepeat());
+        dto.setStartAt(voucher.getStartAt());
         // Ignore createdAt and modifiedAt as per the requirement
         return dto;
     }

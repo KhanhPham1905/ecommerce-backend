@@ -8,6 +8,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 
 @Repository
@@ -21,5 +22,12 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     List<Product> findByNameContaining(String name);
 
     List<Product> findByDescriptionContaining(String description);
+
+    // Tìm tất cả sản phẩm với trạng thái đang hoạt động
+    List<Product> findByStatusTrue();
+
+    // Tìm sản phẩm theo ID và trạng thái đang hoạt động
+    Optional<Product> findByIdAndStatusTrue(Long id);
+
 
 }

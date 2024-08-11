@@ -41,10 +41,10 @@ public class Voucher {
     private LocalDateTime expiredAt;
 
     @Column(name = "is_active", nullable = false)
-    private boolean isActive;
+    private Boolean isActive;
 
     @Column(name = "is_public", nullable = false)
-    private boolean isPublic;
+    private Boolean isPublic;
 
     @Column(name = "maximum_discount_value", nullable = false)
     private BigDecimal maximumDiscountValue;

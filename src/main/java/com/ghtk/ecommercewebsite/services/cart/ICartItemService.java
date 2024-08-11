@@ -7,8 +7,12 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ICartItemService {
-    CartItem save(CartItem cartItem) ;
+
     void addProductToCart(CartItemDTO cartItemDTO) ;
-    void deleteCartItems(Long userId, Long productItemId);
+
+    void softDeleteCartItem(Long cartItemId) ;
+
+    void updateCartItem(CartItemDTO cartItemDTO);
+
 
 }
