@@ -40,6 +40,7 @@ public class CategoryServiceImpl implements CategoryService{
             }
             Category newCategory = Category
                     .builder()
+                    .isDelete(Boolean.TRUE)
                     .name(categoryDTO.getName())
                     .status(categoryDTO.getStatus())
                     .slug(categoryDTO.getSlug())
