@@ -1,11 +1,13 @@
 package com.ghtk.ecommercewebsite.models.responses;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.ghtk.ecommercewebsite.models.entities.Category;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
+
 
 import java.util.List;
 
@@ -32,13 +34,23 @@ public class ProductResponse {
 
     private String slug;
 
+    @JsonProperty("total_sold")
     private Long totalSold;
 
+    @JsonProperty("product_view")
     private Integer productView;
 
-    private String brand;
+    @JsonProperty("brand_id")
+    private Long brandId;
 
-    private List<String> categories;
+    @JsonProperty("brand_name")
+    private String brandName;
 
-    private String images;
+    @JsonProperty("categories")
+    private List<Category> categories;
+
+    @JsonProperty("category_names")
+    private List<String> categoryNames;
+
+    private String image;
 }

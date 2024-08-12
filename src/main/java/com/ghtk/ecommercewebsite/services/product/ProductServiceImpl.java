@@ -12,11 +12,14 @@ import com.ghtk.ecommercewebsite.models.responses.CloudinaryResponse;
 import com.ghtk.ecommercewebsite.services.productitem.ProductItemServiceImpl;
 import com.ghtk.ecommercewebsite.services.shop.ShopService;
 import jakarta.transaction.Transactional;
+import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import com.ghtk.ecommercewebsite.services.CloudinaryService;
 import com.ghtk.ecommercewebsite.services.images.ImagesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -44,7 +47,6 @@ public class ProductServiceImpl implements IProductService {
     public Optional<Product> findById(Long id) {
         return productsRepository.findById(id);
     }
-
 
 
     @Transactional
@@ -115,7 +117,7 @@ public class ProductServiceImpl implements IProductService {
     }
 
     @Override
-    public List<ProductResponse> getAllProducts() throws Exception{
+    public List<Product> getAllProducts() throws Exception{
 //        List<Product> products = productsRepository.findAll();
 //        List<ProductResponse> productResponses = new ArrayList<>();
 //        for (Product product : products){
@@ -128,4 +130,17 @@ public class ProductServiceImpl implements IProductService {
         return List.of();
     }
 
+    @Override
+    public Page<Product> searchProducts(
+            String categoryId, String brandId,
+            String keyword,
+            Long userId,
+            PageRequest pageRequest
+    ) {
+        Shop shop = shopRepository.findByUserId(userId);
+        Page<Product> productsPage;
+        productsPage = productsRepository.searchProducts(shop.getId(),brandId.equals("")? null :Long.parseLong(brandId), keyword, pageRequest);
+//        List<Category> categories =
+        return productsPage;
+    }
 }

@@ -3,6 +3,8 @@ package com.ghtk.ecommercewebsite.services.product;
 import com.ghtk.ecommercewebsite.models.dtos.ProductDTO;
 import com.ghtk.ecommercewebsite.models.entities.Product;
 import com.ghtk.ecommercewebsite.models.responses.ProductResponse;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
 import java.util.List;
 import java.util.Optional;
@@ -23,5 +25,7 @@ public interface IProductService {
 
     List<Product> searchProductsByDes(String keyword); // Phương thức tìm kiếm
 
-    List<ProductResponse> getAllProducts() throws  Exception;
+    List<Product> getAllProducts() throws  Exception;
+
+    Page<Product> searchProducts (String categoryId, String brandId, String keyword,Long userId, PageRequest pageRequest);
 }

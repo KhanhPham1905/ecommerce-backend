@@ -9,12 +9,15 @@ import com.ghtk.ecommercewebsite.models.entities.ProductItem;
 import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.responses.CloudinaryResponse;
 import com.ghtk.ecommercewebsite.models.responses.CommonResult;
+import com.ghtk.ecommercewebsite.models.responses.ProductListResponse;
 import com.ghtk.ecommercewebsite.models.responses.ProductResponse;
 import com.ghtk.ecommercewebsite.services.CloudinaryService;
 import com.ghtk.ecommercewebsite.services.images.ImagesService;
 import com.ghtk.ecommercewebsite.services.product.IProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -22,6 +25,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -35,11 +39,34 @@ public class ProductsController {
     private final ProductMapper productMapper;
     private final CloudinaryService cloudinaryService;
 
+
     @GetMapping
-    public CommonResult<List<ProductResponse>> getAllProducts() throws Exception{
-        List<ProductResponse> products = iProductService.getAllProducts();
+    public CommonResult<List<Product>> getAllProducts(
+            @RequestParam(defaultValue = "") String keyword,
+            @RequestParam(defaultValue = "", name = "category-id",required = false) String categoryId,
+            @RequestParam(defaultValue = "", name = "brand-id", required = false) String brandId,
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "16") int limit
+    ) throws Exception{
+        PageRequest pageRequest = PageRequest.of(
+                page, limit
+        );
+
+        int totalPages = 0;
+        Page<Product> productPage = null;
+        List<Product> productResponses = null;
+        User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        if (productPage == null) {
+            productPage = iProductService.searchProducts(categoryId, brandId, keyword,user.getId(), pageRequest);
+            totalPages = productPage.getTotalPages();
+            productResponses = productPage.getContent();
+        }
+
+
+        List<Product> products = iProductService.getAllProducts();
         return CommonResult.success(products, "Get all products successfully");
     }
+
 
     @GetMapping("/{id}")
     public CommonResult<ProductDTO> getProductById(@PathVariable Long id) {
@@ -48,12 +75,14 @@ public class ProductsController {
                 .orElse(CommonResult.error(404, "Product not found"));
     }
 
+
     @PostMapping
     public CommonResult<ProductDTO> createProduct(@ModelAttribute ProductDTO productDTO) throws Exception{
         User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Product savedProduct = iProductService.save(productDTO, user.getId());
         return CommonResult.success(productMapper.toDTO(savedProduct), "Create product successfully");
     }
+
 
     @PutMapping("/{id}")
     public CommonResult<ProductDTO> updateProduct(@PathVariable Long id, @ModelAttribute ProductDTO productDetails){
@@ -77,6 +106,8 @@ public class ProductsController {
                 })
                 .orElse(CommonResult.error(404, "Product not found"));
     }
+
+
 //
 //    @PatchMapping("/{id}")
 //    public CommonResult<ProductDTO> patchProduct(@PathVariable Long id, @RequestBody Map<String, Object> updates) {
@@ -126,22 +157,22 @@ public class ProductsController {
                 .orElse(CommonResult.error(404, "Product not found"));
     }
 
-    @GetMapping("/searchName")
-    public CommonResult<List<ProductDTO>> searchProductsByName(@RequestParam("keyword") String keyword) {
-        List<ProductDTO> products = iProductService.searchProductsByName(keyword).stream()
-                .map(productMapper::toDTO)
-                .collect(Collectors.toList());
-        if (products.isEmpty()) return CommonResult.error( 404 , "notfounbd");
-        else return CommonResult.success(products, "Search products by name successfully");
-    }
-
-    @GetMapping("/searchDes")
-    public CommonResult<List<ProductDTO>> searchProductsByDes(@RequestParam("keyword") String keyword) {
-        List<ProductDTO> products = iProductService.searchProductsByDes(keyword).stream()
-                .map(productMapper::toDTO)
-                .collect(Collectors.toList());
-        return CommonResult.success(products, "Search products by description successfully");
-    }
+//    @GetMapping("/searchName")
+//    public CommonResult<List<ProductDTO>> searchProductsByName(@RequestParam("keyword") String keyword) {
+//        List<ProductDTO> products = iProductService.searchProductsByName(keyword).stream()
+//                .map(productMapper::toDTO)
+//                .collect(Collectors.toList());
+//        if (products.isEmpty()) return CommonResult.error( 404 , "notfounbd");
+//        else return CommonResult.success(products, "Search products by name successfully");
+//    }
+//
+//    @GetMapping("/searchDes")
+//    public CommonResult<List<ProductDTO>> searchProductsByDes(@RequestParam("keyword") String keyword) {
+//        List<ProductDTO> products = iProductService.searchProductsByDes(keyword).stream()
+//                .map(productMapper::toDTO)
+//                .collect(Collectors.toList());
+//        return CommonResult.success(products, "Search products by description successfully");
+//    }
 
     @PostMapping(value = "uploads/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public CommonResult<?> uploadImages(

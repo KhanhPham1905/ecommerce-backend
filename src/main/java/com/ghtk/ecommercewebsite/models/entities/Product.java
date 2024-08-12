@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
 @Table(name = "product")
@@ -58,6 +59,9 @@ public class Product {
 
     @Column(name = "is_delete")
     private Boolean isDelete;
+
+    @Transient
+    private List<Category> categoryList;
 
     @PreUpdate
     protected void onUpdate() {
