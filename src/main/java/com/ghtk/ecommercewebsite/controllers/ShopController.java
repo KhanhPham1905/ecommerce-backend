@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/api/v1/shop")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class ShopController {
 
     private final ShopService shopService;
@@ -29,7 +28,7 @@ public class ShopController {
     @PreAuthorize("hasAnyRole('SELLER')")
     public CommonResult updateInformationShop(@RequestBody DetailShopInfoDTO detailShopInfoDTO) throws  Exception{
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return  CommonResult.success(shopService.updateShopInfo(detailShopInfoDTO,user.getId()),"get information shop successfully");
+        return  CommonResult.success(shopService.updateShopInfo(detailShopInfoDTO,user.getId()),"update information shop successfully");
     }
 
     @PostMapping

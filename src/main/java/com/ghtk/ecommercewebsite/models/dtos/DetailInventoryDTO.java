@@ -1,5 +1,6 @@
 package com.ghtk.ecommercewebsite.models.dtos;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -8,6 +9,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 
@@ -15,6 +17,10 @@ import java.time.LocalDateTime;
 @Setter
 @Getter
 public class DetailInventoryDTO {
+
+    @JsonProperty("id")
+    private Long id;
+
     @NotNull(message = "Quantity is required")
     @JsonProperty("quantity")
     private Integer quantity;
@@ -33,11 +39,8 @@ public class DetailInventoryDTO {
     @NotBlank(message = "Supplier is required")
     private String supplier;
 
-    @NotNull(message = "Unit price is required")
-    @JsonProperty("unit_price")
-    private  Long unitPrice;
-
     @JsonProperty("create_at")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime createAt;
 
     @JsonProperty("warehouse_id")
@@ -47,6 +50,12 @@ public class DetailInventoryDTO {
     @NotBlank(message = "location is required")
     private String location;
 
+    @JsonProperty("is_delete")
+    private Boolean isDelete;
+
+    @JsonProperty("import_price")
+    private BigDecimal importPrice;
+
     public DetailInventoryDTO(Integer quantity, String skuCode, String name, String warehouse) {
         this.quantity = quantity;
         this.skuCode = skuCode;
@@ -54,14 +63,17 @@ public class DetailInventoryDTO {
         this.warehouse = warehouse;
     }
 
-    public DetailInventoryDTO(Integer quantity, String skuCode, String name,String supplier, Long unitPrice, String warehouse, String location) {
+    public DetailInventoryDTO(Long id, Integer quantity, String skuCode, String name, String supplier, BigDecimal importPrice, String warehouse, String location, LocalDateTime createAt, Boolean isDelete) {
+        this.id = id;
         this.quantity = quantity;
         this.skuCode = skuCode;
         this.name = name;
         this.supplier = supplier;
-        this.unitPrice = unitPrice;
+        this.importPrice = importPrice;
         this.warehouse = warehouse;
         this.location = location;
+        this.createAt = createAt;
+        this.isDelete = isDelete;
     }
 
 }

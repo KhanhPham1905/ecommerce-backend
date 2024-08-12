@@ -73,4 +73,15 @@ public class GlobalExceptionHandler {
     public CommonResult handleResourceNotFoundException(OrderNotFoundException exception) {
         return CommonResult.validateFailed(exception.getMessage());
     }
+    @ExceptionHandler(QuantityExceededException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public CommonResult handleQuantityExceededException(QuantityExceededException exception) {
+        return CommonResult.validateFailed(exception.getMessage());
+    }
+
+    @ExceptionHandler(AlreadyExistedException.class)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    public CommonResult handleAlreadyExistedException(AlreadyExistedException exception) {
+        return CommonResult.validateFailed(exception.getMessage());
+    }
 }

@@ -10,6 +10,8 @@ import com.ghtk.ecommercewebsite.models.responses.CommonResult;
 import com.ghtk.ecommercewebsite.services.warehouse.WarehouseService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -19,7 +21,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/warehouse")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class WarehouseController {
     private final WarehouseService warehouseService;
 
@@ -61,9 +62,15 @@ public class WarehouseController {
     @GetMapping
     @PreAuthorize("hasRole('ROLE_SELLER')")
     public CommonResult<List<Warehouse>> getAllWarehouse(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int limit,
+            @RequestParam(defaultValue = "",required = false) String name
     ) throws Exception {
+        PageRequest pageRequest = PageRequest.of(
+                page, limit,
+                Sort.by("id").ascending());
         User user  = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return CommonResult.success(warehouseService.getAllWarehouse(user.getId()), "Get all categories");
+        return CommonResult.success(warehouseService.getAllWarehouse(pageRequest,user.getId(), name), "Get all categories");
     }
 
 }

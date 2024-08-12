@@ -26,4 +26,7 @@ public class ProductCategory {
 
     @Column(name = "category_id", nullable = false)
     private Long categoryId;
+
+    @Column(name = "is_delete")
+    private Boolean isDelete;
 }

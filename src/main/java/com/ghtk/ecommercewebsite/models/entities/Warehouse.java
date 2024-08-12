@@ -1,6 +1,9 @@
 package com.ghtk.ecommercewebsite.models.entities;
 
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.ghtk.ecommercewebsite.models.dtos.DetailWarehouseDTO;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -41,6 +44,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class Warehouse {
 
     @Id
@@ -56,10 +60,15 @@ public class Warehouse {
     private Long addressId;
 
     @Column(name = "created_at", updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime createdAt;
 
     @Column(name = "modified_at", columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime modifiedAt;
+
+    @Column(name = "is_delete")
+    private Boolean isDelete;
 
     @PrePersist
     protected void onCreate() {

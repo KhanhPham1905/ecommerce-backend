@@ -56,6 +56,9 @@ public class Product {
         modifiedAt = LocalDateTime.now();
     }
 
+    @Column(name = "is_delete")
+    private Boolean isDelete;
+
     @PreUpdate
     protected void onUpdate() {
         modifiedAt = LocalDateTime.now();

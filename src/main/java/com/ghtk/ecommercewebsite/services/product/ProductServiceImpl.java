@@ -3,12 +3,14 @@ package com.ghtk.ecommercewebsite.services.product;
 
 import com.ghtk.ecommercewebsite.configs.Contant;
 import com.ghtk.ecommercewebsite.mapper.ProductMapper;
+import com.ghtk.ecommercewebsite.models.dtos.CategoryDTO;
 import com.ghtk.ecommercewebsite.models.dtos.ProductDTO;
-import com.ghtk.ecommercewebsite.models.entities.Product;
-import com.ghtk.ecommercewebsite.repositories.ProductItemRepository;
+import com.ghtk.ecommercewebsite.models.entities.*;
+import com.ghtk.ecommercewebsite.models.responses.ProductResponse;
+import com.ghtk.ecommercewebsite.repositories.*;
 import com.ghtk.ecommercewebsite.models.responses.CloudinaryResponse;
-import com.ghtk.ecommercewebsite.repositories.ProductRepository;
 import com.ghtk.ecommercewebsite.services.productitem.ProductItemServiceImpl;
+import com.ghtk.ecommercewebsite.services.shop.ShopService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import com.ghtk.ecommercewebsite.services.CloudinaryService;
@@ -27,12 +29,13 @@ import java.util.Optional;
 public class ProductServiceImpl implements IProductService {
     private final CloudinaryService cloudinaryService;
     private final ProductRepository productsRepository;
-
     private final ProductItemServiceImpl productItemService;
     private final ProductItemRepository productItemRepository;
-
     private final ProductMapper productMapper;
     private final ImagesService imagesService;
+    private final CategoryProductRepository categoryProductRepository ;
+    private final ShopRepository shopRepository;
+    private final BrandRepository brandRepository;
 
     public List<Product> findAll() {
         return productsRepository.findAll();
@@ -45,8 +48,18 @@ public class ProductServiceImpl implements IProductService {
 
 
     @Transactional
-    public Product save(ProductDTO productDTO) throws  Exception {
+    public Product save(ProductDTO productDTO, Long userId) throws  Exception {
+        Shop shop = shopRepository.findByUserId(userId);
+        productDTO.setShopId(shop.getId());
         Product product = productsRepository.save(productMapper.toEntity(productDTO));
+        for (int i = 0; i < productDTO.getCategoryIds().size(); i++){
+            ProductCategory productCategory = ProductCategory.builder()
+                    .categoryId(productDTO.getCategoryIds().get(i))
+                    .productId(product.getId())
+                    .build();
+
+            categoryProductRepository.save(productCategory);
+        }
         List<MultipartFile> files = productDTO.getImages();
         files = files == null ? new ArrayList<MultipartFile>() : files;
         if(files.size() > Contant.MAXIMUM_IMAGES_PER_PRODUCT){
@@ -82,6 +95,7 @@ public class ProductServiceImpl implements IProductService {
         return productsRepository.findByBrandId(brandId);
     }
 
+
     @Override
     public void deleteBrandById(Long brandId) {
         List<Product> products = findByBrandId(brandId);
@@ -100,5 +114,18 @@ public class ProductServiceImpl implements IProductService {
         return productsRepository.findByDescriptionContaining(keyword);
     }
 
+    @Override
+    public List<ProductResponse> getAllProducts() throws Exception{
+//        List<Product> products = productsRepository.findAll();
+//        List<ProductResponse> productResponses = new ArrayList<>();
+//        for (Product product : products){
+////            Brand brand = brandRepository.findById(product.getBrandId())
+////                    .orElse();
+//            ProductResponse productResponse = ProductResponse.builder()
+//                    .brand()
+//                    .build();
+//        }
+        return List.of();
+    }
 
 }

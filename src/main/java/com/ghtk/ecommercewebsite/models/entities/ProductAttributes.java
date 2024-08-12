@@ -1,5 +1,7 @@
 package com.ghtk.ecommercewebsite.models.entities;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -12,6 +14,7 @@ import lombok.Builder;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ProductAttributes {
 
     @Id
@@ -23,4 +26,7 @@ public class ProductAttributes {
 
     @Column(name = "product_id", nullable = false)
     private Long productId;
+
+    @Column(name = "is_delete")
+    private Boolean isDelete;
 }

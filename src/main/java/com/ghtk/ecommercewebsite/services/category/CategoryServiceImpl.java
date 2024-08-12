@@ -11,6 +11,8 @@ import com.ghtk.ecommercewebsite.repositories.SellerRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.crossstore.ChangeSetPersister;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.nio.file.AccessDeniedException;
@@ -47,12 +49,12 @@ public class CategoryServiceImpl implements CategoryService{
     }
 
     @Override
-    public List<Category> getAllCategories(Long userId) throws Exception{
+    public Page<Category> getAllCategories(PageRequest pageRequest, Long userId, String name) throws Exception{
         Long shopId = sellerRepository.findShopIdByUserId(userId);
         if (shopId == null){
             throw new DataNotFoundException("Cannot find Shop id by Userid");
         }
-        return categoryRepository.findByShopId(shopId);
+        return categoryRepository.findByShopId(shopId,name, pageRequest);
     }
 
     @Override
@@ -84,7 +86,8 @@ public class CategoryServiceImpl implements CategoryService{
         if (!products.isEmpty()){
             throw new IllegalStateException("Cannot delete category with associated products");
         }else{
-            categoryRepository.deleteById(id);
+            category.setIsDelete(Boolean.TRUE);
+            categoryRepository.save(category);
         }
         return category;
     }
