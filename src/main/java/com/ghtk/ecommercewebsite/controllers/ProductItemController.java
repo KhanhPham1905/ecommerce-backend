@@ -5,6 +5,9 @@ import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.responses.CommonResult;
 import com.ghtk.ecommercewebsite.services.productitem.ProductItemService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -29,11 +32,14 @@ public class ProductItemController {
 
     @GetMapping("/list-sku/{id}")
     @PreAuthorize("hasRole('ROLE_SELLER')")
-    public  CommonResult<Object> getAllProductItem(
+    public  CommonResult<Page<Object>> getAllProductItem(
+        @RequestParam(defaultValue = "0") int page,
+        @RequestParam(defaultValue = "10") int limit,
         @PathVariable Long id
     ) throws  Exception{
+        Pageable pageable = PageRequest.of(page, limit);
         User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return CommonResult.success(productItemService.getAllProductItem(id,user.getId()),"get all product item successfully");
+        return CommonResult.success(productItemService.getAllProductItem(id,user.getId(), pageable),"get all product item successfully");
     }
 
     @PutMapping
@@ -59,6 +65,8 @@ public class ProductItemController {
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_SELLER')")
     public  CommonResult<DetailProductItemDTO> getProductItemById(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int limit,
             @PathVariable Long id
     ) throws  Exception{
         User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

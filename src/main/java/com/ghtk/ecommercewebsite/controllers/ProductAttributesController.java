@@ -16,7 +16,6 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/v1/product-attribute")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class ProductAttributesController {
     private final ProductAttributesService productAttributesService;
 
@@ -29,7 +28,7 @@ public class ProductAttributesController {
 
     @PostMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_SELLER')")
-    public CommonResult<Object> createCategory (
+    public CommonResult<Object> createProductAttributes (
             @PathVariable Long id,
             @Valid @RequestBody ProductAttributesDTO productAttributesDTO
     ) throws Exception {

@@ -6,8 +6,10 @@ import com.ghtk.ecommercewebsite.mapper.ProductMapper;
 import com.ghtk.ecommercewebsite.models.dtos.ProductDTO;
 import com.ghtk.ecommercewebsite.models.entities.Product;
 import com.ghtk.ecommercewebsite.models.entities.ProductItem;
+import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.responses.CloudinaryResponse;
 import com.ghtk.ecommercewebsite.models.responses.CommonResult;
+import com.ghtk.ecommercewebsite.models.responses.ProductResponse;
 import com.ghtk.ecommercewebsite.services.CloudinaryService;
 import com.ghtk.ecommercewebsite.services.images.ImagesService;
 import com.ghtk.ecommercewebsite.services.product.IProductService;
@@ -15,6 +17,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -33,10 +36,8 @@ public class ProductsController {
     private final CloudinaryService cloudinaryService;
 
     @GetMapping
-    public CommonResult<List<ProductDTO>> getAllProducts() {
-        List<ProductDTO> products = iProductService.findAll().stream()
-                .map(productMapper::toDTO)
-                .collect(Collectors.toList());
+    public CommonResult<List<ProductResponse>> getAllProducts() throws Exception{
+        List<ProductResponse> products = iProductService.getAllProducts();
         return CommonResult.success(products, "Get all products successfully");
     }
 
@@ -49,7 +50,8 @@ public class ProductsController {
 
     @PostMapping
     public CommonResult<ProductDTO> createProduct(@ModelAttribute ProductDTO productDTO) throws Exception{
-        Product savedProduct = iProductService.save(productDTO);
+        User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Product savedProduct = iProductService.save(productDTO, user.getId());
         return CommonResult.success(productMapper.toDTO(savedProduct), "Create product successfully");
     }
 
@@ -64,10 +66,10 @@ public class ProductsController {
                     product.setTotalSold(productDetails.getTotalSold());
                     product.setProductView(productDetails.getProductView());
                     product.setBrandId(productDetails.getBrandId());
-                    product.setShopId(productDetails.getShopId());
                     Product updatedProduct = null;
                     try {
-                        updatedProduct = iProductService.save(productDetails);
+                        User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+                        updatedProduct = iProductService.save(productDetails, user.getId());
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }

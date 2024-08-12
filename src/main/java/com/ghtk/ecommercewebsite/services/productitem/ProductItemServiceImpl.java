@@ -1,5 +1,7 @@
 package com.ghtk.ecommercewebsite.services.productitem;
 
+import com.cloudinary.api.exceptions.AlreadyExists;
+import com.ghtk.ecommercewebsite.exceptions.AlreadyExistedException;
 import com.ghtk.ecommercewebsite.exceptions.DataNotFoundException;
 import com.ghtk.ecommercewebsite.models.dtos.DetailProductItemDTO;
 import com.ghtk.ecommercewebsite.models.dtos.ProductItemAttributesDTO;
@@ -14,6 +16,9 @@ import com.ghtk.ecommercewebsite.repositories.CartItemRepository;
 import com.ghtk.ecommercewebsite.repositories.OrderItemRepository;
 import com.ghtk.ecommercewebsite.repositories.ProductItemRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -49,9 +54,15 @@ public class ProductItemServiceImpl implements ProductItemService
     @Override
     @Transactional
     public DetailProductItemDTO createProductItem(DetailProductItemDTO detailProductItemDTO, Long userId) throws Exception {
+        ProductItem checkProductItem = productItemRepository.findBySkuCode(detailProductItemDTO.getSkuCode());
+        if(checkProductItem != null){
+            throw new AlreadyExistedException("sku code has been used");
+        }
         ProductItem productItem = ProductItem.builder()
+                .importPrice(detailProductItemDTO.getImportPrice())
                 .productId(detailProductItemDTO.getProductId())
                 .price(detailProductItemDTO.getPrice())
+                .isDelete(Boolean.FALSE)
                 .skuCode(detailProductItemDTO.getSkuCode())
                 .build();
         productItemRepository.save(productItem);
@@ -68,12 +79,15 @@ public class ProductItemServiceImpl implements ProductItemService
     }
 
     @Override
-    public Object getAllProductItem(Long productId, Long userId) throws Exception {
-            List<ProductItem> productItems =  productItemRepository.findAllByProductId(productId);
+    public Page<Object> getAllProductItem(Long productId, Long userId, Pageable pageable) throws Exception {
+            int limit = pageable.getPageSize();
+            int offset = pageable.getPageNumber() * limit;
+            List<ProductItem> productItems =  productItemRepository.findAllByProductId(productId,limit, offset);
             Product product = productRepository.findById(productId)
                     .orElseThrow(()->new DataNotFoundException("Cannot find product"));
 
             List<Object> productItemValues =  new ArrayList<>();
+
             for (ProductItem productItem :productItems) {
                 List<ProductItemAttributes> attributeValues = productItemAttributesRepository.findByProductItemId(productItem.getId());
                 List<ProductItemAttributesDTO> attributeDTOs = attributeValues.stream()
@@ -81,17 +95,19 @@ public class ProductItemServiceImpl implements ProductItemService
                         .collect(Collectors.toList());
 
                 DetailProductItemDTO detailProductItemDTO = DetailProductItemDTO.builder()
+                        .id(productItem.getId())
                         .quantity(productItem.getQuantity())
                         .name(product.getName())
                         .skuCode(productItem.getSkuCode())
                         .price(productItem.getPrice())
+                        .importPrice(productItem.getImportPrice())
                         .productId(productItem.getProductId())
                         .productItemAtrAttributesDTOS(attributeDTOs)
                         .build();
                 productItemValues.add(detailProductItemDTO);
             }
 
-        return productItemValues;
+        return new PageImpl<>(productItemValues, pageable, productItemValues.size());
     }
 
     @Override
@@ -104,6 +120,7 @@ public class ProductItemServiceImpl implements ProductItemService
         ProductItem newProductItem = ProductItem.builder()
                 .skuCode(detailProductItemDTO.getSkuCode())
                 .id(productItem.getId())
+                .importPrice(productItem.getImportPrice())
                 .productId(detailProductItemDTO.getProductId())
                 .price(detailProductItemDTO.getPrice())
                 .build();
@@ -119,19 +136,16 @@ public class ProductItemServiceImpl implements ProductItemService
                     .build();
             productItemAttributesRepository.save(productItemAttributes);
         }
-        return null;
+        return detailProductItemDTO;
     }
 
     @Override
     @Transactional
     public void deleteProductItem(Long id, Long userId) throws Exception {
-        productItemRepository.findById(id)
+        ProductItem productItem = productItemRepository.findById(id)
                 .orElseThrow(()-> new DataNotFoundException("product item not exist"));
-        productItemRepository.deleteById(id);
-        List<ProductItemAttributes> productItemAttributes = productItemAttributesRepository.findByProductItemId(id);
-        for(ProductItemAttributes productItemAttribute: productItemAttributes ){
-            productItemAttributesRepository.deleteById(productItemAttribute.getId());
-        }
+        productItem.setIsDelete(Boolean.TRUE);
+        productItemRepository.save(productItem);
     }
 
     @Override
@@ -148,6 +162,7 @@ public class ProductItemServiceImpl implements ProductItemService
         DetailProductItemDTO detailProductItemDTO = DetailProductItemDTO.builder()
                 .quantity(productItem.getQuantity())
                 .name(product.getName())
+                .importPrice(productItem.getImportPrice())
                 .skuCode(productItem.getSkuCode())
                 .price(productItem.getPrice())
                 .productId(productItem.getProductId())

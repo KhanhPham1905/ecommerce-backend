@@ -1,6 +1,5 @@
 package com.ghtk.ecommercewebsite.controllers;
 
-
 import com.ghtk.ecommercewebsite.models.dtos.CategoryDTO;
 import com.ghtk.ecommercewebsite.models.entities.Category;
 import com.ghtk.ecommercewebsite.models.entities.User;
@@ -8,6 +7,9 @@ import com.ghtk.ecommercewebsite.models.responses.CommonResult;
 import com.ghtk.ecommercewebsite.services.category.CategoryService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.RequestEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -40,11 +42,17 @@ public class CategoryController {
     }
 
     @GetMapping("")
-    public CommonResult<List<Category>> getAllCatgories(
+    public CommonResult<Page<Category>> getAllCatgories(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int limit,
+            @RequestParam(defaultValue = "",required = false) String name
     ) throws Exception {
+        PageRequest pageRequest = PageRequest.of(
+                page, limit,
+                Sort.by("id").ascending());
         User user  = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        List<Category> categories = categoryService.getAllCategories(user.getId());
-        return CommonResult.success(categories, "Get all categories");
+        Page<Category> categoriesPages = categoryService.getAllCategories(pageRequest,user.getId(), name);
+        return CommonResult.success(categoriesPages, "Get all categories");
     }
 
     @DeleteMapping("/{id}")

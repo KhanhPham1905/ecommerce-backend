@@ -68,6 +68,7 @@ public class ShopServiceImpl implements ShopService{
         Address newAddress = addressRepository.save(address);
 
         Shop shop = Shop.builder()
+                .userId(userId)
                 .name(detailShopInfoDTO.getName())
                 .mail(detailShopInfoDTO.getMail())
                 .phone(detailShopInfoDTO.getPhone())

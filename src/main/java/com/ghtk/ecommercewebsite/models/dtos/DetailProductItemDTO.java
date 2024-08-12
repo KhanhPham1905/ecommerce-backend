@@ -2,6 +2,7 @@ package com.ghtk.ecommercewebsite.models.dtos;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.PositiveOrZero;
 import lombok.*;
 
@@ -14,6 +15,9 @@ import java.util.List;
 @AllArgsConstructor
 @Builder
 public class DetailProductItemDTO {
+
+    private Long id;
+
     @PositiveOrZero(message = "Price must be zero or positive")
     private BigDecimal price;
 
@@ -26,6 +30,9 @@ public class DetailProductItemDTO {
 
     @JsonProperty("product_id")
     private Long productId;
+
+    @JsonProperty("import_price")
+    private  BigDecimal importPrice;
 
     @JsonProperty("list_product_item")
     private List<ProductItemAttributesDTO> productItemAtrAttributesDTOS;

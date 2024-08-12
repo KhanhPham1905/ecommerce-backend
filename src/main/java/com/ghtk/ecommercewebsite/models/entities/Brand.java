@@ -39,6 +39,9 @@ public class Brand {
     @Column(name = "shop_id", nullable = false)
     private Long shopId;
 
+    @Column(name = "is_delete")
+    private Boolean isDelete;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

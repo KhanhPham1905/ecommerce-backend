@@ -11,6 +11,7 @@ import com.ghtk.ecommercewebsite.repositories.ShopRepository;
 import com.ghtk.ecommercewebsite.repositories.WarehouseRepository;
 import jakarta.persistence.Id;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.nio.file.AccessDeniedException;
@@ -48,6 +49,7 @@ public class WarehouseServiceImpl implements WarehouseService{
         Address newAddress = addressRepository.save(address);
 
         Warehouse warehouse = Warehouse.builder()
+                .isDelete(Boolean.FALSE)
                 .name(detailWarehouseDTO.getName())
                 .shopId(shop.getId())
                 .addressId(newAddress.getId())
@@ -89,14 +91,17 @@ public class WarehouseServiceImpl implements WarehouseService{
         if (!shopId.equals(shop.getId())){
             throw  new AccessDeniedException("Cannot delete warehouse");
         }
-        warehouseRepository.deleteById(id);
+        Warehouse warehouse = warehouseRepository.findById(id)
+                        .orElseThrow(()-> new DataNotFoundException("Cannot find warehouse by id"));
+        warehouse.setIsDelete(Boolean.TRUE);
+        warehouseRepository.save(warehouse);
     }
 
     @Override
-    public List<Warehouse> getAllWarehouse(Long userId) throws Exception{
+    public List<Warehouse> getAllWarehouse(PageRequest pageRequest, Long userId, String name) throws Exception{
         Shop shop = shopRepository.findShopByUserId(userId)
                 .orElseThrow(() -> new DataNotFoundException("Cannot find shop by user id"));
-        List<Warehouse> warehouseDtoList = warehouseRepository.findByShopId(shop.getId());
+        List<Warehouse> warehouseDtoList = warehouseRepository.findByShopId(shop.getId(),  name, pageRequest);
         return warehouseDtoList;
     }
 }

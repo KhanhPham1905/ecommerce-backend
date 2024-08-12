@@ -1,17 +1,23 @@
-package com.ghtk.ecommercewebsite.models.dtos;
-
+package com.ghtk.ecommercewebsite.models.responses;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
+import lombok.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+
+
+@Getter
+@Setter
+@Builder
 @Data
-public class ProductDTO {
+@NoArgsConstructor
+@AllArgsConstructor
+public class ProductResponse {
 
     @JsonProperty("id")
     private Long id;
@@ -22,7 +28,7 @@ public class ProductDTO {
     @Size(max = 300, message = "Name cannot exceed 300 characters")
     private String name;
 
-    private int status;
+    private Integer status;
 
     private String slug;
 
@@ -30,14 +36,9 @@ public class ProductDTO {
 
     private Integer productView;
 
-    @NotNull(message = "Brand ID is required")
-    private Long brandId;
+    private String brand;
 
-//    @NotNull(message = "Shop ID is required")
-    private Long shopId;
+    private List<String> categories;
 
-    private List<Long> categoryIds;
-
-    private List<MultipartFile> images;
-
+    private String images;
 }

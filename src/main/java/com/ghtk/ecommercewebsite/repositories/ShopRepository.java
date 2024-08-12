@@ -12,6 +12,9 @@ import java.util.Optional;
 
 @Repository
 public interface ShopRepository extends JpaRepository<Shop, Long> {
+
+    Shop findByUserId(Long userId);
+
     @Query(nativeQuery = true, name = "Shop.getDetailShopInfo")
     Optional<DetailShopInfoDTO> getDetailShopInfo(@Param("shopId") Long shopId);
 
