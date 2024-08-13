@@ -24,16 +24,21 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     List<Product> findByNameContaining(String name);
 
+
     List<Product> findByDescriptionContaining(String description);
 
+
     @Query("SELECT p FROM Product p " +
-            "WHERE (:brandId IS NULL OR p.brandId = :brandId) " +
-            "AND p.shopId = :shopId " +
-            "AND (:keyword IS NULL OR :keyword = '' OR p.name LIKE %:keyword% OR p.description LIKE %:keyword%)")
+            "LEFT JOIN p.categoryList c " +
+            "WHERE (:categoryIds IS NULL OR c.id IN :categoryIds) " +
+            "AND (:brandIds IS NULL OR p.brandId IN :brandIds) " +
+            "AND (:keyword IS NULL OR :keyword = '' OR p.name LIKE %:keyword% OR p.description LIKE %:keyword%) " +
+            "GROUP BY p.id " +
+            "HAVING (:categoryIds IS NULL OR COUNT(DISTINCT c.id) = :categoryCount)")
     Page<Product> searchProducts(
-            @Param("shopId") Long shopId,
-            @Param("brandId") Long brandId,
+            @Param("categoryIds") List<Long> categoryIds,
+            @Param("categoryCount") long categoryCount,
+            @Param("brandIds") List<Long> brandIds,
             @Param("keyword") String keyword,
             Pageable pageable);
-
     }

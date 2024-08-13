@@ -11,6 +11,8 @@ import com.ghtk.ecommercewebsite.repositories.ShopRepository;
 import com.ghtk.ecommercewebsite.repositories.WarehouseRepository;
 import jakarta.persistence.Id;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -98,10 +100,10 @@ public class WarehouseServiceImpl implements WarehouseService{
     }
 
     @Override
-    public List<Warehouse> getAllWarehouse(PageRequest pageRequest, Long userId, String name) throws Exception{
+    public Page<Warehouse> getAllWarehouse(PageRequest pageRequest, Long userId, String name) throws Exception{
         Shop shop = shopRepository.findShopByUserId(userId)
                 .orElseThrow(() -> new DataNotFoundException("Cannot find shop by user id"));
-        List<Warehouse> warehouseDtoList = warehouseRepository.findByShopId(shop.getId(),  name, pageRequest);
+        Page<Warehouse> warehouseDtoList = warehouseRepository.findByShopId(shop.getId(),  name, pageRequest);
         return warehouseDtoList;
     }
 }

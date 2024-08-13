@@ -2,6 +2,7 @@ package com.ghtk.ecommercewebsite.services.product;
 
 
 import com.ghtk.ecommercewebsite.configs.Contant;
+import com.ghtk.ecommercewebsite.exceptions.DataNotFoundException;
 import com.ghtk.ecommercewebsite.mapper.ProductMapper;
 import com.ghtk.ecommercewebsite.models.dtos.CategoryDTO;
 import com.ghtk.ecommercewebsite.models.dtos.ProductDTO;
@@ -19,6 +20,7 @@ import com.ghtk.ecommercewebsite.services.images.ImagesService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
@@ -26,6 +28,7 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -39,6 +42,8 @@ public class ProductServiceImpl implements IProductService {
     private final CategoryProductRepository categoryProductRepository ;
     private final ShopRepository shopRepository;
     private final BrandRepository brandRepository;
+    private final RateRepository rateRepository;
+    private final ImagesRepository imagesRepository;
 
     public List<Product> findAll() {
         return productsRepository.findAll();
@@ -130,17 +135,67 @@ public class ProductServiceImpl implements IProductService {
         return List.of();
     }
 
+//    @Override
+//    public Page<ProductResponse> searchProducts(
+//            List<Long> categoryIds,
+//            long categoryCount,
+//            List<Long> brandIds,
+//            String keyword,
+//            PageRequest pageRequest
+//    ) {
+//
+//        Page<Product> productsPage;
+//        productsPage = productsRepository.searchProducts(categoryIds, categoryCount,brandIds, keyword, pageRequest);
+//
+//        List<String> categoryNames = product.getCategoryList().stream()
+//                .map(Category::getName).toList();
+//        ProductResponse productResponse = ProductResponse.builder()
+//                .id(product.getId())
+//                .name(product.getName())
+//                .description(product.getDescription())
+//                .brandName(product.)
+//                .build()
+//        productsPage.map(
+//
+//        );
+
+//
+//        return productsPage.map(ProductResponse::convertToProductResponse);
+//    }
     @Override
-    public Page<Product> searchProducts(
-            String categoryId, String brandId,
+    public Page<ProductResponse> searchProducts(
+            List<Long> categoryIds,
+            long categoryCount,
+            List<Long> brandIds,
             String keyword,
-            Long userId,
             PageRequest pageRequest
-    ) {
-        Shop shop = shopRepository.findByUserId(userId);
-        Page<Product> productsPage;
-        productsPage = productsRepository.searchProducts(shop.getId(),brandId.equals("")? null :Long.parseLong(brandId), keyword, pageRequest);
-//        List<Category> categories =
-        return productsPage;
+    ) throws Exception {
+        return productsRepository.searchProducts(categoryIds, categoryCount, brandIds, keyword, pageRequest)
+            .map(product -> {
+                List<String> categoryNames = product.getCategoryList().stream()
+                        .map(Category::getName)
+                        .collect(Collectors.toList());
+
+                Rate rate = rateRepository.findByProductId(product.getId());
+                // Xử lý Optional Brand để tránh NoSuchElementException
+                Optional<Brand> brand = brandRepository.findById(product.getBrandId());
+                List<String> imageList = imagesRepository.findLinkByProductId(product.getId());
+
+                return ProductResponse.builder()
+                        .id(product.getId())
+                        .name(product.getName())
+                        .description(product.getDescription())
+                        .thumbnail(product.getThumbnail())
+                        .averageRate(rate.getAverageStars())
+                        .brandId(brand.get().getId())
+                        .brandName(brand.get().getName())
+                        .images(imageList)
+                        .categoryNames(categoryNames)
+                        .categories(product.getCategoryList())
+                        .createdAt(product.getCreatedAt())
+                        .modifiedAt(product.getModifiedAt())
+                        .build();
+            });
     }
+
 }
