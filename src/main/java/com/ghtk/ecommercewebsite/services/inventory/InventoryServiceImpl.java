@@ -71,10 +71,18 @@ public class InventoryServiceImpl implements InventoryService{
         supplyRepository.save(supply);
 
         Inventory inventory = inventoryRepository.findByProductItemIdAndWarehouseId(productItem.getId(), detailInventoryDTO.getWarehouseId());
+        if(inventory == null){
+            Inventory newInventory = Inventory.builder()
+                    .warehouseId(detailInventoryDTO.getWarehouseId())
+                    .quantity(detailInventoryDTO.getQuantity())
+                    .productItemId(productItem.getId())
+                    .build();
+            inventoryRepository.save(newInventory);
 
-        inventory.setQuantity(detailInventoryDTO.getQuantity() + inventory.getQuantity());
-
-        inventoryRepository.save(inventory);
+        }else {
+            inventory.setQuantity(detailInventoryDTO.getQuantity() + inventory.getQuantity());
+            inventoryRepository.save(inventory);
+        }
 
         return detailInventoryDTO;
     }

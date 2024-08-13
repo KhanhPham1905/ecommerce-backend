@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -41,30 +42,60 @@ public class ProductsController {
 
 
     @GetMapping
-    public CommonResult<List<Product>> getAllProducts(
+    public CommonResult<ProductListResponse> getAllProducts(
             @RequestParam(defaultValue = "") String keyword,
-            @RequestParam(defaultValue = "", name = "category-id",required = false) String categoryId,
-            @RequestParam(defaultValue = "", name = "brand-id", required = false) String brandId,
+            @RequestParam(defaultValue = "", name = "category-ids") String categoryIds,
+            @RequestParam(defaultValue = "", name = "brand-ids") String brandIds,
+            @RequestParam(defaultValue = "default", name ="sort") String sortOption,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "16") int limit
     ) throws Exception{
+        Sort sort = switch (sortOption) {
+            case "popularity" -> Sort.by("id").descending();
+            case "latest" -> Sort.by("createdAt").descending();
+            case "high" -> Sort.by("price").descending();
+            case "low" -> Sort.by("price").ascending();
+            default -> Sort.by("id").ascending();
+        };
+
         PageRequest pageRequest = PageRequest.of(
-                page, limit
-        );
+                page, limit,
+//                Sort.by("createdAt").descending());
+                sort);
+        Page<ProductResponse> productPage = null;
+        List<Long> brandList = null;
+        if (!brandIds.equals("")) {
+            brandList = Arrays.stream(brandIds.split(","))
+                    .map(Long::parseLong)
+                    .toList();
+            if (brandList.isEmpty()) {
+                brandList = null;
+            }
+        }
+
+        List<Long> categoryList = null;
+        if (!categoryIds.equals("")) {
+            categoryList = Arrays.stream(categoryIds.split(","))
+                    .map(Long::parseLong)
+                    .toList();
+            if (categoryList.isEmpty()) {
+                categoryList = null;
+            }
+        }
 
         int totalPages = 0;
-        Page<Product> productPage = null;
-        List<Product> productResponses = null;
-        User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        List<ProductResponse> productResponses = null;
         if (productPage == null) {
-            productPage = iProductService.searchProducts(categoryId, brandId, keyword,user.getId(), pageRequest);
+            productPage = iProductService.searchProducts(categoryList, categoryList == null ? 0 : categoryList.size(), brandList, keyword, pageRequest);
+            // Get total pages
             totalPages = productPage.getTotalPages();
             productResponses = productPage.getContent();
         }
 
-
-        List<Product> products = iProductService.getAllProducts();
-        return CommonResult.success(products, "Get all products successfully");
+        return CommonResult.success(ProductListResponse.builder()
+                .productResponses(productResponses)
+                .totalPages(totalPages)
+                .build(), "Get all products successfully");
     }
 
 
@@ -157,22 +188,22 @@ public class ProductsController {
                 .orElse(CommonResult.error(404, "Product not found"));
     }
 
-//    @GetMapping("/searchName")
-//    public CommonResult<List<ProductDTO>> searchProductsByName(@RequestParam("keyword") String keyword) {
-//        List<ProductDTO> products = iProductService.searchProductsByName(keyword).stream()
-//                .map(productMapper::toDTO)
-//                .collect(Collectors.toList());
-//        if (products.isEmpty()) return CommonResult.error( 404 , "notfounbd");
-//        else return CommonResult.success(products, "Search products by name successfully");
-//    }
-//
-//    @GetMapping("/searchDes")
-//    public CommonResult<List<ProductDTO>> searchProductsByDes(@RequestParam("keyword") String keyword) {
-//        List<ProductDTO> products = iProductService.searchProductsByDes(keyword).stream()
-//                .map(productMapper::toDTO)
-//                .collect(Collectors.toList());
-//        return CommonResult.success(products, "Search products by description successfully");
-//    }
+    @GetMapping("/searchName")
+    public CommonResult<List<ProductDTO>> searchProductsByName(@RequestParam("keyword") String keyword) {
+        List<ProductDTO> products = iProductService.searchProductsByName(keyword).stream()
+                .map(productMapper::toDTO)
+                .collect(Collectors.toList());
+        if (products.isEmpty()) return CommonResult.error( 404 , "notfounbd");
+        else return CommonResult.success(products, "Search products by name successfully");
+    }
+
+    @GetMapping("/searchDes")
+    public CommonResult<List<ProductDTO>> searchProductsByDes(@RequestParam("keyword") String keyword) {
+        List<ProductDTO> products = iProductService.searchProductsByDes(keyword).stream()
+                .map(productMapper::toDTO)
+                .collect(Collectors.toList());
+        return CommonResult.success(products, "Search products by description successfully");
+    }
 
     @PostMapping(value = "uploads/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public CommonResult<?> uploadImages(

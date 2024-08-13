@@ -5,6 +5,7 @@ import com.ghtk.ecommercewebsite.models.dtos.WarehouseDto;
 import com.ghtk.ecommercewebsite.models.entities.Shop;
 import com.ghtk.ecommercewebsite.models.entities.Warehouse;
 import jakarta.persistence.SqlResultSetMapping;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -27,5 +28,5 @@ public interface WarehouseRepository extends JpaRepository<Warehouse, Long> {
             "WHERE w.shop_id = ?1 " +
             "AND w.name LIKE CONCAT('%',?2,'%') " +
             "AND w.is_delete = 0", nativeQuery = true)
-    List<Warehouse> findByShopId(Long id, String name, Pageable pageable) ;
+    Page<Warehouse> findByShopId(Long id, String name, Pageable pageable) ;
 }
