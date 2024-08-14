@@ -28,7 +28,11 @@ import lombok.Builder;
                 "INNER JOIN Product_item pi ON pi.id = i.product_item_Id " +
                 "INNER JOIN Warehouse w ON w.id = i.warehouse_Id " +
                 "INNER JOIN Product p ON p.id = pi.product_Id " +
-                "WHERE w.shop_Id = :shop_id",
+                "WHERE w.shop_Id = :shop_id " +
+                "AND w.name LIKE CONCAT('%', :warehouse,'%') " +
+                "AND pi.sku_code LIKE CONCAT('%',:sku_code,'%') " +
+                "AND p.name LIKE CONCAT('%',:name,'%') " +
+                "LIMIT :limit OFFSET :offset",
         resultSetMapping = "DetailInventoryMapping"
 )
 

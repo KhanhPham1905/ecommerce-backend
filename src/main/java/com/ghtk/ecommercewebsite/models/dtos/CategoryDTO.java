@@ -1,6 +1,8 @@
 package com.ghtk.ecommercewebsite.models.dtos;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
@@ -13,6 +15,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Builder
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class CategoryDTO {
 
     @JsonProperty("id")
@@ -30,4 +33,5 @@ public class CategoryDTO {
 
     @JsonProperty("shop_id")
     private Long shopId;
+
 }

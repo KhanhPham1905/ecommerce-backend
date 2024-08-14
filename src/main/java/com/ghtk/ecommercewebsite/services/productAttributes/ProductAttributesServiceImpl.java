@@ -1,6 +1,7 @@
 package com.ghtk.ecommercewebsite.services.productAttributes;
 
 import com.ghtk.ecommercewebsite.exceptions.DataNotFoundException;
+import com.ghtk.ecommercewebsite.exceptions.QuantityExceededException;
 import com.ghtk.ecommercewebsite.mapper.ProductAttributesMapper;
 import com.ghtk.ecommercewebsite.models.dtos.ProductAttributesDTO;
 import com.ghtk.ecommercewebsite.models.entities.Product;
@@ -15,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.file.AccessDeniedException;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -29,6 +31,11 @@ public class ProductAttributesServiceImpl implements ProductAttributesService
     @Override
     @Transactional
     public ProductAttributesDTO createProductAttributes(ProductAttributesDTO productAttributesDTO, Long id, Long userId) throws Exception{
+        List<ProductAttributes> ListProductAttributes = productAttributesRepository.findByProductId(id);
+        if (ListProductAttributes.size() > 3){
+            throw new QuantityExceededException("you can only have a maximum of 4 attributes");
+        }
+
         ProductAttributes productAttributes = productAttributesMapper.toEntity(productAttributesDTO);
         Shop shop = shopRepository.findShopByUserId(userId)
                 .orElseThrow(() -> new DataNotFoundException("Cannot find shop by id"));
@@ -37,7 +44,6 @@ public class ProductAttributesServiceImpl implements ProductAttributesService
         if (!product.getShopId().equals(shop.getId())) {
             throw new AccessDeniedException("User does not have access to this product.");
         }
-
 
         return productAttributesMapper.toDTO(productAttributesRepository.save(productAttributes));
     }
@@ -79,7 +85,8 @@ public class ProductAttributesServiceImpl implements ProductAttributesService
         if (!product.getShopId().equals(shop.getId())) {
             throw new AccessDeniedException("User does not have access to this product.");
         }
-        productAttributesRepository.deleteById(id);
+        productAttributes.setIsDelete(Boolean.TRUE);
+        productAttributesRepository.save(productAttributes);
         return productAttributesMapper.toDTO(productAttributes);
     }
 

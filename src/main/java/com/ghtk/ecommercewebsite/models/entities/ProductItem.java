@@ -27,7 +27,7 @@ import java.util.List;
 
 @NamedNativeQuery(
         name = "ProductItem.GetAllProductItemByProductId",
-        query = "SELECT s.quantity, pi.sku_code, p.name, s.supplier, s.unit_price, w.name AS warehouse, s.location " +
+        query = "SELECT s.quantity, pi.sku_code, p.name, s.supplier, pi.import_price, w.name AS warehouse, s.location " +
                 "FROM Supply s " +
                 "INNER JOIN Product_item pi ON pi.id = s.product_item_Id " +
                 "INNER JOIN Warehouse w ON w.id = s.warehouse_Id " +
@@ -66,4 +66,11 @@ public class ProductItem {
 
     @Column(name = "sku_code")
     private String skuCode;
+
+    @Column(name = "is_delete")
+    private Boolean isDelete;
+
+    @Column(name = "import_price", precision = 12, scale = 2)
+    private  BigDecimal importPrice;
+
 }

@@ -22,7 +22,6 @@ import java.util.Objects;
 @RestController
 @RequestMapping("/api/v1/seller")
 @RequiredArgsConstructor
-@CrossOrigin(origins = "*", allowedHeaders = "*")
 public class SellerController {
 
     @Autowired

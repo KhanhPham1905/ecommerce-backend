@@ -12,6 +12,11 @@ import com.ghtk.ecommercewebsite.repositories.ProductItemRepository;
 import com.ghtk.ecommercewebsite.repositories.SellerRepository;
 import com.ghtk.ecommercewebsite.repositories.SupplyRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.support.PageableUtils;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,16 +41,18 @@ public class InventoryServiceImpl implements InventoryService{
     }
 
     @Override
-    public List<DetailInventoryDTO> getAllInventory(Long userId) throws Exception {
+    public Page<DetailInventoryDTO> getAllInventory(String warehouse,String skuCode,String name,Long userId, Pageable pageable) throws Exception {
+        int limit = pageable.getPageSize();
+        int offset = pageable.getPageNumber() * limit;
         Long shopId = sellerRepository.findShopIdByUserId(userId);
         if (shopId == null){
             throw  new DataNotFoundException("Cannot find shopId by userId");
         }
-        List<DetailInventoryDTO> detailInventoryDTOList = inventoryRepository.getAllInventory(shopId);
+        List<DetailInventoryDTO> detailInventoryDTOList = inventoryRepository.getAllInventory(warehouse, skuCode, name, shopId, limit, offset );
         if(detailInventoryDTOList.isEmpty()){
             throw  new DataNotFoundException("Cannot find Inventory by Shop id");
         }
-        return detailInventoryDTOList;
+        return new PageImpl<>(detailInventoryDTOList, pageable, detailInventoryDTOList.size());
     }
 
     @Override
@@ -58,38 +65,49 @@ public class InventoryServiceImpl implements InventoryService{
                 .warehouseId(detailInventoryDTO.getWarehouseId())
                 .productItemId(productItem.getId())
                 .supplier(detailInventoryDTO.getSupplier())
-                .unitPrice(detailInventoryDTO.getUnitPrice())
                 .location(detailInventoryDTO.getLocation())
                 .status(Boolean.TRUE)
                 .build();
         supplyRepository.save(supply);
 
         Inventory inventory = inventoryRepository.findByProductItemIdAndWarehouseId(productItem.getId(), detailInventoryDTO.getWarehouseId());
+        if(inventory == null){
+            Inventory newInventory = Inventory.builder()
+                    .warehouseId(detailInventoryDTO.getWarehouseId())
+                    .quantity(detailInventoryDTO.getQuantity())
+                    .productItemId(productItem.getId())
+                    .build();
+            inventoryRepository.save(newInventory);
 
-        inventory.setQuantity(detailInventoryDTO.getQuantity() + inventory.getQuantity());
-
-        inventoryRepository.save(inventory);
+        }else {
+            inventory.setQuantity(detailInventoryDTO.getQuantity() + inventory.getQuantity());
+            inventoryRepository.save(inventory);
+        }
 
         return detailInventoryDTO;
     }
 
     @Override
-    public List<DetailInventoryDTO> getListImport(Long userId) throws Exception {
+    public Page<DetailInventoryDTO> getListImport(String warehouse,String supplier,String location,String skuCode,String name ,String createdAt, Long userId, Pageable pageable) throws Exception {
         Long shopId = sellerRepository.findShopIdByUserId(userId);
-            List<DetailInventoryDTO> detailInventoryDTOList = supplyRepository.getAllImport(shopId);
-            if(detailInventoryDTOList.isEmpty()){
-                throw new DataNotFoundException("Cannot not found import");
-            }
-        return detailInventoryDTOList;
+        int limit = pageable.getPageSize();
+        int offset = pageable.getPageNumber() * limit;
+        List<DetailInventoryDTO> detailInventoryDTOList = supplyRepository.getAllImport(warehouse,supplier,location,skuCode, name , createdAt,shopId, limit, offset);
+        if(detailInventoryDTOList.isEmpty()){
+            throw new DataNotFoundException("Cannot not found import");
+        }
+        return new PageImpl<>(detailInventoryDTOList, pageable, detailInventoryDTOList.size());
     }
 
     @Override
-    public List<DetailInventoryDTO> getListExport(Long userId) throws Exception {
+    public Page<DetailInventoryDTO> getListExport(String warehouse, String  supplier,String location,String skuCode,String  name ,String createdAt, Long userId, Pageable pageable) throws Exception {
         Long shopId = sellerRepository.findShopIdByUserId(userId);
-            List<DetailInventoryDTO> detailInventoryDTOList = supplyRepository.getAllExport(shopId);
-//            if(detailInventoryDTOList.isEmpty()){
-//                throw new DataNotFoundException("Cannot not found Export");
-//            }
-        return detailInventoryDTOList;
+        int limit = pageable.getPageSize();
+        int offset = pageable.getPageNumber() * limit;
+        List<DetailInventoryDTO> detailInventoryDTOList = supplyRepository.getAllExport(warehouse,supplier,location,skuCode, name , createdAt,shopId,limit, offset);
+        if(detailInventoryDTOList.isEmpty()){
+            throw new DataNotFoundException("Cannot not found Export");
+        }
+        return new PageImpl<>(detailInventoryDTOList, pageable, detailInventoryDTOList.size());
     }
 }
