@@ -20,10 +20,9 @@ public interface ProductItemRepository extends JpaRepository<ProductItem, Long> 
     @Query(value = "SELECT * FROM Product_item pi " +
             "WHERE pi.product_id = ?1 "+
             "AND pi.is_delete = 0 "+
-            "ORDER BY pi.id " +
-            "LIMIT ?2 OFFSET ?3"
+            "ORDER BY pi.id "
             , nativeQuery = true)
-    List<ProductItem> findAllByProductId(Long productId,int limit, int offset);
+    List<ProductItem> findAllByProductId(Long productId);
 
 
     void deleteByProductId(Long productId);
