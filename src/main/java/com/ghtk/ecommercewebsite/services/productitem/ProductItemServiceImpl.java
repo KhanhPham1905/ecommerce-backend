@@ -3,6 +3,7 @@ package com.ghtk.ecommercewebsite.services.productitem;
 import com.cloudinary.api.exceptions.AlreadyExists;
 import com.ghtk.ecommercewebsite.exceptions.AlreadyExistedException;
 import com.ghtk.ecommercewebsite.exceptions.DataNotFoundException;
+import com.ghtk.ecommercewebsite.models.dtos.DetailInventoryDTO;
 import com.ghtk.ecommercewebsite.models.dtos.DetailProductItemDTO;
 import com.ghtk.ecommercewebsite.models.dtos.ProductItemAttributesDTO;
 import com.ghtk.ecommercewebsite.models.entities.Product;
@@ -91,7 +92,7 @@ public class ProductItemServiceImpl implements ProductItemService
     public Page<Object> getAllProductItem(Long productId, Long userId, Pageable pageable) throws Exception {
             int limit = pageable.getPageSize();
             int offset = pageable.getPageNumber() * limit;
-            List<ProductItem> productItems =  productItemRepository.findAllByProductId(productId,limit, offset);
+            List<ProductItem> productItems =  productItemRepository.findAllByProductId(productId);
             Product product = productRepository.findById(productId)
                     .orElseThrow(()->new DataNotFoundException("Cannot find product"));
 
@@ -116,8 +117,13 @@ public class ProductItemServiceImpl implements ProductItemService
                 productItemValues.add(detailProductItemDTO);
             }
 
-        return new PageImpl<>(productItemValues, pageable, productItemValues.size());
+        int start = (int) pageable.getOffset();
+        int end = Math.min((start + pageable.getPageSize()), productItemValues.size());
+        List<Object> pagedList = productItemValues.subList(start, end);
+        return new PageImpl<>(pagedList, pageable, productItemValues.size());
     }
+
+
 
     @Override
     @Transactional
