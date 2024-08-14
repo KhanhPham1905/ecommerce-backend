@@ -54,6 +54,15 @@ public class ProductItemServiceImpl implements ProductItemService
     @Override
     @Transactional
     public DetailProductItemDTO createProductItem(DetailProductItemDTO detailProductItemDTO, Long userId) throws Exception {
+
+        Product product = productRepository.findById(detailProductItemDTO.getProductId())
+                .orElseThrow(()-> new DataNotFoundException("Cannot not found product"));
+
+        if (product.getMinPrice() == null || product.getMinPrice().compareTo(detailProductItemDTO.getPrice()) > 0) {
+            product.setMinPrice(detailProductItemDTO.getPrice());
+            productRepository.save(product);
+        }
+
         ProductItem checkProductItem = productItemRepository.findBySkuCode(detailProductItemDTO.getSkuCode());
         if(checkProductItem != null){
             throw new AlreadyExistedException("sku code has been used");
@@ -113,6 +122,14 @@ public class ProductItemServiceImpl implements ProductItemService
     @Override
     @Transactional
     public DetailProductItemDTO updateProductItem(DetailProductItemDTO detailProductItemDTO, Long userId) throws Exception {
+        Product product = productRepository.findById(detailProductItemDTO.getProductId())
+                .orElseThrow(()-> new DataNotFoundException("Cannot not found product"));
+
+        if (product.getMinPrice() == null || product.getMinPrice().compareTo(detailProductItemDTO.getPrice()) > 0) {
+            product.setMinPrice(detailProductItemDTO.getPrice());
+            productRepository.save(product);
+        }
+
         ProductItem productItem = productItemRepository.findBySkuCode(detailProductItemDTO.getSkuCode());
         if (productItem == null){
             throw new DataNotFoundException("Cannot find product item");
@@ -139,6 +156,7 @@ public class ProductItemServiceImpl implements ProductItemService
         return detailProductItemDTO;
     }
 
+
     @Override
     @Transactional
     public void deleteProductItem(Long id, Long userId) throws Exception {
@@ -147,6 +165,7 @@ public class ProductItemServiceImpl implements ProductItemService
         productItem.setIsDelete(Boolean.TRUE);
         productItemRepository.save(productItem);
     }
+
 
     @Override
     public DetailProductItemDTO getProductItemById(Long id, Long userId) throws Exception {

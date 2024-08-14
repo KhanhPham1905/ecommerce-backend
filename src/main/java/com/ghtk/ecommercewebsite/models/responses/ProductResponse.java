@@ -1,6 +1,9 @@
 package com.ghtk.ecommercewebsite.models.responses;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.ghtk.ecommercewebsite.models.entities.Category;
 import com.ghtk.ecommercewebsite.models.entities.Product;
 import jakarta.persistence.Column;
@@ -23,6 +26,7 @@ import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ProductResponse {
 
     @JsonProperty("id")
@@ -64,8 +68,20 @@ public class ProductResponse {
     private BigDecimal averageRate;
 
     @JsonProperty("created_at")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime createdAt;
 
     @JsonProperty("modified_at")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime modifiedAt;
+
+
+    @JsonProperty("min_price")
+    private BigDecimal minPrice;
+
+    @JsonProperty("quantity_rate")
+    private Long quantityRate;
+
 }
+
+
