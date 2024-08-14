@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface OrdersService {
+    OrdersDTO addOrder(OrdersDTO orderDTO, Long userId);
     OrdersDTO getOrderById(Long id);
     CommonResult<OrdersDTO> createOrder(OrdersDTO orderDTO);
     OrdersDTO updateOrder(Long id, OrdersDTO orderDTO);

@@ -1,7 +1,9 @@
 package com.ghtk.ecommercewebsite.repositories;
 
+import com.ghtk.ecommercewebsite.models.dtos.ProductDTO;
 import com.ghtk.ecommercewebsite.models.entities.Category;
 import com.ghtk.ecommercewebsite.models.entities.Product;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -22,4 +24,5 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     List<Product> findByDescriptionContaining(String description);
 
+    List<Product> findAllByShopId(Long id);
 }

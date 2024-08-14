@@ -29,7 +29,7 @@ public class UserController {
     private final TokenService tokenService;
 
     @PostMapping("/signup")
-    public CommonResult<User> signup(@RequestBody RegisterUserDto registerUserDto) throws UserAlreadyExistedException {
+    public CommonResult<User> signup(@RequestBody @Valid RegisterUserDto registerUserDto) throws UserAlreadyExistedException {
         User user = userService.signUp(registerUserDto);
         return CommonResult.success(user);
     }

@@ -26,12 +26,14 @@ public class OtpService {
     private final UserRepository userRepository;
     private final ForgotPasswordRepository forgotPasswordRepository;
     private final PasswordEncoder passwordEncoder;
+    private final RedisOtpService redisOtpService;
 
     public ResponseEntity<String> verifyEmailAndSendOtp(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Please provide a valid email!"));
 
-        int otp = otpGenerator();
+//        int otp = otpGenerator();
+        int otp = redisOtpService.generateAndSaveOtp(email);
         MailBody mailBody = MailBody.builder()
                 .to(email)
                 .text("This is the OTP for your Forgot Password request: " + otp)
@@ -59,18 +61,23 @@ public class OtpService {
     }
 
     public ResponseEntity<String> verifyOtp(Integer otp, String email) {
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("Please provide a valid email!"));
-
-        ForgotPassword fp = forgotPasswordRepository.findByOtpAndUser(otp, user)
-                .orElseThrow(() -> new RuntimeException("Invalid OTP for email " + email));
-        if (fp.getExpirationTime().before(Date.from(Instant.now()))) {
-            forgotPasswordRepository.deleteById(fp.getFpid());
-            return new ResponseEntity<>("OTP has expired!", HttpStatus.EXPECTATION_FAILED);
+//        User user = userRepository.findByEmail(email)
+//                .orElseThrow(() -> new UsernameNotFoundException("Please provide a valid email!"));
+//
+//        ForgotPassword fp = forgotPasswordRepository.findByOtpAndUser(otp, user)
+//                .orElseThrow(() -> new RuntimeException("Invalid OTP for email " + email));
+//        if (fp.getExpirationTime().before(Date.from(Instant.now()))) {
+//            forgotPasswordRepository.deleteById(fp.getFpid());
+//            return new ResponseEntity<>("OTP has expired!", HttpStatus.EXPECTATION_FAILED);
+//        }
+//
+//        forgotPasswordRepository.deleteById(fp.getFpid());
+//        return ResponseEntity.ok("OTP verified!");
+        boolean isValid = redisOtpService.verifyOtp(email, otp);
+        if (isValid) {
+            return ResponseEntity.ok("OTP verified!");
         }
-
-        forgotPasswordRepository.deleteById(fp.getFpid());
-        return ResponseEntity.ok("OTP verified!");
+        return new ResponseEntity<>("Invalid or expired OTP!", HttpStatus.BAD_REQUEST);
     }
 
     public ResponseEntity<String> changePassword(ChangePassword changePassword, String email) {
@@ -83,8 +90,26 @@ public class OtpService {
         return ResponseEntity.ok("Password has been changed!");
     }
 
-    private Integer otpGenerator() {
-        Random random = new Random();
-        return random.nextInt(100_000, 999_999);
+//    private Integer otpGenerator() {
+//        Random random = new Random();
+//        return random.nextInt(100_000, 999_999);
+//    }
+
+    public ResponseEntity<String> resendOtp(String email) {
+        try {
+            int otp = redisOtpService.generateAndSaveOtp(email);
+
+            MailBody mailBody = MailBody.builder()
+                    .to(email)
+                    .text("This is the OTP for your Forgot Password request: " + otp)
+                    .subject("OTP for Forgot Password request")
+                    .build();
+
+            emailService.sendSimpleMessage(mailBody);
+            return ResponseEntity.ok("OTP has been resent!");
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.TOO_MANY_REQUESTS)
+                    .body("Too many OTP requests. Please wait before trying again.");
+        }
     }
 }

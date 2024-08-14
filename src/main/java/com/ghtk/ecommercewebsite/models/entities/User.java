@@ -47,6 +47,7 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
+    @JsonProperty("full_name")
     @Column(name = "full_name",nullable = false)
     private String fullName;
 
@@ -81,6 +82,10 @@ public class User implements UserDetails {
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName().toString()))
                 .collect(Collectors.toList());
     }
+
+//    @JsonProperty("address_id")
+//    @Column(name = "address_id")
+//    private Long addressId;
 
     @Override
     public String getUsername() {
