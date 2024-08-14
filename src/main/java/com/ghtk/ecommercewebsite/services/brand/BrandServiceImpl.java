@@ -6,10 +6,7 @@ import com.ghtk.ecommercewebsite.models.dtos.CategoryDTO;
 import com.ghtk.ecommercewebsite.models.entities.Brand;
 import com.ghtk.ecommercewebsite.models.entities.Category;
 import com.ghtk.ecommercewebsite.models.entities.Product;
-import com.ghtk.ecommercewebsite.repositories.BrandRepository;
-import com.ghtk.ecommercewebsite.repositories.CategoryRepository;
-import com.ghtk.ecommercewebsite.repositories.ProductRepository;
-import com.ghtk.ecommercewebsite.repositories.SellerRepository;
+import com.ghtk.ecommercewebsite.repositories.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +24,8 @@ public class BrandServiceImpl implements IBrandService {
     private final BrandRepository brandRepository;
     private final SellerRepository sellerRepository;
     private final ProductRepository productRepository;
+    private final ProductItemRepository productItemRepository;
+    private final ProductAttributesRepository productAttributesRepository;
 
     @Override
     public Brand getBrandById(Long id) throws Exception{
@@ -91,6 +90,9 @@ public class BrandServiceImpl implements IBrandService {
         }else{
             brand.setIsDelete(Boolean.TRUE);
             brandRepository.save(brand);
+            productRepository.softDeleteProductByCategoryId(id);
+            productAttributesRepository.softDeleteProductAttributesByProductId(id);
+            productItemRepository.softDeleteProductItemByProductId(id);
         }
         return brand;
     }

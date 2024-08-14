@@ -17,10 +17,10 @@ public interface IProductService {
 
     Product save(ProductDTO productDTO, Long userId) throws Exception;
 
-    void deleteById(Long id);
+    void deleteById(Long id) throws Exception;
 
     List<Product> findByBrandId(Long brandId);
-    void deleteBrandById(Long id);
+//    void deleteBrandById(Long id);
     List<Product> searchProductsByName(String keyword); // Phương thức tìm kiếm
 
     List<Product> searchProductsByDes(String keyword); // Phương thức tìm kiếm
@@ -28,4 +28,10 @@ public interface IProductService {
     List<Product> getAllProducts() throws  Exception;
 
     Page<ProductResponse> searchProducts (List<Long> categoryIds, long categoryCount, List<Long> brandIds, String keyword, PageRequest pageRequest) throws Exception;
+
+    ProductResponse getProductById(Long id) throws  Exception;
+
+    Page<ProductResponse> searchProductsSeller (List<Long> categoryIds, long categoryCount, List<Long> brandIds, String keyword, PageRequest pageRequest) throws Exception;
+
+    Product updateProductById(Long id,ProductDTO productDTO, Long userId) throws Exception;
 }
