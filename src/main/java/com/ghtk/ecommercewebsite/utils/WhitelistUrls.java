@@ -3,6 +3,7 @@ package com.ghtk.ecommercewebsite.utils;
 public class WhitelistUrls {
     public static final String[] URLS = {
             "/api/v1/user/**",
+            "/api/v1/seller/**",
             "/api/v1/seller/signup",
             "/api/v1/seller/login",
             "/api/v1/admin/login",

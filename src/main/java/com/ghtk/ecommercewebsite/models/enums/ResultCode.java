@@ -5,7 +5,8 @@ public enum ResultCode {
     FAILED(500, "Server Error"),
     VALIDATE_FAILED(404, "Not found"),
     UNAUTHORIZED(401, "Unauthorized"),
-    FORBIDDEN(403, "Forbidden");
+    FORBIDDEN(403, "Forbidden"),
+    TOO_MANY_REQUESTS(429, "Too many requests");
 
     private Long code;
 

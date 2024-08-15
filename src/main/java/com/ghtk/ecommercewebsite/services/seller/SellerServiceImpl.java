@@ -1,10 +1,13 @@
 package com.ghtk.ecommercewebsite.services.seller;
 
 import com.ghtk.ecommercewebsite.exceptions.DataNotFoundException;
+import com.ghtk.ecommercewebsite.exceptions.UserAlreadyExistedException;
 import com.ghtk.ecommercewebsite.models.dtos.*;
 import com.ghtk.ecommercewebsite.models.entities.*;
 import com.ghtk.ecommercewebsite.models.enums.RoleEnum;
 import com.ghtk.ecommercewebsite.repositories.*;
+import com.ghtk.ecommercewebsite.services.EmailService;
+import com.ghtk.ecommercewebsite.services.RedisOtpService;
 import com.ghtk.ecommercewebsite.services.auth.AuthenticationServiceImpl;
 import lombok.RequiredArgsConstructor;
 import com.ghtk.ecommercewebsite.exceptions.SellerAlreadyExistedException;
@@ -14,6 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import java.nio.file.AccessDeniedException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -26,6 +30,8 @@ public class SellerServiceImpl implements SellerService{
     private final SellerRepository sellerRepository;
     private final AddressRepository addressRepository;
     private final ShopRepository shopRepository;
+    private final RedisOtpService redisOtpService;
+    private final EmailService emailService;
 
     @Override
     @Transactional
@@ -61,6 +67,7 @@ public class SellerServiceImpl implements SellerService{
             userRepository.save(user);
 
             Shop shop = Shop.builder().build();
+            shop.setUserId(user.getId());
             shopRepository.save(shop);
 
             // We won't user builder here
@@ -183,5 +190,94 @@ public class SellerServiceImpl implements SellerService{
         shop.setAddressId(shopDTO.getAddressId());
         shopRepository.save(shop);
         return shop;
+    }
+
+    @Override
+    @Transactional
+    public User signUpNewVersion(SellerRegisterDto sellerRegisterDto) {
+        Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.SELLER);
+        if (optionalRole.isEmpty()) { return null; }
+
+        Role sellerRole = optionalRole.get();
+        Optional<User> optionalUser = userRepository.findByEmail(sellerRegisterDto.getEmail());
+
+        if (optionalUser.isPresent()) {
+            // If user is already existing
+            User existingUser = optionalUser.get();
+            Set<Role> existingRoles = existingUser.getRoles();
+
+            if (existingRoles.contains(sellerRole)) {
+                throw new SellerAlreadyExistedException(sellerRegisterDto.getEmail());
+            } else {
+                existingRoles.add(sellerRole);
+                existingUser.setRoles(existingRoles);
+                existingUser.setPassword(passwordEncoder.encode(sellerRegisterDto.getPassword()));
+                existingUser.setFullName(sellerRegisterDto.getFullName());
+                existingUser.setPhone(sellerRegisterDto.getPhone());
+                existingUser.setGender(sellerRegisterDto.getGender());
+                existingUser.setStatus(false);
+                // Save as inactive account
+                userRepository.save(existingUser);
+
+                Seller seller = Seller.builder()
+                        .tax(sellerRegisterDto.getTax())
+                        .cccd(sellerRegisterDto.getCccd())
+                        .userId(existingUser.getId())
+                        .build();
+
+                Shop shop = Shop.builder().build();
+                shop.setUserId(existingUser.getId());
+                shopRepository.save(shop);
+
+                seller.setShopId(shop.getId());
+                sellerRepository.save(seller);
+
+                Integer otp = redisOtpService.generateAndSaveOtp(sellerRegisterDto.getEmail());
+                String roleNames = String.valueOf(existingRoles.stream()
+                        .map(role -> role.getName().name())
+                        .collect(Collectors.toList()));
+                MailBody mailBody = MailBody.builder()
+                        .to(sellerRegisterDto.getEmail())
+                        .text("You are already an " + roleNames + " in our system. This is the OTP for your request: " + otp)
+                        .build();
+                emailService.sendSimpleMessage(mailBody);
+
+                return existingUser;
+            }
+        } else {
+            Set<Role> roles = new HashSet<>(List.of(optionalRole.get()));
+            User user = User.builder()
+                    .fullName(sellerRegisterDto.getFullName())
+                    .email(sellerRegisterDto.getEmail())
+                    .password(passwordEncoder.encode(sellerRegisterDto.getPassword()))
+                    .phone(sellerRegisterDto.getPhone())
+                    .gender(sellerRegisterDto.getGender())
+                    .status(false)
+                    .roles(roles)
+                    .build();
+
+            userRepository.save(user);
+
+            Shop shop = Shop.builder().build();
+            shop.setUserId(user.getId());
+            shopRepository.save(shop);
+
+            Seller seller = Seller.builder()
+                    .tax(sellerRegisterDto.getTax())
+                    .cccd(sellerRegisterDto.getCccd())
+                    .userId(user.getId())
+                    .shopId(shop.getId())
+                    .build();
+            sellerRepository.save(seller);
+
+            Integer otp = redisOtpService.generateAndSaveOtp(sellerRegisterDto.getEmail());
+            MailBody mailBody = MailBody.builder()
+                    .to(sellerRegisterDto.getEmail())
+                    .text("This is the OTP for your request: " + otp)
+                    .build();
+            emailService.sendSimpleMessage(mailBody);
+
+            return user;
+        }
     }
 }

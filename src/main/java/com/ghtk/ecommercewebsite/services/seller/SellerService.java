@@ -25,4 +25,6 @@ public interface SellerService {
     Seller updateSellerInfo(SellerDTO sellerDTO) throws DataNotFoundException;
 
     Shop updateShopInfo(Long userId, ShopDTO shopDTO) throws DataNotFoundException;
+
+    User signUpNewVersion(SellerRegisterDto sellerRegisterDto);
 }

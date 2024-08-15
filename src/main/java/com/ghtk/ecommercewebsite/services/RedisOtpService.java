@@ -1,5 +1,8 @@
 package com.ghtk.ecommercewebsite.services;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.ghtk.ecommercewebsite.models.dtos.RegisterUserDto;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -55,5 +58,29 @@ public class RedisOtpService {
 
     private String rateLimitKey(String email) {
         return email + ":ratelimit";
+    }
+
+    // Testing
+    public void storeTemporaryUser(RegisterUserDto registerUserDto) {
+        ObjectMapper objectMapper = new ObjectMapper();
+        try {
+            String jsonUserDto = objectMapper.writeValueAsString(registerUserDto);
+            redisTemplate.opsForValue().set(registerUserDto.getEmail() + ":user", jsonUserDto, 5, TimeUnit.MINUTES);
+        } catch (JsonProcessingException e) {
+            log.error("Error storing temporary user: {}", e.getMessage());
+        }
+    }
+
+    public RegisterUserDto retrieveTemporaryUser(String email) {
+        String jsonUserDto = (String) redisTemplate.opsForValue().get(email + ":user");
+        if (jsonUserDto != null) {
+            ObjectMapper objectMapper = new ObjectMapper();
+            try {
+                return objectMapper.readValue(jsonUserDto, RegisterUserDto.class);
+            } catch (JsonProcessingException e) {
+                log.error("Error retrieving temporary user: {}", e.getMessage());
+            }
+        }
+        return null;
     }
 }
