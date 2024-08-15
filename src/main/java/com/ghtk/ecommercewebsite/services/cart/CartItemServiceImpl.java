@@ -2,71 +2,64 @@ package com.ghtk.ecommercewebsite.services.cart;
 
 import com.ghtk.ecommercewebsite.models.dtos.CartItemDTO;
 import com.ghtk.ecommercewebsite.models.entities.CartItem;
-import com.ghtk.ecommercewebsite.models.entities.ProductItem;
 import com.ghtk.ecommercewebsite.repositories.CartItemRepository;
-import com.ghtk.ecommercewebsite.mapper.CartItemMapper;
-import com.ghtk.ecommercewebsite.repositories.ProductItemRepository;
-import jakarta.persistence.EntityManager;
-import jakarta.persistence.PersistenceContext;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestParam;
+
+import java.util.Optional;
 
 @Service
+@RequiredArgsConstructor
 public class CartItemServiceImpl implements ICartItemService {
 
     private final CartItemRepository cartItemRepository;
-    private final CartItemMapper cartMapper;
-    private final ProductItemRepository productItemRepository;
 
-    @PersistenceContext
-    private EntityManager entityManager;
-
-    @Autowired
-    public CartItemServiceImpl(CartItemRepository cartItemRepository, CartItemMapper cartMapper, ProductItemRepository productItemRepository) {
-        this.cartItemRepository = cartItemRepository;
-        this.cartMapper = cartMapper;
-        this.productItemRepository = productItemRepository;
+    @Override
+    public CartItem getCartItemById(Long id) throws Exception {
+        return cartItemRepository.findById(id)
+                .orElseThrow(() -> new Exception("Cart item not found"));
     }
 
     @Override
-    @Transactional
-    public CartItem save(CartItem cartItem) {
-        Long shopId = productItemRepository.findShopIdByProductItemId(cartItem.getProductItemId());
-        if (shopId == null) {
-            throw new IllegalArgumentException("Product item not found or no associated shop");
-        }
-        // Gán giá trị shopId cho cartItem
-        cartItem.setShopId(shopId);
-        // Lưu cartItem
+    public CartItem createCartItem(CartItemDTO cartItemDTO, Long userId) throws Exception {
+        CartItem cartItem = CartItem.builder()
+                .userId(userId)
+                .productItemId(cartItemDTO.getProductItemId())
+                .quantity(cartItemDTO.getQuantity())
+                .voucherId(cartItemDTO.getVoucherId())
+                .shopId(cartItemDTO.getShopId())
+                .build();
+
         return cartItemRepository.save(cartItem);
     }
 
-    @Transactional
     @Override
-    public void addProductToCart(@RequestBody CartItemDTO cartItemDTO) {
-        // Kiểm tra số lượng sản phẩm
-        ProductItem productItem = productItemRepository.findById(cartItemDTO.getProductItemId())
-                .orElseThrow(() -> new IllegalArgumentException("Product item not found"));
-
-        if (productItem.getQuantity() < cartItemDTO.getQuantity()) {
-            throw new IllegalArgumentException("Not enough quantity available");
-        }
-
-        productItemRepository.save(productItem);
-        // Chuyển đổi DTO thành Entity
-        CartItem cartItem = cartMapper.toEntity(cartItemDTO);
-        // Lấy shopId và gán cho cartItem
-        Long shopId = productItemRepository.findShopIdByProductItemId(cartItemDTO.getProductItemId());
-        cartItem.setShopId(shopId);
-        // Lưu cartItem vào cơ sở dữ liệu
-        cartItemRepository.save(cartItem);
+    public Page<CartItem> getAllCartItems(PageRequest pageRequest, Long userId) throws Exception {
+        return cartItemRepository.findByUserId(userId, pageRequest);
     }
+
     @Override
-    @Transactional
-    public void deleteCartItems(@RequestParam Long userId, @RequestParam Long productItemId) {
-        cartItemRepository.deleteByUserIdAndProductId(userId, productItemId);
+    public void deleteCartItem(Long id, Long userId) throws Exception {
+        Optional<CartItem> cartItemOptional = cartItemRepository.findByIdAndUserId(id, userId);
+        if (cartItemOptional.isPresent()) {
+            cartItemRepository.delete(cartItemOptional.get());
+        } else {
+            throw new Exception("Cart item not found or does not belong to the user");
+        }
+    }
+
+    @Override
+    public CartItem updateCartItem(Long id, CartItemDTO cartItemDTO, Long userId) throws Exception {
+        CartItem existingCartItem = cartItemRepository.findByIdAndUserId(id, userId)
+                .orElseThrow(() -> new Exception("Cart item not found or does not belong to the user"));
+
+        existingCartItem.setProductItemId(cartItemDTO.getProductItemId());
+        existingCartItem.setQuantity(cartItemDTO.getQuantity());
+        existingCartItem.setVoucherId(cartItemDTO.getVoucherId());
+        existingCartItem.setShopId(cartItemDTO.getShopId());
+
+        return cartItemRepository.save(existingCartItem);
     }
 }

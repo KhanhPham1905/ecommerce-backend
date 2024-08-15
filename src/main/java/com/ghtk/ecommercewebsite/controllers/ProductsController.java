@@ -1,29 +1,23 @@
 package com.ghtk.ecommercewebsite.controllers;
 
-import com.cloudinary.Cloudinary;
 import com.ghtk.ecommercewebsite.configs.Contant;
 import com.ghtk.ecommercewebsite.mapper.ProductMapper;
 import com.ghtk.ecommercewebsite.models.dtos.ProductDTO;
 import com.ghtk.ecommercewebsite.models.entities.Product;
-import com.ghtk.ecommercewebsite.models.entities.ProductItem;
 import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.responses.CloudinaryResponse;
 import com.ghtk.ecommercewebsite.models.responses.CommonResult;
 import com.ghtk.ecommercewebsite.models.responses.ProductResponse;
 import com.ghtk.ecommercewebsite.services.CloudinaryService;
-import com.ghtk.ecommercewebsite.services.images.ImagesService;
 import com.ghtk.ecommercewebsite.services.product.IProductService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.Collectors;
 
 @RestController
@@ -77,7 +71,6 @@ public class ProductsController {
                 })
                 .orElse(CommonResult.error(404, "Product not found"));
     }
-//
 //    @PatchMapping("/{id}")
 //    public CommonResult<ProductDTO> patchProduct(@PathVariable Long id, @RequestBody Map<String, Object> updates) {
 //        return iProductService.findById(id)

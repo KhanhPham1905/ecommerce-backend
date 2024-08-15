@@ -74,5 +74,16 @@ public class CommentController {
         }
     }
 
+
+    @DeleteMapping("/softDelete/{commentId}")
+    public CommonResult<Object> softDeleteComment(@PathVariable Long commentId) {
+        try {
+            commentService.softDeleteComment(commentId);
+            return CommonResult.success(null, "Comment soft deleted successfully");
+        } catch (IllegalArgumentException e) {
+            return CommonResult.failed(e.getMessage());
+        }
+    }
+
 }
 

@@ -201,10 +201,12 @@
 			<artifactId>mapstruct-processor</artifactId>
 			<version>1.6.0.RC1</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.cloudinary/cloudinary-http44 -->
+		<!-- https://mvnrepository.com/artifact/com.cloudinary/cloudinary-http44 -->
 		<dependency>
 			<groupId>com.cloudinary</groupId>
 			<artifactId>cloudinary-http44</artifactId>
-			<version>1.36.0</version>
+			<version>1.39.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.cloudinary</groupId>
@@ -234,6 +236,11 @@
 			<version>0.0.2</version>
 		</dependency>
 
+		<dependency>
+			<groupId>com.stripe</groupId>
+			<artifactId>stripe-java</artifactId>
+			<version>22.7.0</version>
+		</dependency>
 
 
 		<!--		<dependency>-->

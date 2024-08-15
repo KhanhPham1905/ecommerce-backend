@@ -2,13 +2,14 @@ package com.ghtk.ecommercewebsite.services.cart;
 
 import com.ghtk.ecommercewebsite.models.dtos.CartItemDTO;
 import com.ghtk.ecommercewebsite.models.entities.CartItem;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 
-import java.util.List;
-import java.util.Optional;
 
 public interface ICartItemService {
-    CartItem save(CartItem cartItem) ;
-    void addProductToCart(CartItemDTO cartItemDTO) ;
-    void deleteCartItems(Long userId, Long productItemId);
-
+    CartItem getCartItemById(Long id) throws Exception;
+    CartItem createCartItem(CartItemDTO cartItemDTO, Long userId) throws Exception;
+    Page<CartItem> getAllCartItems(PageRequest pageRequest, Long userId) throws Exception;
+    void deleteCartItem(Long id, Long userId) throws Exception;
+    CartItem updateCartItem(Long id, CartItemDTO cartItemDTO, Long userId) throws Exception;
 }
