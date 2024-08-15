@@ -5,9 +5,7 @@ import com.ghtk.ecommercewebsite.models.dtos.CategoryDTO;
 import com.ghtk.ecommercewebsite.models.entities.Category;
 import com.ghtk.ecommercewebsite.models.entities.Product;
 import com.ghtk.ecommercewebsite.models.entities.Seller;
-import com.ghtk.ecommercewebsite.repositories.CategoryRepository;
-import com.ghtk.ecommercewebsite.repositories.ProductRepository;
-import com.ghtk.ecommercewebsite.repositories.SellerRepository;
+import com.ghtk.ecommercewebsite.repositories.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.crossstore.ChangeSetPersister;
@@ -24,6 +22,8 @@ public class CategoryServiceImpl implements CategoryService{
     private final CategoryRepository categoryRepository;
     private final SellerRepository sellerRepository;
     private final ProductRepository productRepository;
+    private final ProductItemRepository productItemRepository;
+    private final ProductAttributesRepository productAttributesRepository;
 
     @Override
     public Category getCategoryById(Long id) throws Exception{
@@ -40,6 +40,7 @@ public class CategoryServiceImpl implements CategoryService{
             }
             Category newCategory = Category
                     .builder()
+                    .isDelete(Boolean.TRUE)
                     .name(categoryDTO.getName())
                     .status(categoryDTO.getStatus())
                     .slug(categoryDTO.getSlug())
@@ -88,6 +89,9 @@ public class CategoryServiceImpl implements CategoryService{
         }else{
             category.setIsDelete(Boolean.TRUE);
             categoryRepository.save(category);
+            productRepository.softDeleteProductByCategoryId(id);
+            productAttributesRepository.softDeleteProductAttributesByProductId(id);
+            productItemRepository.softDeleteProductItemByProductId(id);
         }
         return category;
     }

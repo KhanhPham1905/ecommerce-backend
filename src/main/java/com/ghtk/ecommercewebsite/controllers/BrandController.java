@@ -1,85 +1,74 @@
 package com.ghtk.ecommercewebsite.controllers;
 
-import com.ghtk.ecommercewebsite.mapper.BrandMapper;
 import com.ghtk.ecommercewebsite.models.dtos.BrandDTO;
 import com.ghtk.ecommercewebsite.models.entities.Brand;
+import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.responses.CommonResult;
 import com.ghtk.ecommercewebsite.services.brand.IBrandService;
-import com.ghtk.ecommercewebsite.services.product.IProductService;
-import org.springframework.beans.factory.annotation.Autowired;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 @RestController
+@RequiredArgsConstructor
 @RequestMapping("/api/brands")
 public class BrandController {
-
-    private final BrandMapper brandMapper;
-    private final IBrandService iBrandService;
-    private final IProductService iProductService;
-
-    @Autowired
-    public BrandController(BrandMapper brandMapper, IBrandService iBrandService, IProductService iProductService) {
-        this.brandMapper = brandMapper;
-        this.iBrandService = iBrandService;
-        this.iProductService = iProductService;
-    }
-
-    @GetMapping
-    public CommonResult<List<BrandDTO>> getAllBrands() {
-        List<BrandDTO> brands = iBrandService.findAll().stream().map(brandMapper::toDTO).collect(Collectors.toList());
-        return CommonResult.success(brands, "Get all brands successfully");
-    }
+    private final IBrandService brandService;
 
     @GetMapping("/{id}")
-    public CommonResult<BrandDTO> getBrandByID(@PathVariable Long id) {
-        return iBrandService.findById(id)
-                .map(brand -> CommonResult.success(brandMapper.toDTO(brand), "Get brand successfully"))
-                .orElse(CommonResult.error(404, "Brand not found"));
+    public CommonResult<Brand> getBrandById(
+            @PathVariable("id") Long brandId
+    )throws Exception{
+        Brand existingBrand = brandService.getBrandById(brandId);
+        return CommonResult.success(existingBrand, "Get brand successfully");
     }
 
-    @PostMapping
-    public CommonResult<BrandDTO> createBrand(@RequestBody BrandDTO brandDTO) {
-        Brand brand = brandMapper.toEntity(brandDTO);
-        Brand savedBrand = iBrandService.save(brand);
-        return CommonResult.success(brandMapper.toDTO(savedBrand), "Create brand successfully");
+    @PostMapping("")
+    @PreAuthorize("hasRole('ROLE_SELLER')")
+    public CommonResult<Object> createBrand (
+            @Valid @RequestBody BrandDTO brandDTO
+    ) throws Exception {
+        User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Brand brand = brandService.createBrand(brandDTO, user.getId());
+        return CommonResult.success(brand,"Create brand successfully");
     }
 
-    @PutMapping("/{id}")
-    public CommonResult<BrandDTO> updateBrand(@PathVariable Long id, @RequestBody BrandDTO brandDetails) {
-        return iBrandService.findById(id)
-                .map(brand -> {
-                    brand.setDescription(brandDetails.getDescription());
-                    brand.setName(brandDetails.getName());
-                    brand.setStatus(brandDetails.isStatus());
-                    brand.setShopId(brandDetails.getShopId());
-                    Brand updatedBrand = iBrandService.save(brand);
-                    return CommonResult.success(brandMapper.toDTO(updatedBrand), "Update brand successfully");
-                }).orElse(CommonResult.error(404, "Brand not found"));
-    }
-
-    @PatchMapping("/{id}")
-    public CommonResult<BrandDTO> patchBrand(@PathVariable Long id, @RequestBody BrandDTO brandDetails) {
-        return iBrandService.findById(id)
-                .map(brand -> {
-                    if (brandDetails.getDescription() != null) brand.setDescription(brandDetails.getDescription());
-                    if (brandDetails.getName() != null) brand.setName(brandDetails.getName());
-                    if (brandDetails.getShopId() != null) brand.setShopId(brandDetails.getShopId());
-                    Brand updatedBrand = iBrandService.save(brand);
-                    return CommonResult.success(brandMapper.toDTO(updatedBrand), "Patch brand successfully");
-                }).orElse(CommonResult.error(404, "Brand not found"));
+    @GetMapping("")
+    public CommonResult<Page<Brand>> getAllBrands(
+            @RequestParam(defaultValue = "0") int page,
+            @RequestParam(defaultValue = "10") int limit,
+            @RequestParam(defaultValue = "",required = false) String name
+    ) throws Exception {
+        PageRequest pageRequest = PageRequest.of(
+                page, limit,
+                Sort.by("id").ascending());
+        User user  = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Page<Brand> brandsPages = brandService.getAllBrands(pageRequest,user.getId(), name);
+        return CommonResult.success(brandsPages, "Get all brands");
     }
 
     @DeleteMapping("/{id}")
-    public CommonResult<String> deleteBrand(@PathVariable Long id) {
-        return iBrandService.findById(id)
-                .map(brand -> {
-                    iProductService.deleteBrandById(id);
-                    iBrandService.deleteById(id);
-                    return CommonResult.success("Brand with ID " + id + " has been deleted.");
-                })
-                .orElse(CommonResult.error(404, "Brand not found"));
+    @PreAuthorize("hasRole('ROLE_SELLER')")
+    public  CommonResult deleteBrand(@PathVariable Long id) throws Exception{
+        User user  = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        brandService.deleteBrand(id, user.getId());
+        return CommonResult.success("Delete success brand");
     }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasRole('ROLE_SELLER')")
+    public CommonResult<Brand> updateBrand(
+            @PathVariable Long id,
+            @Valid @RequestBody BrandDTO brandDTO
+    )throws Exception{
+        User user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Brand brand = brandService.updateBrand(id, brandDTO, user.getId());
+        return CommonResult.success(brand, "Update brand successfully");
+    }
+
 }

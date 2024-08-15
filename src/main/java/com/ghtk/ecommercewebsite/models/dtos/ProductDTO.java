@@ -2,14 +2,19 @@ package com.ghtk.ecommercewebsite.models.dtos;
 
 
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
+import lombok.Getter;
+import lombok.Setter;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+@Getter
+@Setter
 @Data
 public class ProductDTO {
 
@@ -30,6 +35,8 @@ public class ProductDTO {
 
     private Integer productView;
 
+    private Boolean isDelete;
+
     @NotNull(message = "Brand ID is required")
     private Long brandId;
 
@@ -39,5 +46,10 @@ public class ProductDTO {
     private List<Long> categoryIds;
 
     private List<MultipartFile> images;
+
+    private MultipartFile thumbnail;
+
+    private String thumbnailImg ;
+
 
 }

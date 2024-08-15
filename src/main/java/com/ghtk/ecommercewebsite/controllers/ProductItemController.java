@@ -1,6 +1,8 @@
 package com.ghtk.ecommercewebsite.controllers;
 
 import com.ghtk.ecommercewebsite.models.dtos.DetailProductItemDTO;
+import com.ghtk.ecommercewebsite.models.dtos.ListAttributeValuesDTO;
+import com.ghtk.ecommercewebsite.models.entities.ProductItem;
 import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.responses.CommonResult;
 import com.ghtk.ecommercewebsite.services.productitem.ProductItemService;
@@ -72,5 +74,16 @@ public class ProductItemController {
         User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return CommonResult.success(productItemService.getProductItemById(id,user.getId()),"get all product item successfully");
     }
+
+
+//    @GetMapping("/product/{id}")
+//    public CommonResult<Long> getProductItemByAttributesValues(
+//            @RequestBody Long id,
+//            @RequestBody ListAttributeValuesDTO listAttributeValuesDTO
+//    ) throws  Exception{
+//        ProductItem productItem = productItemService.getProductItemByAttributesValues(id, listAttributeValuesDTO);
+//        return CommonResult.success(1L,"Get quantity by attributes success");
+//    }
+
 
 }

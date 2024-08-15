@@ -48,6 +48,7 @@ public class Image {
     @Column(name = "brand_id")
     private Long brandId;
 
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
