@@ -5,6 +5,7 @@ import com.ghtk.ecommercewebsite.exceptions.AlreadyExistedException;
 import com.ghtk.ecommercewebsite.exceptions.DataNotFoundException;
 import com.ghtk.ecommercewebsite.models.dtos.DetailInventoryDTO;
 import com.ghtk.ecommercewebsite.models.dtos.DetailProductItemDTO;
+import com.ghtk.ecommercewebsite.models.dtos.ListAttributeValuesDTO;
 import com.ghtk.ecommercewebsite.models.dtos.ProductItemAttributesDTO;
 import com.ghtk.ecommercewebsite.models.entities.Product;
 import com.ghtk.ecommercewebsite.models.entities.ProductItem;
@@ -195,4 +196,16 @@ public class ProductItemServiceImpl implements ProductItemService
                 .build();
         return detailProductItemDTO;
     }
+
+//    @Override
+//    public ProductItem getProductItemByAttributesValues(Long id, ListAttributeValuesDTO listAttributeValuesDTO) throws Exception {
+//        List<ProductItem> productItemList = productItemRepository.findAllByProductId(id);
+//        if (productItemList.size() != listAttributeValuesDTO.getListAttributeValues().size()){
+//            throw new Exception("number of attributes is not enough");
+//        }
+//        ProductItem productItem ;
+////        = productItemRepository.findProductItemByAttributesValues(id, listAttributeValuesDTO);
+//
+//        return productItem;
+//    }
 }

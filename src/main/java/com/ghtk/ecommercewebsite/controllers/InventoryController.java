@@ -21,7 +21,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class InventoryController {
     private final InventoryService inventoryService;
-
 //    @GetMapping("/{id}")
 //    public CommonResult<InventoryDTO> getInventoryById(
 //            @PathVariable("id") Long inventoryId
@@ -97,5 +96,9 @@ public class InventoryController {
         Page<DetailInventoryDTO> listImportsPages = inventoryService.getListImport(warehouse,supplier,location,skuCode, name , createdAt, user.getId(), pageable);
         return  CommonResult.success(listImportsPages , "Get list import successfully");
     }
+
+//    @GetMapping("/{id}")
+//    @PreAuthorize("hasRole('ROLE_SELLER')")
+//    public CommonResult<> getListInventoryBySkuId
 
 }

@@ -1,5 +1,6 @@
 package com.ghtk.ecommercewebsite.services.product;
 
+import com.ghtk.ecommercewebsite.models.dtos.ListAttributeValuesDTO;
 import com.ghtk.ecommercewebsite.models.dtos.ProductDTO;
 import com.ghtk.ecommercewebsite.models.entities.Product;
 import com.ghtk.ecommercewebsite.models.responses.ProductResponse;
@@ -34,4 +35,5 @@ public interface IProductService {
     Page<ProductResponse> searchProductsSeller (List<Long> categoryIds, long categoryCount, List<Long> brandIds, String keyword, PageRequest pageRequest) throws Exception;
 
     Product updateProductById(Long id,ProductDTO productDTO, Long userId) throws Exception;
+
 }

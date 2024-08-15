@@ -1,6 +1,7 @@
 package com.ghtk.ecommercewebsite.repositories;
 
 import com.ghtk.ecommercewebsite.models.dtos.DetailProductItemDTO;
+import com.ghtk.ecommercewebsite.models.dtos.ListAttributeValuesDTO;
 import com.ghtk.ecommercewebsite.models.entities.ProductItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -33,4 +34,7 @@ public interface ProductItemRepository extends JpaRepository<ProductItem, Long> 
     @Query("UPDATE ProductItem pi SET pi.isDelete = true WHERE pi.productId = :id")
     void softDeleteProductItemByProductId(Long id);
 
+
+//    @Query("")
+//    ProductItem findProductItemByAttributesValues(Long id, ListAttributeValuesDTO listAttributeValuesDTO);
 }

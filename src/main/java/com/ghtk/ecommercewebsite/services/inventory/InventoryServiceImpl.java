@@ -96,9 +96,6 @@ public class InventoryServiceImpl implements InventoryService{
         int limit = pageable.getPageSize();
         int offset = pageable.getPageNumber() * limit;
         List<DetailInventoryDTO> detailInventoryDTOList = supplyRepository.getAllImport(warehouse,supplier,location,skuCode, name , createdAt,shopId);
-        if(detailInventoryDTOList.isEmpty()){
-            throw new DataNotFoundException("Cannot not found import");
-        }
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), detailInventoryDTOList.size());
 
@@ -112,9 +109,6 @@ public class InventoryServiceImpl implements InventoryService{
         int limit = pageable.getPageSize();
         int offset = pageable.getPageNumber() * limit;
         List<DetailInventoryDTO> detailInventoryDTOList = supplyRepository.getAllExport(warehouse,supplier,location,skuCode, name , createdAt,shopId);
-        if(detailInventoryDTOList.isEmpty()){
-            throw new DataNotFoundException("Cannot not found Export");
-        }
 
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), detailInventoryDTOList.size());
