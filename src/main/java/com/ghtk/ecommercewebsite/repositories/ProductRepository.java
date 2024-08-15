@@ -46,7 +46,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             @Param("keyword") String keyword,
             Pageable pageable);
 
-
     @Query("SELECT p FROM Product p " +
             "LEFT JOIN p.categoryList c " +
             "WHERE (:categoryIds IS NULL OR c.id IN :categoryIds) " +
@@ -61,7 +60,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             @Param("brandIds") List<Long> brandIds,
             @Param("keyword") String keyword,
             Pageable pageable);
-
 
     @Modifying
     @Query("UPDATE Product p SET p.isDelete = true WHERE p.id = :id")

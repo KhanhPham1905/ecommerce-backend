@@ -16,10 +16,8 @@ import java.util.List;
 public interface SupplyRepository extends JpaRepository<Supply, Long> {
 
     @Query(name = "Supply.getAllImport", nativeQuery = true)
-    List<DetailInventoryDTO> getAllImport(@Param("warehouse") String warehouse, @Param("supplier") String supplier,@Param("location") String location,@Param("sku_code") String skuCode,@Param("name") String name ,@Param("created_at")String createdAt,@Param("shop_id") Long shopId, @Param("limit") int limit,
-                                          @Param("offset") int offset);
+    List<DetailInventoryDTO> getAllImport(@Param("warehouse") String warehouse, @Param("supplier") String supplier,@Param("location") String location,@Param("sku_code") String skuCode,@Param("name") String name ,@Param("created_at")String createdAt,@Param("shop_id") Long shopId);
 
     @Query(name = "Supply.getAllExport", nativeQuery = true)
-    List<DetailInventoryDTO> getAllExport(@Param("warehouse") String warehouse, @Param("supplier") String supplier,@Param("location") String location,@Param("sku_code") String skuCode,@Param("name") String name ,@Param("created_at")String createdAt,@Param("shop_id") Long shopId, @Param("limit") int limit,
-                                          @Param("offset") int offset);
+    List<DetailInventoryDTO> getAllExport(@Param("warehouse") String warehouse, @Param("supplier") String supplier,@Param("location") String location,@Param("sku_code") String skuCode,@Param("name") String name ,@Param("created_at")String createdAt,@Param("shop_id") Long shopId );
 }

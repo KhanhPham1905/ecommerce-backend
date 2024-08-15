@@ -195,7 +195,6 @@ public class ProductServiceImpl implements IProductService {
                     Optional<Brand> brand = brandRepository.findById(product.getBrandId());
                     List<String> imageList = imagesRepository.findLinkByProductId(product.getId());
 
-
                     return ProductResponse.builder()
                             .id(product.getId())
                             .name(product.getName())

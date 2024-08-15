@@ -1,22 +1,18 @@
 package com.ghtk.ecommercewebsite.controllers;
 
-import com.cloudinary.Cloudinary;
 import com.ghtk.ecommercewebsite.configs.Contant;
 import com.ghtk.ecommercewebsite.mapper.ProductMapper;
+import com.ghtk.ecommercewebsite.models.dtos.ListAttributeValuesDTO;
 import com.ghtk.ecommercewebsite.models.dtos.ProductDTO;
 import com.ghtk.ecommercewebsite.models.entities.Product;
-import com.ghtk.ecommercewebsite.models.entities.ProductItem;
 import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.responses.CloudinaryResponse;
 import com.ghtk.ecommercewebsite.models.responses.CommonResult;
 import com.ghtk.ecommercewebsite.models.responses.ProductListResponse;
 import com.ghtk.ecommercewebsite.models.responses.ProductResponse;
 import com.ghtk.ecommercewebsite.services.CloudinaryService;
-import com.ghtk.ecommercewebsite.services.images.ImagesService;
 import com.ghtk.ecommercewebsite.services.product.IProductService;
-import com.ghtk.ecommercewebsite.services.product.ProductServiceImpl;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -29,8 +25,6 @@ import org.springframework.web.multipart.MultipartFile;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/products")
@@ -269,4 +263,6 @@ public class ProductsController {
         }
         return CommonResult.success("sac set");
     }
+
+
 }

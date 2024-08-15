@@ -1,6 +1,8 @@
 package com.ghtk.ecommercewebsite.services.productitem;
 
 import com.ghtk.ecommercewebsite.models.dtos.DetailProductItemDTO;
+import com.ghtk.ecommercewebsite.models.dtos.ListAttributeValuesDTO;
+import com.ghtk.ecommercewebsite.models.entities.ProductItem;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -18,4 +20,6 @@ public interface ProductItemService {
 
     void deleteProductItem(Long id, Long userId) throws  Exception;
     DetailProductItemDTO getProductItemById(Long id, Long userId) throws  Exception;
+
+//    ProductItem getProductItemByAttributesValues(Long id, ListAttributeValuesDTO listAttributeValuesDTO) throws Exception;
 }
