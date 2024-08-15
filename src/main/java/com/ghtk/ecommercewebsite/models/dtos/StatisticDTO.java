@@ -3,10 +3,16 @@ package com.ghtk.ecommercewebsite.models.dtos;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import lombok.Builder;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+@Getter
+@Setter
+@Builder
 public class StatisticDTO {
     @JsonProperty("created_at")
     private LocalDateTime createdAt;

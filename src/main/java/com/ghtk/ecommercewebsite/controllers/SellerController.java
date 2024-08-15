@@ -1,14 +1,13 @@
 package com.ghtk.ecommercewebsite.controllers;
 
-import com.ghtk.ecommercewebsite.models.dtos.DetailSellerInfoDTO;
-import com.ghtk.ecommercewebsite.models.dtos.SellerDTO;
+import com.ghtk.ecommercewebsite.exceptions.DataNotFoundException;
+import com.ghtk.ecommercewebsite.models.dtos.*;
 import com.ghtk.ecommercewebsite.models.entities.Seller;
+import com.ghtk.ecommercewebsite.models.entities.Shop;
 import com.ghtk.ecommercewebsite.models.responses.CommonResult;
 import com.ghtk.ecommercewebsite.services.seller.SellerService;
 import lombok.RequiredArgsConstructor;
 import com.ghtk.ecommercewebsite.exceptions.SellerAlreadyExistedException;
-import com.ghtk.ecommercewebsite.models.dtos.LoginUserDto;
-import com.ghtk.ecommercewebsite.models.dtos.RegisterUserDto;
 import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.responses.LoginResponse;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,13 +28,21 @@ public class SellerController {
     private final SellerService sellerService;
 
     @PostMapping("/signup")
-    public CommonResult<User> signup(@RequestBody RegisterUserDto registerUserDto) throws SellerAlreadyExistedException {
-        return CommonResult.success(sellerService.signUpSeller(registerUserDto));
+    public CommonResult<User> signup(@RequestBody SellerRegisterDto sellerRegisterDto) throws SellerAlreadyExistedException {
+        return CommonResult.success(sellerService.signUpSeller(sellerRegisterDto));
     }
 
     @PostMapping("/login")
     public CommonResult<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto) throws AccessDeniedException {
         return CommonResult.success(sellerService.authenticateSellerAndGetLoginResponse(loginUserDto));
+    }
+
+    @PreAuthorize("hasRole('SELLER')")
+    @PostMapping("/addShopInfo")
+    public CommonResult<Shop> updateShopInfoAfterLogin(@RequestBody ShopDTO shopDTO) throws DataNotFoundException {
+        User authenticatedSeller = sellerService.getAuthenticatedSeller();
+//        Shop shop = sellerService.updateShopInfo(authenticatedSeller, shopDTO);
+        return CommonResult.success(sellerService.updateShopInfo(authenticatedSeller.getId(), shopDTO));
     }
 
     @GetMapping("/me")

@@ -2,21 +2,16 @@ package com.ghtk.ecommercewebsite.services.user;
 
 import com.ghtk.ecommercewebsite.exceptions.DataNotFoundException;
 import com.ghtk.ecommercewebsite.models.dtos.UserDTO;
-import com.ghtk.ecommercewebsite.models.entities.Image;
-import com.ghtk.ecommercewebsite.models.entities.Token;
+import com.ghtk.ecommercewebsite.models.entities.*;
 import com.ghtk.ecommercewebsite.models.enums.RoleEnum;
-import com.ghtk.ecommercewebsite.repositories.TokenRepository;
+import com.ghtk.ecommercewebsite.repositories.*;
 import com.ghtk.ecommercewebsite.services.JwtService;
 import com.ghtk.ecommercewebsite.services.auth.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import com.ghtk.ecommercewebsite.exceptions.UserAlreadyExistedException;
 import com.ghtk.ecommercewebsite.models.dtos.LoginUserDto;
 import com.ghtk.ecommercewebsite.models.dtos.RegisterUserDto;
-import com.ghtk.ecommercewebsite.models.entities.Role;
-import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.responses.LoginResponse;
-import com.ghtk.ecommercewebsite.repositories.RoleRepository;
-import com.ghtk.ecommercewebsite.repositories.UserRepository;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
@@ -39,6 +34,8 @@ public class UserServiceImpl implements UserService{
     private final JwtService jwtService;
     private final TokenRepository tokenRepository;
     private final AuthenticationService authenticationService;
+//    private final LocationRepository locationRepository;
+//    private final AddressRepository addressRepository;
 //    private final EmailService emailService;
 //    public static final String KEY = "cacheKey";
 
@@ -71,8 +68,35 @@ public class UserServiceImpl implements UserService{
                     .fullName(input.getFullName())
                     .email(input.getEmail())
                     .password(passwordEncoder.encode(input.getPassword()))
+                    .phone(input.getPhone())
+                    .gender(input.getGender())
                     .roles(roles)
                     .build();
+            // From here
+//            Optional<Location> location = locationRepository.findByCountryAndProvinceAndDistrictAndCommune(input.getCountry(), input.getProvince(), input.getDistrict(), input.getCommune());
+//            if (location.isPresent()) {
+//                Location existedLocation = location.get();
+//                Address newAddressWithDetail = Address.builder()
+//                        .locationId(existedLocation.getId())
+//                        .addressDetail(input.getAddressDetail())
+//                        .build();
+//                addressRepository.save(newAddressWithDetail);
+//                user.setAddressId(newAddressWithDetail.getId());
+//            } else {
+//                Location newLocation = Location.builder()
+//                        .country(input.getCountry())
+//                        .province(input.getProvince())
+//                        .district(input.getDistrict())
+//                        .commune(input.getCommune())
+//                        .build();
+//                locationRepository.save(newLocation);
+//                Address newAddressWithDetail = Address.builder()
+//                        .locationId(newLocation.getId())
+//                        .addressDetail(input.getAddressDetail())
+//                        .build();
+//                user.setAddressId(newAddressWithDetail.getId());
+//            }
+            // to here is for new address implementation
 //            sendMail(input.getEmail());
             return userRepository.save(user);
         }
@@ -166,14 +190,19 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public UserDTO viewDetailsOfAnUser(Long id) {
+    public User viewDetailsOfAnUser(Long id) throws DataNotFoundException {
         Optional<User> user = userRepository.findById(id);
-        return user.map(value -> UserDTO.builder()
-                .fullName(value.getFullName())
-                .email(value.getEmail())
-                .phone(value.getPhone())
-                .gender(value.getGender())
-                .build()).orElse(null);
+        if (user.isEmpty()) {
+            throw new DataNotFoundException("There is no user with this id");
+        } else {
+            return user.get();
+        }
+//        return user.map(value -> UserDTO.builder()
+//                .fullName(value.getFullName())
+//                .email(value.getEmail())
+//                .phone(value.getPhone())
+//                .gender(value.getGender())
+//                .build()).orElse(null);
     }
 
     @Override
