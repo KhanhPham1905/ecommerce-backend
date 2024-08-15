@@ -25,4 +25,13 @@ public interface UserService {
     User viewDetailsOfAnUser(Long id) throws DataNotFoundException;
 
     User updateUserInfo(UserDTO userDTO) throws DataNotFoundException;
+
+    String signUpWithOtp(RegisterUserDto registerUserDto);
+
+    void checkUserExistence(RegisterUserDto registerUserDto);
+    void sendMailForSignUpUser(RegisterUserDto registerUserDto);
+
+    User signUpNewVersion(RegisterUserDto registerUserDto);
+
+    void activateUser(String email);
 }

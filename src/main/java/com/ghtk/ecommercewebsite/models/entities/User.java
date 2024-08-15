@@ -76,6 +76,9 @@ public class User implements UserDetails {
     @JsonManagedReference
     private Set<Role> roles;
 
+//    @Column(columnDefinition = "tinyint(1) default 0")
+    private Boolean status = false;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream()
@@ -107,8 +110,9 @@ public class User implements UserDetails {
         return true;
     }
 
+    // Change this to true to enable the user
     @Override
     public boolean isEnabled() {
-        return true;
+        return Boolean.TRUE.equals(status);
     }
 }

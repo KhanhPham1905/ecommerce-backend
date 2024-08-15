@@ -3,6 +3,7 @@ package com.ghtk.ecommercewebsite.services;
 import com.ghtk.ecommercewebsite.models.dtos.MailBody;
 import com.ghtk.ecommercewebsite.models.entities.ForgotPassword;
 import com.ghtk.ecommercewebsite.models.entities.User;
+import com.ghtk.ecommercewebsite.models.responses.CommonResult;
 import com.ghtk.ecommercewebsite.repositories.ForgotPasswordRepository;
 import com.ghtk.ecommercewebsite.repositories.UserRepository;
 import com.ghtk.ecommercewebsite.utils.ChangePassword;
@@ -112,4 +113,22 @@ public class OtpService {
                     .body("Too many OTP requests. Please wait before trying again.");
         }
     }
+
+    public CommonResult<String> resendOtpForSigningUp(String email) {
+        try {
+            int otp = redisOtpService.generateAndSaveOtp(email);
+
+            MailBody mailBody = MailBody.builder()
+                    .to(email)
+                    .text("This is the OTP for your Forgot Password request: " + otp)
+                    .subject("OTP for Forgot Password request")
+                    .build();
+
+            emailService.sendSimpleMessage(mailBody);
+            return CommonResult.success("OTP has been resent!");
+        } catch (RuntimeException e) {
+            return CommonResult.tooManyRequests("Too many OTP requests. Please wait before trying again.");
+        }
+    }
+
 }

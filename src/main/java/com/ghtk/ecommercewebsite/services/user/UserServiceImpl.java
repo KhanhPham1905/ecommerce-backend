@@ -1,11 +1,14 @@
 package com.ghtk.ecommercewebsite.services.user;
 
 import com.ghtk.ecommercewebsite.exceptions.DataNotFoundException;
+import com.ghtk.ecommercewebsite.models.dtos.MailBody;
 import com.ghtk.ecommercewebsite.models.dtos.UserDTO;
 import com.ghtk.ecommercewebsite.models.entities.*;
 import com.ghtk.ecommercewebsite.models.enums.RoleEnum;
 import com.ghtk.ecommercewebsite.repositories.*;
+import com.ghtk.ecommercewebsite.services.EmailService;
 import com.ghtk.ecommercewebsite.services.JwtService;
+import com.ghtk.ecommercewebsite.services.RedisOtpService;
 import com.ghtk.ecommercewebsite.services.auth.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import com.ghtk.ecommercewebsite.exceptions.UserAlreadyExistedException;
@@ -23,6 +26,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.file.AccessDeniedException;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,6 +38,8 @@ public class UserServiceImpl implements UserService{
     private final JwtService jwtService;
     private final TokenRepository tokenRepository;
     private final AuthenticationService authenticationService;
+    private final RedisOtpService redisOtpService;
+    private final EmailService emailService;
 //    private final LocationRepository locationRepository;
 //    private final AddressRepository addressRepository;
 //    private final EmailService emailService;
@@ -220,4 +226,151 @@ public class UserServiceImpl implements UserService{
         return userRepository.save(user);
     }
 
+    @Override
+    public String signUpWithOtp(RegisterUserDto registerUserDto) {
+        Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.USER);
+        if (optionalRole.isEmpty()) { return null; }
+
+        Role userRole = optionalRole.get();
+
+        Optional<User> optionalUser = userRepository.findByEmail(registerUserDto.getEmail());
+        if (optionalUser.isPresent()) {
+            User existingUser = optionalUser.get();
+            Set<Role> existingRoles = existingUser.getRoles();
+            if (existingRoles.contains(userRole)) {
+                throw new UserAlreadyExistedException(registerUserDto.getEmail());
+            } else {
+                existingRoles.add(userRole);
+                existingUser.setRoles(existingRoles);
+//                sendMail(input.getEmail());
+                Integer otp = redisOtpService.generateAndSaveOtp(registerUserDto.getEmail());
+                String roleNames = String.valueOf(existingRoles.stream()
+                        .map(role -> role.getName().name())
+                        .collect(Collectors.toList()));
+                MailBody mailBody = MailBody.builder()
+                        .to(registerUserDto.getEmail())
+                        .text("You are already an " + roleNames + " in our system. This is the OTP for your request: " + otp)
+                        .build();
+                emailService.sendSimpleMessage(mailBody);
+            }
+        } else {
+            Set<Role> roles = new HashSet<>(List.of(optionalRole.get()));
+            var user = User.builder()
+                    .fullName(registerUserDto.getFullName())
+                    .email(registerUserDto.getEmail())
+                    .password(passwordEncoder.encode(registerUserDto.getPassword()))
+                    .phone(registerUserDto.getPhone())
+                    .gender(registerUserDto.getGender())
+                    .roles(roles)
+                    .build();
+        }
+        return null;
+    }
+
+    @Override
+    @Transactional
+    public User signUpNewVersion(RegisterUserDto registerUserDto) {
+        Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.USER);
+        if (optionalRole.isEmpty()) { return null; }
+
+        Role userRole = optionalRole.get();
+        Optional<User> optionalUser = userRepository.findByEmail(registerUserDto.getEmail());
+
+        if (optionalUser.isPresent()) {
+            // If user is already existing
+            User existingUser = optionalUser.get();
+            Set<Role> existingRoles = existingUser.getRoles();
+
+            if (existingRoles.contains(userRole)) {
+                throw new UserAlreadyExistedException(registerUserDto.getEmail());
+            } else {
+                existingRoles.add(userRole);
+                existingUser.setRoles(existingRoles);
+                existingUser.setPassword(registerUserDto.getPassword());
+                existingUser.setFullName(registerUserDto.getFullName());
+                existingUser.setPhone(registerUserDto.getPhone());
+                existingUser.setGender(registerUserDto.getGender());
+                existingUser.setStatus(false);
+                // Save as inactive account
+                userRepository.save(existingUser);
+
+                Integer otp = redisOtpService.generateAndSaveOtp(registerUserDto.getEmail());
+                String roleNames = String.valueOf(existingRoles.stream()
+                        .map(role -> role.getName().name())
+                        .collect(Collectors.toList()));
+                MailBody mailBody = MailBody.builder()
+                        .to(registerUserDto.getEmail())
+                        .text("You are already an " + roleNames + " in our system. This is the OTP for your request: " + otp)
+                        .build();
+                emailService.sendSimpleMessage(mailBody);
+
+                return existingUser;
+
+            }
+        } else {
+            Set<Role> roles = new HashSet<>(List.of(optionalRole.get()));
+            var user = User.builder()
+                    .fullName(registerUserDto.getFullName())
+                    .email(registerUserDto.getEmail())
+                    .password(passwordEncoder.encode(registerUserDto.getPassword()))
+                    .phone(registerUserDto.getPhone())
+                    .gender(registerUserDto.getGender())
+                    .status(false)
+                    .roles(roles)
+                    .build();
+
+            userRepository.save(user);
+            Integer otp = redisOtpService.generateAndSaveOtp(registerUserDto.getEmail());
+            MailBody mailBody = MailBody.builder()
+                    .to(registerUserDto.getEmail())
+                    .text("This is the OTP for your request: " + otp)
+                    .build();
+            emailService.sendSimpleMessage(mailBody);
+
+            return user;
+        }
+    }
+
+    @Override
+    public void activateUser(String email) {
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+            user.setStatus(true);
+            userRepository.save(user);
+        }
+    }
+
+
+    // Better approach
+    @Override
+    public void sendMailForSignUpUser(RegisterUserDto registerUserDto) {
+//        Optional<User> existingUser = userRepository.findByEmail(registerUserDto.getEmail());
+//        User userToAddUserRole = existingUser.orElseGet(User::new);
+
+        Integer otp = redisOtpService.generateAndSaveOtp(registerUserDto.getEmail());
+        MailBody mailBody = MailBody.builder()
+                .to(registerUserDto.getEmail())
+                .text("Hi! Please use this OTP for user signing up request: " + otp)
+                .build();
+        emailService.sendSimpleMessage(mailBody);
+        // I think there are some problems with this process
+        redisOtpService.storeTemporaryUser(registerUserDto);
+    }
+
+    @Override
+    public void checkUserExistence(RegisterUserDto registerUserDto) {
+        Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.USER);
+        if (optionalRole.isEmpty()) { return; }
+        Role userRole = optionalRole.get();
+
+        Optional<User> optionalUser = userRepository.findByEmail(registerUserDto.getEmail());
+        if (optionalUser.isPresent()) {
+            User existingUser = optionalUser.get();
+            Set<Role> existingRoles = existingUser.getRoles();
+            if (existingRoles.contains(userRole)) {
+                throw new UserAlreadyExistedException(registerUserDto.getEmail());
+            }
+        }
+    }
 }

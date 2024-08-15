@@ -34,4 +34,5 @@ public interface ProductItemRepository extends JpaRepository<ProductItem, Long> 
     @Query("UPDATE ProductItem pi SET pi.isDelete = true WHERE pi.productId = :id")
     void softDeleteProductItemByProductId(Long id);
 
+    List<ProductItem> findAllByProductId(Long id);
 }
