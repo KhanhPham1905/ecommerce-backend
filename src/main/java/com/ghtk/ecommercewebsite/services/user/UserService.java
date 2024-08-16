@@ -22,7 +22,16 @@ public interface UserService {
     Page<User> allSellers(Pageable pageable);
     User getUserDetailsFromToken(String token) throws Exception;
     User getUserDetailsFromRefreshToken(String refreshToken) throws Exception;
-    UserDTO viewDetailsOfAnUser(Long id);
+    User viewDetailsOfAnUser(Long id) throws DataNotFoundException;
 
     User updateUserInfo(UserDTO userDTO) throws DataNotFoundException;
+
+    String signUpWithOtp(RegisterUserDto registerUserDto);
+
+    void checkUserExistence(RegisterUserDto registerUserDto);
+    void sendMailForSignUpUser(RegisterUserDto registerUserDto);
+
+    User signUpNewVersion(RegisterUserDto registerUserDto);
+
+    void activateUser(String email);
 }

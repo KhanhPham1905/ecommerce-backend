@@ -11,4 +11,5 @@ import java.util.List;
 public interface VoucherRepository extends JpaRepository<Voucher, Long> {
 
     List<Voucher> findByShopId(Long shopId);
+    List<Voucher> findByShopIdAndIsActiveAndIsPublic(Long shopId, boolean isActive, boolean isPublic);
 }

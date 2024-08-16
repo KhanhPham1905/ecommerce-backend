@@ -20,8 +20,7 @@ import java.util.List;
 
 
 
-@Getter
-@Setter
+
 @Builder
 @Data
 @NoArgsConstructor
@@ -38,7 +37,7 @@ public class ProductResponse {
     @Size(max = 300, message = "Name cannot exceed 300 characters")
     private String name;
 
-    private Integer status;
+    private Boolean status;
 
     private String slug;
 

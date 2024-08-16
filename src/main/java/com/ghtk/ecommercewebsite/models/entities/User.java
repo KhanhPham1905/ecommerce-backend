@@ -47,6 +47,7 @@ public class User implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
+    @JsonProperty("full_name")
     @Column(name = "full_name",nullable = false)
     private String fullName;
 
@@ -75,12 +76,19 @@ public class User implements UserDetails {
     @JsonManagedReference
     private Set<Role> roles;
 
+//    @Column(columnDefinition = "tinyint(1) default 0")
+    private Boolean status = false;
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles.stream()
                 .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getName().toString()))
                 .collect(Collectors.toList());
     }
+
+//    @JsonProperty("address_id")
+//    @Column(name = "address_id")
+//    private Long addressId;
 
     @Override
     public String getUsername() {
@@ -102,8 +110,9 @@ public class User implements UserDetails {
         return true;
     }
 
+    // Change this to true to enable the user
     @Override
     public boolean isEnabled() {
-        return true;
+        return Boolean.TRUE.equals(status);
     }
 }

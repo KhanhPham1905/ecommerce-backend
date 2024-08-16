@@ -1,9 +1,11 @@
 package com.ghtk.ecommercewebsite.repositories;
 
+import com.ghtk.ecommercewebsite.models.dtos.ProductDTO;
 import com.ghtk.ecommercewebsite.models.entities.Category;
 import com.ghtk.ecommercewebsite.models.entities.Product;
 import com.ghtk.ecommercewebsite.models.entities.Shop;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -63,4 +65,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     @Modifying
     @Query("UPDATE Product p SET p.isDelete = true WHERE p.id = :id")
     void softDeleteProductByCategoryId(Long id);
+
+    List<Product> findAllByShopId(Long id);
 }

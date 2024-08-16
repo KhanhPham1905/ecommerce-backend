@@ -54,7 +54,9 @@ public class CommonResult<T> {
         return new CommonResult<T>(ResultCode.FORBIDDEN.getCode(), message, data);
     }
 
-
+    public static <T> CommonResult<T> tooManyRequests(String message) {
+        return new CommonResult<T>(ResultCode.TOO_MANY_REQUESTS.getCode(), message, null);
+    }
 
     public static <T> CommonResult<T> error(int code, String message) {
         return new CommonResult<>(code, message, null);

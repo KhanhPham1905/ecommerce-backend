@@ -66,7 +66,6 @@ public class Comment {
     }
 
     public enum CommentStatus {
-        PENDING,
         APPROVED,
         REJECTED
     }

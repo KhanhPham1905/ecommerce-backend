@@ -68,7 +68,7 @@ public class AdminController {
 
     @GetMapping("/users/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public CommonResult<UserDTO> viewUserDetails(@PathVariable Long id) {
+    public CommonResult<User> viewUserDetails(@PathVariable Long id) throws DataNotFoundException {
         return CommonResult.success(userService.viewDetailsOfAnUser(id));
     }
 
@@ -78,25 +78,25 @@ public class AdminController {
         return CommonResult.success(sellerService.viewDetailsOfAnSeller(id));
     }
 
-    @GetMapping("/users/add")
+    @PostMapping("/users/add")
     @PreAuthorize("hasRole('ADMIN')")
     public CommonResult<User> addNewUser(@RequestBody RegisterUserDto registerUserDto) {
         return CommonResult.success(userService.signUp(registerUserDto));
     }
 
-    @GetMapping("/sellers/add")
-    @PreAuthorize("hasRole('ADMIN')")
-    public CommonResult<User> addNewSeller(@RequestBody RegisterUserDto registerUserDto) {
-        return CommonResult.success(sellerService.signUpSeller(registerUserDto));
-    }
+//    @PostMapping("/sellers/add")
+//    @PreAuthorize("hasRole('ADMIN')")
+//    public CommonResult<User> addNewSeller(@RequestBody RegisterUserDto registerUserDto) {
+//        return CommonResult.success(sellerService.signUpSeller(registerUserDto));
+//    }
 
-    @GetMapping("/users/update")
+    @PostMapping("/users/update")
     @PreAuthorize("hasRole('ADMIN')")
     public CommonResult<User> updateUserInfo(@RequestBody UserDTO userDTO) throws DataNotFoundException {
         return CommonResult.success(userService.updateUserInfo(userDTO));
     }
 
-    @GetMapping("/sellers/update")
+    @PostMapping("/sellers/update")
     @PreAuthorize("hasRole('ADMIN')")
     public CommonResult<Seller> updateSellerInfo(@RequestBody SellerDTO sellerDTO) throws DataNotFoundException {
         return CommonResult.success(sellerService.updateSellerInfo(sellerDTO));

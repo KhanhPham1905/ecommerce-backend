@@ -1,11 +1,15 @@
 package com.ghtk.ecommercewebsite.controllers;
 
+import com.ghtk.ecommercewebsite.exceptions.DataNotFoundException;
 import com.ghtk.ecommercewebsite.mapper.OrderMapper;
 import com.ghtk.ecommercewebsite.models.dtos.OrdersDTO;
 import com.ghtk.ecommercewebsite.models.entities.Orders;
+import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.responses.CommonResult;
 import com.ghtk.ecommercewebsite.services.orders.IOrdersService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -39,10 +43,13 @@ public class OrdersController {
         return CommonResult.success(ordersDTOList, "Get user orders successfully");
     }
     @PostMapping
-    public CommonResult<OrdersDTO> createOrder(@RequestBody OrdersDTO ordersDTO) {
-        Orders order = orderMapper.toEntity(ordersDTO);
-        Orders savedOrder = iOrdersService.save(order);
-        return CommonResult.success(orderMapper.toDto(savedOrder), "Create order successfully");
+    @PreAuthorize("hasRole('ROLE_USER')")
+    public CommonResult<OrdersDTO> createOrder(@RequestBody OrdersDTO ordersDTO) throws DataNotFoundException {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return CommonResult.success(iOrdersService.addOrder(ordersDTO, user.getId()));
+//        Orders order = orderMapper.toEntity(ordersDTO);
+//        Orders savedOrder = iOrdersService.save(order);
+//        return CommonResult.success(orderMapper.toDto(savedOrder), "Create order successfully");
     }
 
     @PutMapping("/{id}")

@@ -28,4 +28,9 @@ public class ForgotPasswordController {
                                                         @PathVariable String email) {
         return otpService.changePassword(changePassword, email);
     }
+
+    @PostMapping("/resendOtp/{email}")
+    public ResponseEntity<String> resendOtp(@PathVariable String email) {
+        return otpService.resendOtp(email);
+    }
 }

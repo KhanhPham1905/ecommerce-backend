@@ -2,11 +2,9 @@ package com.ghtk.ecommercewebsite.services.seller;
 
 import com.ghtk.ecommercewebsite.exceptions.DataNotFoundException;
 import com.ghtk.ecommercewebsite.exceptions.SellerAlreadyExistedException;
-import com.ghtk.ecommercewebsite.models.dtos.DetailSellerInfoDTO;
-import com.ghtk.ecommercewebsite.models.dtos.LoginUserDto;
-import com.ghtk.ecommercewebsite.models.dtos.RegisterUserDto;
-import com.ghtk.ecommercewebsite.models.dtos.SellerDTO;
+import com.ghtk.ecommercewebsite.models.dtos.*;
 import com.ghtk.ecommercewebsite.models.entities.Seller;
+import com.ghtk.ecommercewebsite.models.entities.Shop;
 import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.responses.LoginResponse;
 
@@ -16,7 +14,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 public interface SellerService {
-    User signUpSeller(RegisterUserDto input) throws SellerAlreadyExistedException;
+    User signUpSeller(SellerRegisterDto input) throws SellerAlreadyExistedException;
     LoginResponse authenticateSellerAndGetLoginResponse(LoginUserDto loginUserDto) throws AccessDeniedException;
     User getAuthenticatedSeller();
     DetailSellerInfoDTO getSellerInfo(Long useId) throws  Exception;
@@ -25,4 +23,8 @@ public interface SellerService {
     User viewDetailsOfAnSeller(Long id) throws DataNotFoundException;
 
     Seller updateSellerInfo(SellerDTO sellerDTO) throws DataNotFoundException;
+
+    Shop updateShopInfo(Long userId, ShopDTO shopDTO) throws DataNotFoundException;
+
+    User signUpNewVersion(SellerRegisterDto sellerRegisterDto);
 }

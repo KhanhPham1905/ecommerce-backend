@@ -10,4 +10,6 @@ import java.util.List;
 public interface OrdersRepository extends JpaRepository<Orders, Long> {
 
     List<Orders> findByUserId(Long userId); // Thêm phương thức này
+
+    List<Orders> findAllByUserId(Long userId);
 }

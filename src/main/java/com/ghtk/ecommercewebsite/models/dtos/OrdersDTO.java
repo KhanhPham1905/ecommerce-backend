@@ -30,6 +30,7 @@ public class OrdersDTO {
     private OrderStatus status;
 
     @DecimalMin(value = "0.0", inclusive = false, message = "Total price must be positive")
+    @JsonProperty("total_price")
     private BigDecimal totalPrice;
 
     private boolean method;
