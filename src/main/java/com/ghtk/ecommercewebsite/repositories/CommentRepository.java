@@ -15,4 +15,11 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     @Query("SELECT c FROM Comment c JOIN ProductItem p ON c.productItemId = p.id WHERE p.productId = :productId")
     List<Comment> findCommentsByProductId(@Param("productId") Long productId);
 
+    // Thêm phương thức tìm kiếm bình luận theo trạng thái
+    List<Comment> findByStatus(Comment.CommentStatus status);
+
+    List<Comment> findByProductItemId(Long productItemId);
+
+
+
 }

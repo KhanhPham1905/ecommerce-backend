@@ -23,4 +23,6 @@ public interface ICommentService {
 
     Comment updateCommentStatus(Long id, Comment.CommentStatus status) ;
 
+    void softDeleteComment(Long commentId) ;
+
 }

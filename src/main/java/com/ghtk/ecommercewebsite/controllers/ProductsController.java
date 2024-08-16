@@ -1,5 +1,6 @@
 package com.ghtk.ecommercewebsite.controllers;
 
+import com.cloudinary.Cloudinary;
 import com.ghtk.ecommercewebsite.configs.Contant;
 import com.ghtk.ecommercewebsite.mapper.ProductMapper;
 import com.ghtk.ecommercewebsite.models.dtos.ListAttributeValuesDTO;
@@ -11,6 +12,7 @@ import com.ghtk.ecommercewebsite.models.responses.CommonResult;
 import com.ghtk.ecommercewebsite.models.responses.ProductListResponse;
 import com.ghtk.ecommercewebsite.models.responses.ProductResponse;
 import com.ghtk.ecommercewebsite.services.CloudinaryService;
+import com.ghtk.ecommercewebsite.services.images.ImagesService;
 import com.ghtk.ecommercewebsite.services.product.IProductService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -174,7 +176,6 @@ public class ProductsController {
         Product savedProduct = iProductService.updateProductById(id,productDTO, user.getId());
         return CommonResult.success(null,"Update product successfully");
     }
-
 //
 //    @PatchMapping("/{id}")
 //    public CommonResult<ProductDTO> patchProduct(@PathVariable Long id, @RequestBody Map<String, Object> updates) {

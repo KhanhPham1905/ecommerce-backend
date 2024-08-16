@@ -31,6 +31,13 @@
 		<spring-cloud.version>2023.0.3</spring-cloud.version>
 	</properties>
 	<dependencies>
+		<!-- https://mvnrepository.com/artifact/com.google.code.gson/gson -->
+		<dependency>
+			<groupId>com.google.code.gson</groupId>
+			<artifactId>gson</artifactId>
+			<version>2.11.0</version>
+		</dependency>
+
 		<dependency>
 			<groupId>org.springframework.boot</groupId>
 			<artifactId>spring-boot-starter-tomcat</artifactId>
@@ -201,10 +208,12 @@
 			<artifactId>mapstruct-processor</artifactId>
 			<version>1.6.0.RC1</version>
 		</dependency>
+		<!-- https://mvnrepository.com/artifact/com.cloudinary/cloudinary-http44 -->
+		<!-- https://mvnrepository.com/artifact/com.cloudinary/cloudinary-http44 -->
 		<dependency>
 			<groupId>com.cloudinary</groupId>
 			<artifactId>cloudinary-http44</artifactId>
-			<version>1.36.0</version>
+			<version>1.39.0</version>
 		</dependency>
 		<dependency>
 			<groupId>com.cloudinary</groupId>
@@ -234,6 +243,12 @@
 			<version>0.0.2</version>
 		</dependency>
 
+		<!-- https://mvnrepository.com/artifact/com.stripe/stripe-java -->
+		<dependency>
+			<groupId>com.stripe</groupId>
+			<artifactId>stripe-java</artifactId>
+			<version>26.7.0</version>
+		</dependency>
 
 
 		<!--		<dependency>-->

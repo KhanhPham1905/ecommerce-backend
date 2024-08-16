@@ -2,6 +2,7 @@ package com.ghtk.ecommercewebsite.services.orders;
 
 import com.ghtk.ecommercewebsite.exceptions.DataNotFoundException;
 import com.ghtk.ecommercewebsite.models.dtos.OrdersDTO;
+import com.ghtk.ecommercewebsite.models.entities.OrderItem;
 import com.ghtk.ecommercewebsite.models.entities.Orders;
 
 import java.util.List;
@@ -14,4 +15,7 @@ public interface IOrdersService {
     Orders save(Orders order);
     void deleteById(Long id);
     List<Orders> findByUserId(Long userId); // Thêm phương thức này
+
+
+    List<OrderItem> getOrderItems(Long orderId);
 }

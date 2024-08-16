@@ -11,6 +11,7 @@ import com.ghtk.ecommercewebsite.repositories.ProductItemRepository;
 import com.ghtk.ecommercewebsite.services.rate.RateService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Comparator;
@@ -35,7 +36,7 @@ public class CommentServiceImpl implements ICommentService {
                 .userId(requestDTO.getUserId())
                 .rateStars(requestDTO.getRateStars())
                 .replyTo(requestDTO.getReplyTo())
-                .status(Comment.CommentStatus.PENDING)
+                .status(Comment.CommentStatus.APPROVED)
                 .build();
 
         ProductItem productItem = productItemRepository.findById(requestDTO.getProductItemId())
@@ -62,6 +63,7 @@ public class CommentServiceImpl implements ICommentService {
         List<Comment> commentList = commentRepository.findCommentsByProductId(productId);
 
         return commentList.stream()
+                .filter(comment -> "APPROVED".equals(comment.getStatus()))
                 .sorted(Comparator.comparing(Comment::getCreatedAt).reversed())
                 .map(commentMapper::toDto)
                 .collect(Collectors.toList());
@@ -71,6 +73,7 @@ public class CommentServiceImpl implements ICommentService {
     public List<CommentDTO> getCommentsByProductIdAndSortByRating(Long productId) {
         List<Comment> commentList = commentRepository.findCommentsByProductId(productId);
         return commentList.stream()
+                .filter(comment -> "APPROVED".equals(comment.getStatus()))
                 .sorted(Comparator.comparing(Comment::getRateStars).reversed())
                 .map(commentMapper::toDto)
                 .collect(Collectors.toList());
@@ -97,6 +100,18 @@ public class CommentServiceImpl implements ICommentService {
         Comment comment = getCommentById(id);
         comment.setStatus(status);
         return commentRepository.save(comment);
+    }
+
+    @Override
+    @Transactional
+    public void softDeleteComment(Long commentId) {
+        // Tìm kiếm bình luận dựa trên ID
+        Comment comment = commentRepository.findById(commentId)
+                .orElseThrow(() -> new IllegalArgumentException("Comment not found"));
+        // Cập nhật trạng thái bình luận thành REJECTED để xóa mềm
+        comment.setStatus(Comment.CommentStatus.REJECTED);
+        // Lưu lại thay đổi vào cơ sở dữ liệu
+        commentRepository.save(comment);
     }
 
 

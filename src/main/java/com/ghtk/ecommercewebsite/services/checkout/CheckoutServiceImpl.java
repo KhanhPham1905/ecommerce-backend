@@ -43,7 +43,6 @@ public class CheckoutServiceImpl implements ICheckoutService {
         orders.setTotalPrice(totalPrice);
 
         orderRepository.save(orders);
-
         cartItemRepository.deleteByUserId(userId);
 
         return orderMapper.toDto(orders);
@@ -130,9 +129,10 @@ public class CheckoutServiceImpl implements ICheckoutService {
 
     private void updateProductStock(ProductItem productItem, int quantity) {
         if (productItem.getQuantity() < quantity) throw new IllegalArgumentException("Số lượng sản phẩm không đủ");
-        else productItem.setQuantity(productItem.getQuantity() - quantity);
+        productItem.setQuantity(productItem.getQuantity() - quantity);
         productItemRepository.save(productItem);
     }
+
     @Override
     public OrdersDTO checkoutDirect(Long userId,
                                     Long addressID,
