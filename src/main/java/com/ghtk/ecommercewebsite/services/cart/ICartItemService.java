@@ -8,7 +8,7 @@ import org.springframework.data.domain.PageRequest;
 
 public interface ICartItemService {
     CartItem getCartItemById(Long id) throws Exception;
-    CartItem createCartItem(CartItemDTO cartItemDTO, Long userId) throws Exception;
+    void createCartItem(CartItemDTO cartItemDTO, Long userId) throws Exception;
     Page<CartItem> getAllCartItems(PageRequest pageRequest, Long userId) throws Exception;
     void deleteCartItem(Long id, Long userId) throws Exception;
     CartItem updateCartItem(Long id, CartItemDTO cartItemDTO, Long userId) throws Exception;
