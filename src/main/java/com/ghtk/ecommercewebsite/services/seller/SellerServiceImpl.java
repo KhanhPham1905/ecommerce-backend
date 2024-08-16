@@ -47,7 +47,7 @@ public class SellerServiceImpl implements SellerService{
             Set<Role> existingRoles = existingUser.getRoles();
 //            Role sellerRole = Role.builder().name(RoleEnum.SELLER).build();
 
-            if (existingRoles.contains(sellerRole)) {
+            if (existingRoles.contains(sellerRole) && existingUser.isEnabled()) {
                 throw new SellerAlreadyExistedException(input.getEmail());
             } else {
                 existingRoles.add(sellerRole);

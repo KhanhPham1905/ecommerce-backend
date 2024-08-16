@@ -129,6 +129,14 @@ public class VoucherServiceImpl implements IVoucherService {
         return updateVoucherStatus(voucherId, userId, null, false);
     }
 
+    @Override
+    public List<VoucherDTO> findAllVouchersByShopId(Long shopId) {
+        List<Voucher> vouchers = voucherRepository.findByShopIdAndIsActiveAndIsPublic(shopId, true, true);
+        return vouchers.stream()
+                .map(voucherMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
     private VoucherDTO updateVoucherStatus(Long voucherId, Long userId, Boolean isActive, Boolean isPublic) throws DataNotFoundException {
         Shop shop = shopRepository.findShopByUserId(userId)
                 .orElseThrow(() -> new DataNotFoundException("No shop found with this user"));
@@ -150,7 +158,7 @@ public class VoucherServiceImpl implements IVoucherService {
         return voucherMapper.toDTO(voucher);
     }
 
-    private static void updateVoucherFromVoucherDTO(VoucherDTO voucherDTO, Voucher voucher) {
+    public static void updateVoucherFromVoucherDTO(VoucherDTO voucherDTO, Voucher voucher) {
         voucher.setCouponCode(voucherDTO.getCouponCode());
         voucher.setDiscountType(voucherDTO.getDiscountType());
         voucher.setDiscountValue(voucherDTO.getDiscountValue());
