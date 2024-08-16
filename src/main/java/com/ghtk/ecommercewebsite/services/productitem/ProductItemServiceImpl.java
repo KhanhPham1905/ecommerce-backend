@@ -7,15 +7,12 @@ import com.ghtk.ecommercewebsite.models.dtos.DetailInventoryDTO;
 import com.ghtk.ecommercewebsite.models.dtos.DetailProductItemDTO;
 import com.ghtk.ecommercewebsite.models.dtos.ListAttributeValuesDTO;
 import com.ghtk.ecommercewebsite.models.dtos.ProductItemAttributesDTO;
+import com.ghtk.ecommercewebsite.models.entities.Image;
 import com.ghtk.ecommercewebsite.models.entities.Product;
 import com.ghtk.ecommercewebsite.models.entities.ProductItem;
 import com.ghtk.ecommercewebsite.models.entities.ProductItemAttributes;
-import com.ghtk.ecommercewebsite.repositories.ProductItemAttributesRepository;
-import com.ghtk.ecommercewebsite.repositories.ProductItemRepository;
-import com.ghtk.ecommercewebsite.repositories.ProductRepository;
+import com.ghtk.ecommercewebsite.repositories.*;
 import lombok.RequiredArgsConstructor;
-import com.ghtk.ecommercewebsite.repositories.CartItemRepository;
-import com.ghtk.ecommercewebsite.repositories.OrderItemRepository;
 import com.ghtk.ecommercewebsite.repositories.ProductItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -43,6 +40,8 @@ public class ProductItemServiceImpl implements ProductItemService
     private final ProductItemAttributesRepository productItemAttributesRepository;
 
     private final ProductRepository productRepository;
+
+    private final ImagesRepository imagesRepository;
 
 
     @Transactional
@@ -180,6 +179,8 @@ public class ProductItemServiceImpl implements ProductItemService
                 .orElseThrow(()-> new DataNotFoundException("Cannot find product item by id"));
         Product product = productRepository.findById(productItem.getProductId())
                 .orElseThrow(()-> new DataNotFoundException("Cannot find product item by id"));
+
+        List<String> images = imagesRepository.findLinkByProductId(product.getId());
         List<ProductItemAttributes> attributeValues = productItemAttributesRepository.findByProductItemId(productItem.getId());
         List<ProductItemAttributesDTO> attributeDTOs = attributeValues.stream()
                 .map(attr -> new ProductItemAttributesDTO(attr.getValue(),attr.getProductAttributesId(), attr.getId()))
@@ -191,6 +192,7 @@ public class ProductItemServiceImpl implements ProductItemService
                 .importPrice(productItem.getImportPrice())
                 .skuCode(productItem.getSkuCode())
                 .price(productItem.getPrice())
+                .image(images.get(0))
                 .productId(productItem.getProductId())
                 .productItemAtrAttributesDTOS(attributeDTOs)
                 .build();
@@ -203,9 +205,10 @@ public class ProductItemServiceImpl implements ProductItemService
 //        if (productItemList.size() != listAttributeValuesDTO.getListAttributeValues().size()){
 //            throw new Exception("number of attributes is not enough");
 //        }
-//        ProductItem productItem ;
-////        = productItemRepository.findProductItemByAttributesValues(id, listAttributeValuesDTO);
-//
+
+//        List<ProductItem> productItem = productItemRepository.findProductItemByAttributesValues(id, listAttributeValuesDTO);
 //        return productItem;
+//
 //    }
+
 }

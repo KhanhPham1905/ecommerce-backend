@@ -59,8 +59,8 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             @Param("keyword") String keyword,
             Pageable pageable);
 
+
     @Modifying
     @Query("UPDATE Product p SET p.isDelete = true WHERE p.id = :id")
     void softDeleteProductByCategoryId(Long id);
-
 }
