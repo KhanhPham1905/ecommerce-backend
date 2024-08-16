@@ -1,8 +1,11 @@
 package com.ghtk.ecommercewebsite.services.cart;
 
+import com.ghtk.ecommercewebsite.mapper.CartItemMapper;
 import com.ghtk.ecommercewebsite.models.dtos.CartItemDTO;
 import com.ghtk.ecommercewebsite.models.entities.CartItem;
+import com.ghtk.ecommercewebsite.models.entities.ProductItem;
 import com.ghtk.ecommercewebsite.repositories.CartItemRepository;
+import com.ghtk.ecommercewebsite.repositories.ProductItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -16,6 +19,10 @@ public class CartItemServiceImpl implements ICartItemService {
 
     private final CartItemRepository cartItemRepository;
 
+    private final CartItemMapper cartMapper;
+
+    private final ProductItemRepository productItemRepository;
+
     @Override
     public CartItem getCartItemById(Long id) throws Exception {
         return cartItemRepository.findById(id)
@@ -23,16 +30,30 @@ public class CartItemServiceImpl implements ICartItemService {
     }
 
     @Override
-    public CartItem createCartItem(CartItemDTO cartItemDTO, Long userId) throws Exception {
-        CartItem cartItem = CartItem.builder()
-                .userId(userId)
-                .productItemId(cartItemDTO.getProductItemId())
-                .quantity(cartItemDTO.getQuantity())
-                .voucherId(cartItemDTO.getVoucherId())
-                .shopId(cartItemDTO.getShopId())
-                .build();
+    public void createCartItem(CartItemDTO cartItemDTO, Long userId) throws Exception {
+        // Lấy thông tin sản phẩm từ cơ sở dữ liệu
+        ProductItem productItem = productItemRepository.findById(cartItemDTO.getProductItemId())
+                .orElseThrow(() -> new IllegalArgumentException("Product item not found"));
+        // Kiểm tra số lượng sản phẩm
+        if (productItem.getQuantity() < cartItemDTO.getQuantity()) {
+            throw new IllegalArgumentException("Not enough quantity available");
+        }
+        // Cập nhật số lượng sản phẩm trong giỏ hàng nếu đã có
+        CartItem existingCartItem = cartItemRepository.findByProductItemIdAndUserId(cartItemDTO.getProductItemId(), userId);
+        if (existingCartItem != null) {
+            // Nếu sản phẩm đã có trong giỏ hàng, cập nhật số lượng
+            existingCartItem.setQuantity(existingCartItem.getQuantity() + cartItemDTO.getQuantity());
+            cartItemRepository.save(existingCartItem);
+        } else {
+            // Nếu sản phẩm chưa có trong giỏ hàng, tạo mới
+            CartItem cartItem = cartMapper.toEntity(cartItemDTO);
+            // Lấy shopId và gán cho cartItem
+            Long shopId = productItemRepository.findShopIdByProductItemId(cartItemDTO.getProductItemId());
+            cartItem.setUserId(userId);
+            cartItem.setShopId(shopId);
+            cartItemRepository.save(cartItem);
+        }
 
-        return cartItemRepository.save(cartItem);
     }
 
     @Override

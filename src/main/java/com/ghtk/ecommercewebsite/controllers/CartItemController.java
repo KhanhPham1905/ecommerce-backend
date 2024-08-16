@@ -33,8 +33,8 @@ public class CartItemController {
             @Valid @RequestBody CartItemDTO cartItemDTO
     ) throws Exception {
         User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        CartItem cartItem = cartItemService.createCartItem(cartItemDTO, user.getId());
-        return CommonResult.success(cartItem, "Create cart item successfully");
+        cartItemService.createCartItem(cartItemDTO, user.getId());
+        return CommonResult.success("Create cart item successfully");
     }
 
     @GetMapping("")

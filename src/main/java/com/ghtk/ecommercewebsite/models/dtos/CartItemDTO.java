@@ -15,11 +15,8 @@ import lombok.NoArgsConstructor;
 public class CartItemDTO {
 
     @JsonProperty("id")
-    @NotNull
     private Long id;
-
     private Long userId;
-
     private Long productItemId;
     private int quantity;
     private Long shopId;
