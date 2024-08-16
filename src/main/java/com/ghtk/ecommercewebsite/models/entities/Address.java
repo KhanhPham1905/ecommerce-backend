@@ -31,10 +31,15 @@ public class Address {
     @Column(name = "commune", length = 45)
     private String commune;
 
-    @Column(name = "address_detail")
+//    @Column(name = "location_id", nullable = false)
+//    private Long locationId;
+
+    @Column(name = "address_detail", nullable = false)
     private String addressDetail;
 
-    @Column(name = "user_id", nullable = false)
+    @Column(name = "user_id")//, nullable = false)
     private Long userId;
 
+//    @Column(name = "shop_id")
+//    private Long shopId;
 }

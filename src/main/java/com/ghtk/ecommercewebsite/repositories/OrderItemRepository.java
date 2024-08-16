@@ -9,10 +9,17 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
+
+
+import java.util.List;
 
 @Repository
 public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
 
     List<OrderItem> findByOrderId(Long orderId);
 
+    Optional<List<OrderItem>> findAllByProductItemId(Long id);
+
+    List<OrderItem> findAllByOrderId(Long id);
 }

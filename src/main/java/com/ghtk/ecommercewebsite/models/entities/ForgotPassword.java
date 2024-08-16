@@ -28,4 +28,7 @@ public class ForgotPassword {
 
     @OneToOne
     private User user;
+
+//    @Column(nullable = false)
+//    private boolean isUsed;
 }
