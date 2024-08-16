@@ -76,14 +76,13 @@ public class ProductItemController {
     }
 
 
-//    @GetMapping("/product/{id}")
+//    @GetMapping("/values")
 //    public CommonResult<Long> getProductItemByAttributesValues(
 //            @RequestBody Long id,
-//            @RequestBody ListAttributeValuesDTO listAttributeValuesDTO
+//            @RequestParam(defaultValue = "", name = "values-ids") String valuesIds
 //    ) throws  Exception{
 //        ProductItem productItem = productItemService.getProductItemByAttributesValues(id, listAttributeValuesDTO);
 //        return CommonResult.success(1L,"Get quantity by attributes success");
 //    }
-
 
 }

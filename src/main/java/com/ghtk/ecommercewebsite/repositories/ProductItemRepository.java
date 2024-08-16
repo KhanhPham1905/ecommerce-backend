@@ -37,5 +37,6 @@ public interface ProductItemRepository extends JpaRepository<ProductItem, Long> 
 //    List<ProductItem> findAllByProductId(Long id);
 
 //    @Query("")
-//    ProductItem findProductItemByAttributesValues(Long id, ListAttributeValuesDTO listAttributeValuesDTO);
+//    List<ProductItem> findProductItemByAttributesValues(Long id, ListAttributeValuesDTO listAttributeValuesDTO);
+
 }

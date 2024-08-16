@@ -112,7 +112,6 @@ public class InventoryServiceImpl implements InventoryService{
 
         int start = (int) pageable.getOffset();
         int end = Math.min((start + pageable.getPageSize()), detailInventoryDTOList.size());
-
         List<DetailInventoryDTO> pagedList = detailInventoryDTOList.subList(start, end);
         return new PageImpl<>(pagedList, pageable, detailInventoryDTOList.size());
     }
