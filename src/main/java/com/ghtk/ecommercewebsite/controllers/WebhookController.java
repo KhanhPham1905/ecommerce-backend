@@ -2,11 +2,14 @@ package com.ghtk.ecommercewebsite.controllers;
 
 import com.ghtk.ecommercewebsite.models.entities.Payments;
 import com.ghtk.ecommercewebsite.repositories.PaymentRepository;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Event;
 import com.stripe.model.PaymentIntent;
 import com.stripe.model.checkout.Session;
+import com.stripe.net.ApiResource;
 import com.stripe.net.Webhook;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -59,6 +62,9 @@ public class WebhookController {
                 case "payment_intent.created":
                     handlePaymentIntentCreated(event);
                     break;
+                case "charge.updated":
+                    handleChargeUpdated(event);
+                    break;
                 default:
                     logger.warn("Unhandled event type: " + event.getType());
                     break;
@@ -66,100 +72,76 @@ public class WebhookController {
 
             return ResponseEntity.status(HttpStatus.OK).body("Event received");
 
-        } catch (SignatureVerificationException e) {
-            logger.error("Invalid signature: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Invalid signature");
         } catch (Exception e) {
-            logger.error("Event not processed: " + e.getMessage());
+            logger.error("Event not processed: " + e.getMessage(), e);
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Event not processed");
         }
     }
 
-    private void handleCheckoutSessionCompleted(Event event) throws StripeException {
-        Session session = (Session) event.getDataObjectDeserializer().getObject().orElseThrow(() -> new RuntimeException("Failed to deserialize session object"));
+    private void handleChargeUpdated(Event event) {
+        // Bạn có thể thêm logic xử lý cho sự kiện charge.updated tại đây
+    }
 
+    private void handleCheckoutSessionCompleted(Event event) {
         try {
-            String paymentIntentId = session.getPaymentIntent();
-            PaymentIntent paymentIntent = PaymentIntent.retrieve(paymentIntentId);
+            // Parse JSON payload into a JsonObject
+            JsonObject jsonObject = JsonParser.parseString(event.getData().getObject().toString()).getAsJsonObject();
 
-            String orderId = session.getMetadata().get("order_id");
-            if (orderId == null) {
-                throw new RuntimeException("Order ID is missing in session metadata");
+            // Verify if the JSON is indeed an object before converting
+            if (jsonObject.isJsonObject()) {
+                Session session = ApiResource.GSON.fromJson(jsonObject, Session.class);
+
+                String paymentIntentId = session.getPaymentIntent();
+                PaymentIntent paymentIntent = PaymentIntent.retrieve(paymentIntentId);
+
+                String orderId = session.getMetadata().get("order_id");
+                if (orderId == null) {
+                    throw new RuntimeException("Order ID is missing in session metadata");
+                }
+
+                Payments payment = Payments.builder()
+                        .orderId(Long.parseLong(orderId))
+                        .amount(new BigDecimal(paymentIntent.getAmountReceived()).divide(new BigDecimal(100)))
+                        .currency(paymentIntent.getCurrency())
+                        .paymentStatus(paymentIntent.getStatus())
+                        .paymentMethod(paymentIntent.getPaymentMethodTypes().get(0))
+                        .stripeSessionId(session.getId())
+                        .build();
+
+                paymentRepository.save(payment);
+                logger.info("Payment saved successfully");
+            } else {
+                throw new RuntimeException("Expected a JSON object but received a different structure");
             }
-
-            Payments payment = Payments.builder()
-                    .orderId(Long.parseLong(orderId))
-                    .amount(new BigDecimal(paymentIntent.getAmountReceived()).divide(new BigDecimal(100)))
-                    .currency(paymentIntent.getCurrency())
-                    .paymentStatus(paymentIntent.getStatus())
-                    .paymentMethod(paymentIntent.getPaymentMethodTypes().get(0))
-                    .stripeSessionId(session.getId())
-                    .build();
-
-            paymentRepository.save(payment);
-            logger.info("Payment saved successfully");
 
         } catch (Exception e) {
             logger.error("Failed to save payment: " + e.getMessage(), e);
         }
     }
 
-    private void handlePaymentIntentSucceeded(Event event) throws StripeException {
-        PaymentIntent paymentIntent = (PaymentIntent) event.getDataObjectDeserializer().getObject().orElseThrow(() -> new RuntimeException("Failed to deserialize payment intent object"));
-
-        // Lấy thông tin thanh toán
-        String paymentIntentId = paymentIntent.getId();
-        BigDecimal amountReceived = new BigDecimal(paymentIntent.getAmountReceived()).divide(new BigDecimal(100)); // Stripe trả về số tiền tính bằng cent
-        String currency = paymentIntent.getCurrency();
-        String paymentStatus = paymentIntent.getStatus();
-        String paymentMethod = paymentIntent.getPaymentMethodTypes().get(0); // Lấy loại phương thức thanh toán đầu tiên
-
-        // Lưu thông tin thanh toán vào cơ sở dữ liệu hoặc xử lý theo nhu cầu
-        Payments payment = new Payments();
-        payment.setOrderId(Long.parseLong(paymentIntent.getMetadata().get("order_id"))); // Kiểm tra và lấy order_id từ metadata
-        payment.setAmount(amountReceived);
-        payment.setCurrency(currency);
-        payment.setPaymentStatus(paymentStatus);
-        payment.setPaymentMethod(paymentMethod);
-        payment.setStripeSessionId(paymentIntent.getId());
-
-        paymentRepository.save(payment);
-        logger.info("PaymentIntent saved successfully");
+    private void handlePaymentIntentSucceeded(Event event) {
+//        try {
+//            JsonElement jsonElement = JsonParser.parseString(event.getData().getObject().toString());
+//
+//            if (jsonElement.isJsonObject()) {
+//                JsonObject jsonObject = jsonElement.getAsJsonObject();
+//                PaymentIntent paymentIntent = ApiResource.GSON.fromJson(jsonObject, PaymentIntent.class);
+//
+//                // Tiếp tục xử lý dữ liệu
+//            } else {
+//                throw new RuntimeException("Expected a JSON object but received a different structure");
+//            }
+//
+//        } catch (Exception e) {
+//            logger.error("Failed to save payment: " + e.getMessage(), e);
+//        }
     }
 
-    private void handleChargeSucceeded(Event event) throws StripeException {
-        com.stripe.model.Charge charge = (com.stripe.model.Charge) event.getDataObjectDeserializer().getObject().orElseThrow(() -> new RuntimeException("Failed to deserialize charge object"));
-
-        // Lấy thông tin phí
-        String chargeId = charge.getId();
-        BigDecimal amountReceived = new BigDecimal(charge.getAmount()).divide(new BigDecimal(100)); // Stripe trả về số tiền tính bằng cent
-        String currency = charge.getCurrency();
-        String chargeStatus = charge.getStatus();
-
-        // Lưu thông tin phí vào cơ sở dữ liệu hoặc xử lý theo nhu cầu
-        Payments payment = new Payments();
-        payment.setOrderId(Long.parseLong(charge.getMetadata().get("order_id"))); // Kiểm tra và lấy order_id từ metadata
-        payment.setAmount(amountReceived);
-        payment.setCurrency(currency);
-        payment.setPaymentStatus(chargeStatus);
-        payment.setPaymentMethod(charge.getPaymentMethod()); // Có thể lấy thông tin phương thức thanh toán từ charge
-        payment.setStripeSessionId(charge.getId());
-
-        paymentRepository.save(payment);
-        logger.info("Charge saved successfully");
+    private void handleChargeSucceeded(Event event) {
+        // Bạn có thể thêm logic xử lý cho sự kiện charge.succeeded tại đây
     }
 
-    private void handlePaymentIntentCreated(Event event) throws StripeException {
-        PaymentIntent paymentIntent = (PaymentIntent) event.getDataObjectDeserializer().getObject().orElseThrow(() -> new RuntimeException("Failed to deserialize payment intent object"));
-
-        // Lấy thông tin `PaymentIntent` mới tạo
-        String paymentIntentId = paymentIntent.getId();
-        String clientSecret = paymentIntent.getClientSecret();
-
-        // Thực hiện xử lý cần thiết khi một `PaymentIntent` mới được tạo ra
-        // Ví dụ: lưu thông tin vào cơ sở dữ liệu, cập nhật trạng thái trong hệ thống, v.v.
-
-        logger.info("PaymentIntent created: " + paymentIntentId);
+    private void handlePaymentIntentCreated(Event event) {
+        // Bạn có thể thêm logic xử lý cho sự kiện payment_intent.created tại đây
     }
-
 }

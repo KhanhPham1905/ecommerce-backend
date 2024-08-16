@@ -10,7 +10,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
@@ -57,7 +56,6 @@ public class CartItemController {
         cartItemService.deleteCartItem(id, user.getId());
         return CommonResult.success("Delete cart item successfully");
     }
-
     @PutMapping("/{id}")
     public CommonResult<CartItem> updateCartItem(
             @PathVariable Long id,
