@@ -16,7 +16,7 @@ public class VoucherMapper {
 
         Voucher voucher = new Voucher();
         voucher.setId(dto.getId());
-//        VoucherServiceImpl.updateVoucherFromVoucherDTO(dto, voucher);
+        VoucherServiceImpl.updateVoucherFromVoucherDTO(dto, voucher);
         // Ignore createdAt and modifiedAt as per the requirement
         return voucher;
     }

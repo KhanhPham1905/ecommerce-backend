@@ -35,4 +35,6 @@ public interface IVoucherService {
     VoucherDTO setVoucherPublic(Long voucherId, Long userId) throws DataNotFoundException;
 
     VoucherDTO setVoucherPrivate(Long voucherId, Long userId) throws DataNotFoundException;
+
+    List<VoucherDTO> findAllVouchersByShopId(Long shopId);
 }

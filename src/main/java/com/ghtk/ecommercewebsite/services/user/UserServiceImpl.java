@@ -281,7 +281,7 @@ public class UserServiceImpl implements UserService{
             User existingUser = optionalUser.get();
             Set<Role> existingRoles = existingUser.getRoles();
 
-            if (existingRoles.contains(userRole)) {
+            if (existingRoles.contains(userRole) && existingUser.isEnabled()) {
                 throw new UserAlreadyExistedException(registerUserDto.getEmail());
             } else {
                 existingRoles.add(userRole);
