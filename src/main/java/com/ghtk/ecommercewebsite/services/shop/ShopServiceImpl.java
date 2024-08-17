@@ -13,6 +13,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.DateTimeException;
 import java.util.Optional;
 
 @Service
@@ -33,6 +34,7 @@ public class ShopServiceImpl implements ShopService{
     }
 
     @Override
+    @Transactional
     public DetailShopInfoDTO updateShopInfo(DetailShopInfoDTO detailShopInfoDTO ,Long userId) throws Exception {
         Shop shop = shopRepository.findShopByUserId(userId)
                 .orElseThrow(() -> new DataNotFoundException("shop not found"));
@@ -81,6 +83,19 @@ public class ShopServiceImpl implements ShopService{
         seller.setShopId(newShop.getId());
         sellerRepository.save(seller);
 
+        return detailShopInfoDTO;
+    }
+
+
+    @Override
+    public DetailShopInfoDTO getShopInfoById(Long id,Long userId) throws  Exception{
+        Shop shopId = shopRepository.findById(id)
+                .orElseThrow(()-> new DataNotFoundException("Cannot find shop id by id"));
+        if(shopId == null){
+            throw new DataNotFoundException("Cannot not found shop id by userId");
+        }
+        DetailShopInfoDTO detailShopInfoDTO = shopRepository.getDetailShopInfo(shopId.getId())
+                .orElseThrow(() -> new DataNotFoundException("Cannot find shop information"));
         return detailShopInfoDTO;
     }
 }

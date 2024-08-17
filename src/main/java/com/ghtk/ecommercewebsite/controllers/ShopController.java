@@ -39,4 +39,14 @@ public class ShopController {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return CommonResult.success(shopService.createInformationShop(detailShopInfoDTO, user.getId()), "create information shop successfully");
     }
+
+
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('SELLER')")
+    public CommonResult<DetailShopInfoDTO> getInformationShopById(
+            @PathVariable Long id
+    ) throws  Exception{
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return  CommonResult.success(shopService.getShopInfoById(id,user.getId()),"get information shop successfully");
+    }
 }

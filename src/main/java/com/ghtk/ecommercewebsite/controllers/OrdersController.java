@@ -36,12 +36,15 @@ public class OrdersController {
                 .map(order -> CommonResult.success(orderMapper.toDto(order), "Get order successfully"))
                 .orElse(CommonResult.error(404, "Order not found"));
     }
+
     @GetMapping("/user/{userId}")
     public CommonResult<List<OrdersDTO>> getUserOrders(@PathVariable Long userId) {
         List<Orders> ordersList = iOrdersService.findByUserId(userId);
         List<OrdersDTO> ordersDTOList = ordersList.stream().map(orderMapper::toDto).collect(Collectors.toList());
         return CommonResult.success(ordersDTOList, "Get user orders successfully");
     }
+
+
     @PostMapping
     @PreAuthorize("hasRole('ROLE_USER')")
     public CommonResult<OrdersDTO> createOrder(@RequestBody OrdersDTO ordersDTO) throws DataNotFoundException {
@@ -51,6 +54,7 @@ public class OrdersController {
 //        Orders savedOrder = iOrdersService.save(order);
 //        return CommonResult.success(orderMapper.toDto(savedOrder), "Create order successfully");
     }
+
 
     @PutMapping("/{id}")
     public CommonResult<OrdersDTO> updateOrder(@PathVariable Long id, @RequestBody OrdersDTO orderDetails) {
@@ -64,6 +68,8 @@ public class OrdersController {
                     return CommonResult.success(orderMapper.toDto(updatedOrder), "Update order successfully");
                 }).orElse(CommonResult.error(404, "Order not found"));
     }
+
+
 
     @PatchMapping("/{id}")
     public CommonResult<OrdersDTO> patchOrder(@PathVariable Long id, @RequestBody OrdersDTO orderDetails) {
@@ -79,6 +85,7 @@ public class OrdersController {
                 }).orElse(CommonResult.error(404, "Order not found"));
     }
 
+
     @DeleteMapping("/{id}")
     public CommonResult<String> deleteOrder(@PathVariable Long id) {
         return iOrdersService.findById(id)
@@ -88,4 +95,15 @@ public class OrdersController {
                 })
                 .orElse(CommonResult.error(404, "Order not found"));
     }
+
+
+//    @GetMapping("/seller")
+//    @PreAuthorize("hasRole('ROLE_SELLER')")
+//    public CommonResult<List<Orders>> getAllOrderBySeller()
+//    throws Exception{
+//        User user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//        List<Orders> ordersList = iOrdersService.getAllOrderBySeller(user.getId());
+//        return CommonResult.success(ordersList);
+//    }
+
 }
