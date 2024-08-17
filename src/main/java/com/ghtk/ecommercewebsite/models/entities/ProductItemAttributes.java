@@ -20,8 +20,10 @@ public class ProductItemAttributes {
 
     private String value;
 
-    @Column(name = "product_attributes_id", nullable = false)
-    private Long productAttributesId;
+//    @Column(name = "product_attributes_id", nullable = false)
+//    private Long productAttributesId;
+    @Column(name="attribute_value_id")
+    private Long attributeValueId;
 
     @Column(name = "product_item_id", nullable = false)
     private Long productItemId;

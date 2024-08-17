@@ -47,6 +47,7 @@ public class ProductServiceImpl implements IProductService {
     private final RateRepository rateRepository;
     private final ImagesRepository imagesRepository;
     private final ProductAttributesRepository productAttributesRepository;
+    private final AttributeValuesRepository attributeValuesRepository;
 
     public List<Product> findAll() {
         return productsRepository.findAll();
@@ -104,6 +105,7 @@ public class ProductServiceImpl implements IProductService {
         Product product = productsRepository.findById(id)
                 .orElseThrow(()->  new DataNotFoundException("Cannot find product by id"));
         product.setIsDelete(Boolean.TRUE);
+
         productsRepository.save(product);
         productAttributesRepository.softDeleteProductAttributesByProductId(id);
         productItemRepository.softDeleteProductItemByProductId(id);

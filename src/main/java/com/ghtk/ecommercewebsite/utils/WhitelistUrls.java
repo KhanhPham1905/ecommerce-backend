@@ -24,6 +24,7 @@ public class WhitelistUrls {
             "/api/v1/sku/**",
             "/api/payment/**",
             "/api/webhook/**",
-            "/api/cart-items/**"
+            "/api/cart-items/**",
+            "/api/attribute-values"
     };
 }
