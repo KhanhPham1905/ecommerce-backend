@@ -17,4 +17,8 @@ public interface AttributeValuesRepository extends JpaRepository<AttributeValues
 
     @Query("SELECT av FROM AttributeValues av WHERE av.attributeId = :id AND av.isDelete = false")
     List<AttributeValues> findAttributeValuesByAttributeId(Long id);
+
+
+//    @Query("SELECT av FROM AttributeValues av WHERE av.attri")
+//    List<AttributeValues> findAllByAttributeId(Long id);
 }

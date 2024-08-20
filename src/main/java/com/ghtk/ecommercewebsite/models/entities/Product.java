@@ -39,7 +39,7 @@ public class Product {
     private String name;
 
     private String slug;
-    private int status;
+    private Integer status;
 
     @Column(name = "total_sold")
     private Long totalSold;

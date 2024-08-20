@@ -83,16 +83,14 @@ public class CategoryServiceImpl implements CategoryService{
         if(!category.getShopId().equals(shopId)) {
             throw new AccessDeniedException("Account seller and shop not match");
         }
-        List<Product> products = productRepository.findByCategoryId(id);
-        if (!products.isEmpty()){
-            throw new IllegalStateException("Cannot delete category with associated products");
-        }else{
+//        List<Product> products = productRepository.findByCategoryId(id);
+
             category.setIsDelete(Boolean.TRUE);
             categoryRepository.save(category);
             productRepository.softDeleteProductByCategoryId(id);
             productAttributesRepository.softDeleteProductAttributesByProductId(id);
             productItemRepository.softDeleteProductItemByProductId(id);
-        }
+
         return category;
     }
 }

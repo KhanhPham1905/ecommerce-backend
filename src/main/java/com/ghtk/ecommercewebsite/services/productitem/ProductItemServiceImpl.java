@@ -53,6 +53,24 @@ public class ProductItemServiceImpl implements ProductItemService
     @Override
     @Transactional
     public DetailProductItemDTO createProductItem(DetailProductItemDTO detailProductItemDTO, Long userId) throws Exception {
+        int valuesCount = detailProductItemDTO.getProductItemAtrAttributesDTOS().size();
+        List<ProductAttributes> productAttributesList = productAttributesRepository.findAllByProductId(detailProductItemDTO.getProductId());
+
+        List<Long> valuesIds = detailProductItemDTO.getProductItemAtrAttributesDTOS().stream()
+                .map(ProductItemAttributesDTO::getAttributeValueId)
+                .collect(Collectors.toList());
+        if(productAttributesList.size() == valuesCount ) {
+            List<ProductItem> productItemList = productItemRepository.findProductItemByAttributesValues(detailProductItemDTO.getProductId(), valuesIds, valuesCount);
+            if(productItemList.size() >= 0 ){
+                throw new Exception("product item already exists");
+            }
+        }
+        if(productAttributesList.size() > valuesCount ) {
+            throw new Exception("number of product item attribute list isn't enough ");
+        }
+//        else {
+//            throw new Exception("number of product item attribute list isn't enough ");
+//        }
 
         Product product = productRepository.findById(detailProductItemDTO.getProductId())
                 .orElseThrow(()-> new DataNotFoundException("Cannot not found product"));
@@ -192,6 +210,7 @@ public class ProductItemServiceImpl implements ProductItemService
                 .collect(Collectors.toList());
 
         DetailProductItemDTO detailProductItemDTO = DetailProductItemDTO.builder()
+                .id(productItem.getId())
                 .quantity(productItem.getQuantity())
                 .name(product.getName())
                 .importPrice(productItem.getImportPrice())
