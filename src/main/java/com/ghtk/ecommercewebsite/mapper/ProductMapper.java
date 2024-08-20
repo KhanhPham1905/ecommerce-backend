@@ -14,7 +14,7 @@ public class ProductMapper {
 
         Product product = new Product();
         product.setId(dto.getId());
-        product.setThumbnail(dto.getThumbnailImg());
+//        product.setThumbnail(dto.getThumbnailImg());
         product.setName(dto.getName());
         product.setIsDelete(dto.getIsDelete());
         product.setDescription(dto.getDescription());
@@ -36,7 +36,7 @@ public class ProductMapper {
         ProductDTO dto = new ProductDTO();
         dto.setId(product.getId());
         dto.setName(product.getName());
-        dto.setThumbnailImg(product.getThumbnail());
+//        dto.setThumbnailImg(product.getThumbnail());
         dto.setDescription(product.getDescription());
         dto.setStatus(product.getStatus());
         dto.setIsDelete(product.getIsDelete());

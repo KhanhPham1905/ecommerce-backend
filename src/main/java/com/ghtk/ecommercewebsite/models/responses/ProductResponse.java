@@ -16,9 +16,10 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
-
-
+import java.util.Map;
+import java.util.Objects;
 
 
 @Builder
@@ -37,7 +38,7 @@ public class ProductResponse {
     @Size(max = 300, message = "Name cannot exceed 300 characters")
     private String name;
 
-    private Boolean status;
+    private Integer status;
 
     private String slug;
 
@@ -81,6 +82,8 @@ public class ProductResponse {
     @JsonProperty("quantity_rate")
     private Long quantityRate;
 
+    @JsonProperty("attribute_and_value")
+    private ArrayList<Object> attributeAndValues;
 }
 
 
