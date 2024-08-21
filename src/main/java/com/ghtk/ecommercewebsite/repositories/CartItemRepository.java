@@ -31,4 +31,7 @@ public interface CartItemRepository extends JpaRepository<CartItem, Long> {
     Page<CartItem> findByUserId(Long userId, PageRequest pageRequest);
     Optional<CartItem> findByIdAndUserId(Long id, Long userId);
 
+    @Query("SELECT COUNT(*) FROM CartItem ci WHERE ci.userId = :userId")
+    Long getQuantityCartItem(Long userId);
+
 }
