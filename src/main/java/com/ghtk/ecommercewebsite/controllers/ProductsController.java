@@ -49,9 +49,9 @@ public class ProductsController {
             @RequestParam(defaultValue = "16") int limit
     ) throws Exception{
         Sort sort = switch (sortOption) {
-            case "latest" -> Sort.by("createdAt").descending();
+            case "desc" -> Sort.by("createdAt").descending();
             case "high" -> Sort.by("min_price").descending();
-            case "low" -> Sort.by("min_price").ascending();
+            case "asc" -> Sort.by("min_price").ascending();
             default -> Sort.by("id").ascending();
         };
 

@@ -40,4 +40,7 @@ public class DetailProductItemDTO {
     @JsonProperty("image")
     private String image;
 
+    @JsonProperty("total_sold")
+    private Long totalSold;
+
 }

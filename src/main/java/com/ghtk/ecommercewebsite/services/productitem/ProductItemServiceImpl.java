@@ -132,6 +132,7 @@ public class ProductItemServiceImpl implements ProductItemService
                         .importPrice(productItem.getImportPrice())
                         .productId(productItem.getProductId())
                         .productItemAtrAttributesDTOS(attributeDTOs)
+                        .totalSold(productItem.getTotalSold())
                         .build();
                 productItemValues.add(detailProductItemDTO);
             }
@@ -219,6 +220,7 @@ public class ProductItemServiceImpl implements ProductItemService
                 .image(images.get(0))
                 .productId(productItem.getProductId())
                 .productItemAtrAttributesDTOS(attributeDTOs)
+                .totalSold(productItem.getTotalSold())
                 .build();
         return detailProductItemDTO;
     }

@@ -76,4 +76,7 @@ public class ProductItem {
     @Column(name = "import_price", precision = 12, scale = 2)
     private  BigDecimal importPrice;
 
+    @Column(name = "total_sold")
+    private  Long totalSold;
+
 }

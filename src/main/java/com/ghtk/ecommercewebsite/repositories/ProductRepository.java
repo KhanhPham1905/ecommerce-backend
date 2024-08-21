@@ -36,7 +36,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "AND (:brandIds IS NULL OR p.brandId IN :brandIds) " +
             "AND (:keyword IS NULL OR :keyword = '' OR p.name LIKE %:keyword% OR p.description LIKE %:keyword%) " +
             "AND p.status = 1 AND p.isDelete = False " +
-            "AND p.minPrice > 0" +
+            "AND p.minPrice > 0 " +
             "GROUP BY p.id " +
             "HAVING (:categoryIds IS NULL OR COUNT(DISTINCT c.id) = :categoryCount)")
     Page<Product> searchProducts(
