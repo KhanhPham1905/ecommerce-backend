@@ -65,4 +65,12 @@ public class CartItemController {
         CartItem cartItem = cartItemService.updateCartItem(id, cartItemDTO, user.getId());
         return CommonResult.success(cartItem, "Update cart item successfully");
     }
+
+    @GetMapping("/quantity")
+    public CommonResult<Long> getQuantityCartItem()
+    throws Exception{
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long quantityCartItem = cartItemService.getQuantityCartItem(user.getId());
+        return CommonResult.success(quantityCartItem, "get quantity success");
+    }
 }
