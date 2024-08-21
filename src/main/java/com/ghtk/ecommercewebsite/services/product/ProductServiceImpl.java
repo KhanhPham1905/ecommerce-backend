@@ -164,7 +164,7 @@ public class ProductServiceImpl implements IProductService {
                         .minPrice(product.getMinPrice())
                         .totalSold(product.getTotalSold())
                         .thumbnail(product.getThumbnail())
-                        .averageRate(rate == null? BigDecimal.valueOf(5):rate.getAverageStars())
+                        .averageRate(rate == null? BigDecimal.valueOf(0):rate.getAverageStars())
                         .brandId(brand.get().getId())
                         .brandName(brand.get().getName())
                         .quantityRate(rate==null?0:rate.getQuantity())
@@ -203,7 +203,7 @@ public class ProductServiceImpl implements IProductService {
                             .totalSold(product.getTotalSold())
                             .description(product.getDescription())
                             .thumbnail(product.getThumbnail())
-                            .averageRate(rate == null? BigDecimal.valueOf(5):rate.getAverageStars())
+                            .averageRate(rate == null? BigDecimal.valueOf(0):rate.getAverageStars())
                             .brandId(brand.get().getId())
                             .brandName(brand.get().getName())
                             .quantityRate(rate==null?0:rate.getQuantity())
@@ -278,21 +278,23 @@ public class ProductServiceImpl implements IProductService {
         ArrayList<Object> attributeAndValues = new ArrayList<>();
         for(ProductAttributes productAttribute : productAttributes){
             Map<String,Object> result = new HashMap<>();
+            result.put("id",productAttribute.getId());
             result.put("attribute",productAttribute.getName());
             result.put("values",attributeValuesRepository.findAttributeValuesByAttributeId(productAttribute.getId()));
             attributeAndValues.add(result);
         }
-
+        Long quantity = productItemRepository.getQuantityProduct(id);
         return ProductResponse.builder()
                 .attributeAndValues(attributeAndValues)
                 .id(product.getId())
+                .quantity(quantity)
                 .name(product.getName())
                 .status(product.getStatus())
                 .totalSold(product.getTotalSold())
                 .minPrice(product.getMinPrice())
                 .description(product.getDescription())
                 .thumbnail(product.getThumbnail())
-                .averageRate(rate == null? BigDecimal.valueOf(5):rate.getAverageStars())
+                .averageRate(rate == null? BigDecimal.valueOf(0):rate.getAverageStars())
                 .brandId(brand.get().getId())
                 .images(imageList)
                 .brandName(brand.get().getName())

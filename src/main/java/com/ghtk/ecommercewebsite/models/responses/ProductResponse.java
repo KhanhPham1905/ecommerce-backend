@@ -84,6 +84,8 @@ public class ProductResponse {
 
     @JsonProperty("attribute_and_value")
     private ArrayList<Object> attributeAndValues;
+
+    private Long quantity;
 }
 
 
