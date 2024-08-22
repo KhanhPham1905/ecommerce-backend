@@ -1,5 +1,7 @@
 package com.ghtk.ecommercewebsite.models.entities;
 
+import com.fasterxml.jackson.databind.PropertyNamingStrategies;
+import com.fasterxml.jackson.databind.annotation.JsonNaming;
 import com.ghtk.ecommercewebsite.models.dtos.DetailInventoryDTO;
 import com.ghtk.ecommercewebsite.models.dtos.ProductItemAttributesDTO;
 import jakarta.persistence.*;
@@ -46,6 +48,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
+@JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class ProductItem {
 
     @Id
@@ -72,5 +75,8 @@ public class ProductItem {
 
     @Column(name = "import_price", precision = 12, scale = 2)
     private  BigDecimal importPrice;
+
+    @Column(name = "total_sold")
+    private  Long totalSold;
 
 }

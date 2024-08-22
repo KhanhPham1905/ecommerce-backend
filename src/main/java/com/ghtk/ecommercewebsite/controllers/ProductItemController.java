@@ -15,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/v1/sku")
@@ -76,14 +77,12 @@ public class ProductItemController {
     }
 
 
-//    @GetMapping("/product/{id}")
-//    public CommonResult<Long> getProductItemByAttributesValues(
-//            @RequestBody Long id,
-//            @RequestBody ListAttributeValuesDTO listAttributeValuesDTO
-//    ) throws  Exception{
-//        ProductItem productItem = productItemService.getProductItemByAttributesValues(id, listAttributeValuesDTO);
-//        return CommonResult.success(1L,"Get quantity by attributes success");
-//    }
-
+    @GetMapping("/values/ok/{id}")
+    public CommonResult<Map<String, Object>> getProductItemByAttributesValues(
+            @PathVariable Long id,
+            @RequestParam(defaultValue = "", name = "values-ids") List<Long> valuesIds
+    ) throws  Exception{
+        return CommonResult.success( productItemService.getProductItemByAttributesValues(id, valuesIds),"Get quantity by attributes success");
+    }
 
 }

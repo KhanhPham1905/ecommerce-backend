@@ -16,6 +16,6 @@ public interface IOrdersService {
     void deleteById(Long id);
     List<Orders> findByUserId(Long userId); // Thêm phương thức này
 
-
     List<OrderItem> getOrderItems(Long orderId);
+    List<Orders> getAllOrderBySeller(Long userId) throws Exception;
 }

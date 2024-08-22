@@ -36,6 +36,32 @@ public interface ProductItemRepository extends JpaRepository<ProductItem, Long> 
 
 //    List<ProductItem> findAllByProductId(Long id);
 
-//    @Query("")
-//    ProductItem findProductItemByAttributesValues(Long id, ListAttributeValuesDTO listAttributeValuesDTO);
+    @Query("SELECT pi " +
+        "FROM ProductItem pi " +
+            "LEFT JOIN ProductItemAttributes pia ON pi.id = pia.productItemId "+
+            "WHERE pia.attributeValueId IN :valuesIds " +
+            "AND pi.productId = :id " +
+            "GROUP BY pi.id " +
+            "HAVING COUNT(DISTINCT pia.attributeValueId) = :valuesCount "
+    )
+    List<ProductItem> findProductItemByAttributesValues(@Param("id") Long id,@Param("valuesIds") List<Long> valuesIds,@Param("valuesCount") int valuesCount);
+
+
+    @Query("SELECT SUM(subquery.quantity) " +
+            "FROM (" +
+            "    SELECT pi.id AS itemId, pi.quantity AS quantity " +
+            "    FROM ProductItem pi " +
+            "    LEFT JOIN ProductItemAttributes pia ON pi.id = pia.productItemId " +
+            "    WHERE pia.attributeValueId IN :valuesIds " +
+            "    AND pi.productId = :id " +
+            "    GROUP BY pi.id " +
+            "    HAVING COUNT(DISTINCT pia.attributeValueId) = :valuesCount " +
+            ") AS subquery")
+    Long sumQuantity(@Param("id") Long id,
+                     @Param("valuesIds") List<Long> valuesIds,
+                     @Param("valuesCount") int valuesCount);
+
+
+    @Query("SELECT SUM(pi.quantity) FROM ProductItem pi WHERE pi.productId = :id")
+    Long getQuantityProduct(@Param("id") Long id);
 }

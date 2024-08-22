@@ -9,6 +9,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 
 
 public interface ProductItemService {
@@ -21,5 +22,5 @@ public interface ProductItemService {
     void deleteProductItem(Long id, Long userId) throws  Exception;
     DetailProductItemDTO getProductItemById(Long id, Long userId) throws  Exception;
 
-//    ProductItem getProductItemByAttributesValues(Long id, ListAttributeValuesDTO listAttributeValuesDTO) throws Exception;
+    Map<String, Object> getProductItemByAttributesValues(Long id, List<Long> valuesIds) throws Exception;
 }

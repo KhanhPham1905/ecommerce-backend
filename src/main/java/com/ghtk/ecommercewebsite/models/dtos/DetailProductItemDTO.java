@@ -37,4 +37,10 @@ public class DetailProductItemDTO {
     @JsonProperty("list_product_item")
     private List<ProductItemAttributesDTO> productItemAtrAttributesDTOS;
 
+    @JsonProperty("image")
+    private String image;
+
+    @JsonProperty("total_sold")
+    private Long totalSold;
+
 }

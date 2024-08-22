@@ -73,4 +73,5 @@ public class CategoryController {
         Category category = categoryService.updateCategory(id, categoryDTO, user.getId());
         return CommonResult.success(category, "Update category successfully");
     }
+
 }

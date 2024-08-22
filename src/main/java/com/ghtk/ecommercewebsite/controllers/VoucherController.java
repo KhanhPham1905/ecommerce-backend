@@ -25,9 +25,16 @@ public class VoucherController {
     private final IVoucherService iVoucherService;
 //    private final VoucherMapper voucherMapper;
 
+    // Get all vouchers by shop id
+    @GetMapping("/getVouchers/{shopId}")
+    @PreAuthorize("hasAnyRole('ROLE_USER')")
+    public CommonResult<List<VoucherDTO>> getAllVouchersByShopId(@PathVariable Long shopId) {
+        return CommonResult.success(iVoucherService.findAllVouchersByShopId(shopId));
+    }
+
     @GetMapping("/getAllVouchers")
     @PreAuthorize("hasRole('ROLE_SELLER')")
-    public CommonResult<List<VoucherDTO>> getAllVoucherByShopFromUser() throws DataNotFoundException {
+    public CommonResult<List<VoucherDTO>> getAllVoucherByShopFromSeller() throws DataNotFoundException {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return CommonResult.success(iVoucherService.findAllVouchersByShopFromUser(user.getId()));
     }

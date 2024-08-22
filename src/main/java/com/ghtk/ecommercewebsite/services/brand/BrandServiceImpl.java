@@ -84,16 +84,12 @@ public class BrandServiceImpl implements IBrandService {
         if(!brand.getShopId().equals(shopId)) {
             throw new AccessDeniedException("Account seller and shop not match");
         }
-        List<Product> products = productRepository.findByCategoryId(id);
-        if (!products.isEmpty()){
-            throw new IllegalStateException("Cannot delete category with associated products");
-        }else{
+//        List<Product> products = productRepository.findByCategoryId(id);
             brand.setIsDelete(Boolean.TRUE);
             brandRepository.save(brand);
             productRepository.softDeleteProductByCategoryId(id);
             productAttributesRepository.softDeleteProductAttributesByProductId(id);
             productItemRepository.softDeleteProductItemByProductId(id);
-        }
         return brand;
     }
 }

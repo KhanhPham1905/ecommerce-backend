@@ -66,7 +66,6 @@ public class OrdersServiceImpl implements IOrdersService {
     public void deleteById(Long id) {
         ordersRepository.deleteById(id);
     }
-
     @Override
     public List<Orders> findByUserId(Long userId) {
         return ordersRepository.findByUserId(userId); // Giả sử repository đã có phương thức này
@@ -95,4 +94,9 @@ public class OrdersServiceImpl implements IOrdersService {
         }
     }
 
+
+    @Override
+    public List<Orders> getAllOrderBySeller(Long userId) throws Exception {
+        return List.of();
+    }
 }

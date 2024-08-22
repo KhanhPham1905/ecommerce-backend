@@ -30,10 +30,10 @@ public class CartItemController {
     }
 
     @PostMapping("")
-    public CommonResult<Object> createCartItem(
+    public CommonResult<Object> createCartItem (
             @Valid @RequestBody CartItemDTO cartItemDTO
     ) throws Exception {
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         cartItemService.createCartItem(cartItemDTO, user.getId());
         return CommonResult.success("Create cart item successfully");
     }
@@ -67,4 +67,11 @@ public class CartItemController {
         return CommonResult.success(cartItem, "Update cart item quantity successfully");
     }
 
+    @GetMapping("/quantity")
+    public CommonResult<Long> getQuantityCartItem()
+    throws Exception{
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Long quantityCartItem = cartItemService.getQuantityCartItem(user.getId());
+        return CommonResult.success(quantityCartItem, "get quantity success");
+    }
 }
