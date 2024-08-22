@@ -39,9 +39,9 @@ public class Category {
 
     private boolean status;
 
-    // Khóa ngoại
-    @Column(name = "shop_id", nullable = false)
-    private Long shopId;
+//    // Khóa ngoại
+//    @Column(name = "shop_id", nullable = false)
+//    private Long shopId;
 
 
     @Column(name = "is_delete")
