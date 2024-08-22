@@ -4,6 +4,7 @@ import com.ghtk.ecommercewebsite.mapper.OrderMapper;
 import com.ghtk.ecommercewebsite.models.dtos.OrdersDTO;
 import com.ghtk.ecommercewebsite.models.entities.*;
 import com.ghtk.ecommercewebsite.repositories.*;
+import com.ghtk.ecommercewebsite.services.address.AddressService;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -26,16 +27,18 @@ public class CheckoutServiceImpl implements ICheckoutService {
     private final ProductItemRepository productItemRepository;
     private final OrderMapper orderMapper;
 
+    private final AddressService addressService;
+
 
     @Transactional
     @Override
-    public OrdersDTO checkoutCart(Long userId, boolean method, Long addressID, String note) {
-        validateCheckoutRequest(addressID);
+    public OrdersDTO checkoutCart(Long userId, boolean method, String note) {
+        validateCheckoutRequest(userId);
 
         List<CartItem> cartItemList = cartItemRepository.findByUserId(userId);
         if (cartItemList.isEmpty()) throw new IllegalArgumentException("Giỏ hàng trống");
 
-        Orders orders = createOrder(userId, method, addressID, note);
+        Orders orders = createOrder(userId, method, note);
 
         Map<Long, ProductItem> productItemMap = fetchProductItems(cartItemList);
         Map<Long, Voucher> voucherMap = fetchVouchers(cartItemList);
@@ -48,13 +51,18 @@ public class CheckoutServiceImpl implements ICheckoutService {
         return orderMapper.toDto(orders);
     }
 
-    private void validateCheckoutRequest(Long addressID) {
-        if (addressID == null) throw new IllegalArgumentException("Bạn cần có thông tin nhận hàng");
+    private void validateCheckoutRequest(Long userId) throws IllegalArgumentException {
+        // Kiểm tra userId có tồn tại trong Address hay không
+        boolean exists = addressService.isUserInAddress(userId);
+        // Nếu không tồn tại, ném ngoại lệ với thông báo phù hợp
+        if (!exists) {
+            throw new IllegalArgumentException("User with id " + userId + " does not have a valid address");
+        }
     }
 
-    private Orders createOrder(Long userId, boolean method, Long addressID, String note) {
+
+    private Orders createOrder(Long userId, boolean method, String note) {
         Orders orders = Orders.builder()
-                .addressID(addressID)
                 .status(Orders.OrderStatus.PENDING)
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
@@ -135,13 +143,12 @@ public class CheckoutServiceImpl implements ICheckoutService {
 
     @Override
     public OrdersDTO checkoutDirect(Long userId,
-                                    Long addressID,
                                     Long productItemId,
                                     int quantity,
                                     Long voucherId,
                                     String note,
                                     boolean method) {
-        validateDirectCheckout(addressID, productItemId, quantity);
+        validateDirectCheckout( productItemId, quantity);
 
         ProductItem productItem = productItemRepository.findById(productItemId)
                 .orElseThrow(() -> new IllegalArgumentException("Product item not found"));
@@ -149,7 +156,7 @@ public class CheckoutServiceImpl implements ICheckoutService {
         if (productItem.getQuantity() < quantity)
             throw new IllegalArgumentException("Insufficient stock for the product item");
 
-        Orders orders = createOrder(userId, method, addressID, note);
+        Orders orders = createOrder(userId, method, note);
 
         BigDecimal unitPrice = productItem.getPrice();
         BigDecimal discount = calculateDirectDiscount(voucherId, quantity, unitPrice);
@@ -164,8 +171,7 @@ public class CheckoutServiceImpl implements ICheckoutService {
         return orderMapper.toDto(orders);
     }
 
-    private void validateDirectCheckout(Long addressID, Long productItemId, int quantity) {
-        if (addressID == null) throw new IllegalArgumentException("Bạn cần có thông tin nhận hàng");
+    private void validateDirectCheckout( Long productItemId, int quantity) {
         if (productItemId == null || quantity <= 0)
             throw new IllegalArgumentException("Invalid product item or quantity");
     }
