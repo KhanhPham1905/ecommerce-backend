@@ -1,6 +1,5 @@
 package com.ghtk.ecommercewebsite.configs;
 
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import com.ghtk.ecommercewebsite.repositories.UserRepository;
 import org.springframework.context.annotation.Bean;

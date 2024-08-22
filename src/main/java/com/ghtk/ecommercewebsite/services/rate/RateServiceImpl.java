@@ -34,15 +34,12 @@ public class RateServiceImpl implements RateService {
         BigDecimal newAverageStars = totalStars.divide(BigDecimal.valueOf(newQuantity), 2, RoundingMode.HALF_UP);
 
         Rate rate = rateRepository.findByProductId(productId);
-        if (rate != null) {
-            rate.setAverageStars(newAverageStars);
-            rate.setQuantity(newQuantity);
-        } else {
+        if (rate == null) {
             rate = new Rate();
             rate.setProductId(productId);
-            rate.setAverageStars(newAverageStars);
-            rate.setQuantity(newQuantity);
         }
+        rate.setAverageStars(newAverageStars);
+        rate.setQuantity(newQuantity);
 
         rateRepository.save(rate);
 

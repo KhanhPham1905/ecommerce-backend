@@ -67,6 +67,7 @@ public class CheckoutServiceImpl implements ICheckoutService {
                 .createdAt(LocalDateTime.now())
                 .modifiedAt(LocalDateTime.now())
                 .note(note)
+                .totalPrice(BigDecimal.ZERO)
                 .method(method)
                 .userId(userId)
                 .build();
