@@ -81,4 +81,14 @@ public class CartItemServiceImpl implements ICartItemService {
         return cartItemRepository.save(cartItem);
     }
 
+    @Override
+    public CartItem updateCartItem(Long id, CartItemDTO cartItemDTO, Long userId) throws Exception {
+        return null;
+    }
+
+    @Override
+    public Long getQuantityCartItem(Long userId) throws Exception {
+        return null;
+    }
+
 }

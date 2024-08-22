@@ -8,7 +8,6 @@ import com.ghtk.ecommercewebsite.models.responses.CommonResult;
 import com.ghtk.ecommercewebsite.services.checkout.ICheckoutService;
 import com.ghtk.ecommercewebsite.services.payment.PaymentService;
 import com.stripe.exception.StripeException;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
