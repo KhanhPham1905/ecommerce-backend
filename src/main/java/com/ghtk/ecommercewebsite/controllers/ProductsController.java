@@ -45,6 +45,8 @@ public class ProductsController {
             @RequestParam(defaultValue = "", name = "category-ids") String categoryIds,
             @RequestParam(defaultValue = "", name = "brand-ids") String brandIds,
             @RequestParam(defaultValue = "default", name ="sort") String sortOption,
+            @RequestParam(required = false, name = "fromPrice") Long fromPrice,
+            @RequestParam(required = false, name = "toPrice") Long toPrice,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "16") int limit
     ) throws Exception{
@@ -83,7 +85,7 @@ public class ProductsController {
         int totalPages = 0;
         List<ProductResponse> productResponses = null;
         if (productPage == null) {
-            productPage = iProductService.searchProducts(categoryList, categoryList == null ? 0 : categoryList.size(), brandList, keyword, pageRequest);
+            productPage = iProductService.searchProducts(categoryList, categoryList == null ? 0 : categoryList.size(), brandList, keyword, fromPrice , toPrice , pageRequest);
             // Get total pages
             totalPages = productPage.getTotalPages();
             productResponses = productPage.getContent();

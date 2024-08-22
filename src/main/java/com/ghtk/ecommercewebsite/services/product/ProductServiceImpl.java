@@ -143,9 +143,11 @@ public class ProductServiceImpl implements IProductService {
             long categoryCount,
             List<Long> brandIds,
             String keyword,
+            Long fromPrice ,
+            Long toPrice,
             PageRequest pageRequest
     ) throws Exception {
-        return productsRepository.searchProducts(categoryIds, categoryCount, brandIds, keyword, pageRequest)
+        return productsRepository.searchProducts(categoryIds, categoryCount, brandIds, keyword, fromPrice , toPrice, pageRequest)
             .map(product -> {
                 List<String> categoryNames = product.getCategoryList().stream()
                         .map(Category::getName)
