@@ -86,9 +86,9 @@ public class User implements UserDetails {
                 .collect(Collectors.toList());
     }
 
-//    @JsonProperty("address_id")
-//    @Column(name = "address_id")
-//    private Long addressId;
+    @JsonProperty("address_id")
+    @Column(name = "address_id")
+    private Long addressId;
 
     @Override
     public String getUsername() {

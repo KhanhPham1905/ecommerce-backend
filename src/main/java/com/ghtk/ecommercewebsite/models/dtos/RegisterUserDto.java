@@ -33,19 +33,19 @@ public class RegisterUserDto {
     @NotNull(message = "Gender is required")
     private Gender gender;
 
-//    @NotBlank(message = "Country is required")
-//    private String country;
-//
-//    @NotBlank(message = "Province is required")
-//    private String province;
-//
-//    @NotBlank(message = "District is required")
-//    private String district;
-//
-//    @NotBlank(message = "Commune is required")
-//    private String commune;
-//
-//    @JsonProperty("address_detail")
-//    @NotBlank(message = "Address detail is required")
-//    private String addressDetail;
+    @NotBlank(message = "Country is required")
+    private String country;
+
+    @NotBlank(message = "Province is required")
+    private String province;
+
+    @NotBlank(message = "District is required")
+    private String district;
+
+    @NotBlank(message = "Commune is required")
+    private String commune;
+
+    @JsonProperty("address_detail")
+    @NotBlank(message = "Address detail is required")
+    private String addressDetail;
 }

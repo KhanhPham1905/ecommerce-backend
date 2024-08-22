@@ -16,8 +16,8 @@ public class SellerRegisterDto extends RegisterUserDto {
     private Long shopId;
 
 //    @Builder(builderClassName = "SellerRegisterDtoBuilder")
-    public SellerRegisterDto(String email, String password, String fullName, String phone, Gender gender, String tax, String cccd, Long shopId) {
-        super(email, password, fullName, phone, gender);
+    public SellerRegisterDto(String email, String password, String fullName, String phone, Gender gender, String tax, String cccd, Long shopId, String country, String province, String district, String commune, String addressDetail) {
+        super(email, password, fullName, phone, gender, country, province, district, commune, addressDetail);
         this.tax = tax;
         this.cccd = cccd;
         this.shopId = shopId;
