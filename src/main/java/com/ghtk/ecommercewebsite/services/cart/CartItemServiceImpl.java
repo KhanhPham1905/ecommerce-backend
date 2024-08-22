@@ -88,7 +88,8 @@ public class CartItemServiceImpl implements ICartItemService {
 
     @Override
     public Long getQuantityCartItem(Long userId) throws Exception {
-        return null;
+        Long quantityCartItem = cartItemRepository.getQuantityCartItem(userId);
+        return quantityCartItem;
     }
 
 }
