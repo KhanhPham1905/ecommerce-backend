@@ -2,7 +2,11 @@ package com.ghtk.ecommercewebsite.services.payment;
 
 import com.ghtk.ecommercewebsite.models.entities.OrderItem;
 import com.ghtk.ecommercewebsite.models.entities.Orders;
+import com.ghtk.ecommercewebsite.models.entities.Product;
+import com.ghtk.ecommercewebsite.models.entities.ProductItem;
 import com.ghtk.ecommercewebsite.repositories.OrdersRepository;
+import com.ghtk.ecommercewebsite.repositories.ProductItemRepository;
+import com.ghtk.ecommercewebsite.repositories.ProductRepository;
 import com.ghtk.ecommercewebsite.services.orders.IOrdersService;
 import com.stripe.Stripe;
 import com.stripe.exception.StripeException;
@@ -13,10 +17,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -24,13 +25,14 @@ public class PaymentService {
 
     private final OrdersRepository orderRepository;
     private final IOrdersService iOrdersService;
+    private final ProductItemRepository productItemRepository;
+    private final ProductRepository productRepository;
 
     @Value("${stripe.api.key}")
     private String stripeApiKey;
 
     public Map<String, Object> createCheckoutSession(Long orderId) throws StripeException {
         Stripe.apiKey = stripeApiKey;
-
         // Lấy thông tin đơn hàng từ cơ sở dữ liệu
         Orders order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
@@ -38,26 +40,40 @@ public class PaymentService {
         // Tạo danh sách LineItems từ thông tin của đơn hàng
         List<SessionCreateParams.LineItem> lineItems = new ArrayList<>();
         List<OrderItem> orderItems = iOrdersService.getOrderItems(orderId);
+
         for (OrderItem item : orderItems) {
-            SessionCreateParams.LineItem.PriceData.ProductData productData =
-                    SessionCreateParams.LineItem.PriceData.ProductData.builder()
-                            .setName("Product Name: " + item.getProductItemId())  // Thay bằng tên sản phẩm thực tế nếu có
-                            .build();
+            // Lấy ProductItem dựa trên productItemId
+            Optional<ProductItem> productItemOptional = productItemRepository.findById(item.getProductItemId());
+            if (productItemOptional.isPresent()) {
+                ProductItem productItem = productItemOptional.get();
 
-            SessionCreateParams.LineItem.PriceData priceData =
-                    SessionCreateParams.LineItem.PriceData.builder()
-                            .setCurrency("usd")
-                            .setUnitAmount(item.getUnitPrice().multiply(new BigDecimal(100)).longValue())  // Đơn giá sản phẩm
-                            .setProductData(productData)
-                            .build();
+                // Lấy Product dựa trên productId trong ProductItem
+                Optional<Product> productOptional = productRepository.findById(productItem.getProductId());
+                if (productOptional.isPresent()) {
+                    Product product = productOptional.get();
+                    String productName = product.getName();  // Lấy tên sản phẩm
+                    // Tạo PriceData và ProductData cho phiên thanh toán Stripe
+                    SessionCreateParams.LineItem.PriceData.ProductData productData =
+                            SessionCreateParams.LineItem.PriceData.ProductData.builder()
+                                    .setName("Product Name: " + productName)  // Sử dụng tên sản phẩm thực tế
+                                    .build();
 
-            SessionCreateParams.LineItem lineItem =
-                    SessionCreateParams.LineItem.builder()
-                            .setPriceData(priceData)
-                            .setQuantity((long) item.getQuantity())
-                            .build();
+                    SessionCreateParams.LineItem.PriceData priceData =
+                            SessionCreateParams.LineItem.PriceData.builder()
+                                    .setCurrency("usd")
+                                    .setUnitAmount(item.getUnitPrice().multiply(new BigDecimal(100)).longValue())  // Đơn giá sản phẩm
+                                    .setProductData(productData)
+                                    .build();
 
-            lineItems.add(lineItem);
+                    SessionCreateParams.LineItem lineItem =
+                            SessionCreateParams.LineItem.builder()
+                                    .setPriceData(priceData)
+                                    .setQuantity((long) item.getQuantity())
+                                    .build();
+
+                    lineItems.add(lineItem);
+                }
+            }
         }
 
         // Tạo phiên thanh toán Stripe

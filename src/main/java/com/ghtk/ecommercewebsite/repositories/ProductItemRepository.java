@@ -1,7 +1,6 @@
 package com.ghtk.ecommercewebsite.repositories;
 
 import com.ghtk.ecommercewebsite.models.dtos.DetailProductItemDTO;
-import com.ghtk.ecommercewebsite.models.dtos.ListAttributeValuesDTO;
 import com.ghtk.ecommercewebsite.models.entities.ProductItem;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -10,6 +9,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface ProductItemRepository extends JpaRepository<ProductItem, Long> {
@@ -64,4 +64,6 @@ public interface ProductItemRepository extends JpaRepository<ProductItem, Long> 
 
     @Query("SELECT SUM(pi.quantity) FROM ProductItem pi WHERE pi.productId = :id")
     Long getQuantityProduct(@Param("id") Long id);
+
+    Optional<ProductItem> findById(Long id);
 }
