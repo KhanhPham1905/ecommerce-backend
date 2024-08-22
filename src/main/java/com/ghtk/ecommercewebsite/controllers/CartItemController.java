@@ -1,6 +1,7 @@
 package com.ghtk.ecommercewebsite.controllers;
 
 import com.ghtk.ecommercewebsite.models.dtos.CartItemDTO;
+import com.ghtk.ecommercewebsite.models.dtos.request.UpdateCartItemQuantityDTO;
 import com.ghtk.ecommercewebsite.models.entities.CartItem;
 import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.responses.CommonResult;
@@ -56,14 +57,14 @@ public class CartItemController {
         cartItemService.deleteCartItem(id, user.getId());
         return CommonResult.success("Delete cart item successfully");
     }
-    @PutMapping("/{id}")
-    public CommonResult<CartItem> updateCartItem(
-            @PathVariable Long id,
-            @Valid @RequestBody CartItemDTO cartItemDTO
+
+    @PutMapping("/update")
+    public CommonResult<CartItem> updateCartItemQuantity(
+            @RequestBody UpdateCartItemQuantityDTO updateCartItemQuantityDTO
     ) throws Exception {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        CartItem cartItem = cartItemService.updateCartItem(id, cartItemDTO, user.getId());
-        return CommonResult.success(cartItem, "Update cart item successfully");
+        CartItem cartItem = cartItemService.updateCartItemQuantity(updateCartItemQuantityDTO.getId(), updateCartItemQuantityDTO.getQuantity(), user.getId());
+        return CommonResult.success(cartItem, "Update cart item quantity successfully");
     }
 
     @GetMapping("/quantity")

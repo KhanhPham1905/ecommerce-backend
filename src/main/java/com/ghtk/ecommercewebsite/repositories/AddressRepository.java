@@ -9,5 +9,6 @@ import java.util.Optional;
 public interface AddressRepository extends JpaRepository<Address, Long> {
 //    Optional<List<Address>>  findByUserId(Long userId) throws Exception;
     Optional<Address> findByUserId(Long userId) throws Exception;
+    boolean existsByUserId(Long userId);
 
 }

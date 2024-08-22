@@ -37,8 +37,6 @@ public class Orders {
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
-    @Column(name = "address_id", nullable = false)
-    private Long addressID;
 
     @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
