@@ -40,7 +40,7 @@ public class VoucherMapper {
         dto.setStartAt(voucher.getStartAt());
         dto.setQuantity(voucher.getQuantity());
         dto.setMinimumQuantityNeeded(voucher.getMinimumQuantityNeeded());
-        dto.setTypeRepeat(voucher.isTypeRepeat());
+        dto.setTypeRepeat(voucher.getTypeRepeat());
         // Ignore createdAt and modifiedAt as per the requirement
         return dto;
     }

@@ -1,5 +1,6 @@
 package com.ghtk.ecommercewebsite.controllers;
 
+import com.ghtk.ecommercewebsite.models.responses.CommonResult;
 import com.ghtk.ecommercewebsite.services.OtpService;
 import com.ghtk.ecommercewebsite.utils.ChangePassword;
 import lombok.RequiredArgsConstructor;
@@ -13,9 +14,14 @@ public class ForgotPasswordController {
 
     private final OtpService otpService;
 
+//    @PostMapping("/verifyEmail/{email}")
+//    public ResponseEntity<String> verifyEmail(@PathVariable String email) {
+//        return otpService.verifyEmailAndSendOtp(email);
+//    }
+
     @PostMapping("/verifyEmail/{email}")
-    public ResponseEntity<String> verifyEmail(@PathVariable String email) {
-        return otpService.verifyEmailAndSendOtp(email);
+    public CommonResult<String> verifyEmail(@PathVariable String email) {
+       return otpService.verifyEmailAndSendOtpNewVersion(email);
     }
 
     @PostMapping("/verifyOtp/{otp}/{email}")
