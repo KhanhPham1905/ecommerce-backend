@@ -7,13 +7,17 @@ import com.ghtk.ecommercewebsite.models.entities.Shop;
 import com.ghtk.ecommercewebsite.models.entities.Voucher;
 import com.ghtk.ecommercewebsite.repositories.ShopRepository;
 import com.ghtk.ecommercewebsite.repositories.VoucherRepository;
+import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import java.util.Collections;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ScheduledExecutorService;
 import java.util.stream.Collectors;
 
 @Service
@@ -24,11 +28,117 @@ public class VoucherServiceImpl implements IVoucherService {
     private final VoucherRepository voucherRepository;
     private final VoucherMapper voucherMapper;
 
-//    @Autowired
-//    public VoucherServiceImpl(VoucherRepository voucherRepository) {
-//        this.voucherRepository = voucherRepository;
+//    @Scheduled(fixedRate = 60000)
+//    @Transactional
+//    public void makeVouchersPublic() {
+//        voucherRepository.findAllByIsActiveTrueAndIsPublicFalse()
+//                .forEach(voucher -> {
+//                    if (LocalDateTime.now().isAfter(voucher.getStartAt())) {
+//                        voucher.setPublic(true);
+//                        voucherRepository.save(voucher);
+//                    }
+//                });
 //    }
 
+    // Set the default value "NONE" for existed vouchers (whose discount type is null)
+    // Uncomment the following methods and repository method in VoucherRepository
+
+//    @PostConstruct
+//    public void updateDefaultDiscountTypeOnStartup() {
+//        updateDiscountTypeToNone();
+//    }
+//
+//    @Transactional
+//    public void updateDiscountTypeToNone() {
+//        voucherRepository.updateDiscountTypeToNone();
+//    }
+
+    // Old scheduling version
+    @Scheduled(fixedRate = 60000) // 1 minute
+    @Transactional
+    public void updateVouchersPublicStatus() {
+        List<Voucher> vouchers = voucherRepository.findAllByIsActiveTrue();
+
+        for (Voucher voucher : vouchers) {
+            ZonedDateTime now = ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
+            ZonedDateTime startAt = ZonedDateTime.of(voucher.getStartAt(), ZoneId.of("Asia/Ho_Chi_Minh"));
+            ZonedDateTime expiredAt = ZonedDateTime.of(voucher.getExpiredAt(), ZoneId.of("Asia/Ho_Chi_Minh"));
+
+            // Testing
+//            System.out.println("Current Time: " + now);
+//            System.out.println("Voucher Start Time: " + voucher.getStartAt());
+//            System.out.println("Voucher Expiry Time: " + voucher.getExpiredAt());
+
+            if (now.isAfter(startAt) && now.isBefore(expiredAt)) {
+                if (!voucher.isPublic()) {
+                    voucher.setPublic(true);
+                    voucherRepository.save(voucher);
+                }
+            }
+
+            if (now.isAfter(expiredAt)) {
+                if (voucher.isPublic()) {
+                    voucher.setPublic(false);
+                    voucherRepository.save(voucher);
+                }
+
+                switch (voucher.getTypeRepeat()) {
+                    case DAILY:
+//                        voucher.setStartAt(voucher.getStartAt().plusDays(1));
+//                        voucher.setExpiredAt(voucher.getExpiredAt().plusDays(1));
+                        voucher.setStartAt(voucher.getStartAt().plusMinutes(1));
+                        voucher.setExpiredAt(voucher.getExpiredAt().plusMinutes(1));
+                        break;
+                    case WEEKLY:
+                        voucher.setStartAt(voucher.getStartAt().plusWeeks(1));
+                        voucher.setExpiredAt(voucher.getExpiredAt().plusWeeks(1));
+                        break;
+                    case MONTHLY:
+                        voucher.setStartAt(voucher.getStartAt().plusMonths(1));
+                        voucher.setExpiredAt(voucher.getExpiredAt().plusMonths(1));
+                        break;
+                }
+                voucherRepository.save(voucher);
+            }
+        }
+    }
+
+    // Another version
+//    @Scheduled(fixedRate = 10000) // 1 minute
+//    @Transactional
+//    public void updateVouchersPublicStatusBetterVersion() {
+//        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
+//        List<Voucher> vouchers = voucherRepository.findAllByIsActiveTrueAndExpiredAtAfter(now.toLocalDateTime());
+//
+//        for (Voucher voucher : vouchers) {
+//            ZonedDateTime startAt = ZonedDateTime.of(voucher.getStartAt(), ZoneId.of("Asia/Ho_Chi_Minh"));
+//            ZonedDateTime expiredAt = ZonedDateTime.of(voucher.getExpiredAt(), ZoneId.of("Asia/Ho_Chi_Minh"));
+//
+//            if (!voucher.isPublic() && now.isAfter(startAt) && now.isBefore(expiredAt)) {
+//                voucher.setPublic(true);
+//                voucherRepository.save(voucher);
+//            }
+//
+//            if (voucher.isPublic() && now.isAfter(expiredAt)) {
+//                voucher.setPublic(false);
+//                voucherRepository.save(voucher);
+//                switch (voucher.getTypeRepeat()) {
+//                    case DAILY:
+//                        voucher.setStartAt(voucher.getStartAt().plusDays(1));
+//                        voucher.setExpiredAt(voucher.getExpiredAt().plusDays(1));
+//                        break;
+//                    case WEEKLY:
+//                        voucher.setStartAt(voucher.getStartAt().plusWeeks(1));
+//                        voucher.setExpiredAt(voucher.getExpiredAt().plusWeeks(1));
+//                        break;
+//                    case MONTHLY:
+//                        voucher.setStartAt(voucher.getStartAt().plusMonths(1));
+//                        voucher.setExpiredAt(voucher.getExpiredAt().plusMonths(1));
+//                        break;
+//                }
+//            }
+//        }
+//    }
 
     @Override
     public List<VoucherDTO> findAllVouchersByShopFromUser(Long userId) throws DataNotFoundException {
@@ -170,7 +280,7 @@ public class VoucherServiceImpl implements IVoucherService {
         voucher.setStartAt(voucherDTO.getStartAt());
         voucher.setQuantity(voucherDTO.getQuantity());
         voucher.setMinimumQuantityNeeded(voucherDTO.getMinimumQuantityNeeded());
-        voucher.setTypeRepeat(voucherDTO.isTypeRepeat());
+        voucher.setTypeRepeat(voucherDTO.getTypeRepeat());
 //        return voucher;
     }
 

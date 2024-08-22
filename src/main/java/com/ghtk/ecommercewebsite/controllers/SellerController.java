@@ -33,20 +33,14 @@ public class SellerController {
     private final UserService userService;
     private final OtpService otpService;
 
-    @PostMapping("/signup")
-    public CommonResult<User> signup(@RequestBody SellerRegisterDto sellerRegisterDto) throws SellerAlreadyExistedException {
-        return CommonResult.success(sellerService.signUpSeller(sellerRegisterDto));
-    }
-
-    // New version
     @PostMapping("/signUpNewVersion")
-    public CommonResult<User> verifyOtpForSigningUpSeller(@RequestBody SellerRegisterDto sellerRegisterDto) {
-        return CommonResult.success(sellerService.signUpNewVersion(sellerRegisterDto));
+    public CommonResult<User> signUpNewestVersion(@RequestBody RegisterUserDto registerUserDto) throws DataNotFoundException, SellerAlreadyExistedException {
+        return CommonResult.success(sellerService.signUpNewestVersion(registerUserDto));
     }
 
     // New version here
     @PostMapping("/verifyOtp")
-    public CommonResult<String> verifyOtp(@RequestBody Map<String, String> requestBody) {
+    public CommonResult<String> verifyOtpSellerNewestVersion(@RequestBody Map<String, String> requestBody) {
         String email = requestBody.get("email");
         Integer otp = Integer.parseInt(requestBody.get("otp"));
         boolean isOtpValid = redisOtpService.verifyOtp(email, otp);
@@ -57,10 +51,41 @@ public class SellerController {
 
     // New version here
     @PostMapping("/resendOtp")
-    public CommonResult<String> resendOtp(@RequestBody Map<String, String> requestBody) {
+    public CommonResult<String> resendOtpNewestVersion(@RequestBody Map<String, String> requestBody) {
         String email = requestBody.get("email");
         return otpService.resendOtpForSigningUp(email);
     }
+
+
+    // Commented out the old version
+//    @PostMapping("/signup")
+//    public CommonResult<User> signup(@RequestBody SellerRegisterDto sellerRegisterDto) throws SellerAlreadyExistedException {
+//        return CommonResult.success(sellerService.signUpSeller(sellerRegisterDto));
+//    }
+
+    // New version
+//    @PostMapping("/signUpNewVersion")
+//    public CommonResult<User> verifyOtpForSigningUpSeller(@RequestBody SellerRegisterDto sellerRegisterDto) {
+//        return CommonResult.success(sellerService.signUpNewVersion(sellerRegisterDto));
+//    }
+
+    // New version here
+//    @PostMapping("/verifyOtp")
+//    public CommonResult<String> verifyOtp(@RequestBody Map<String, String> requestBody) {
+//        String email = requestBody.get("email");
+//        Integer otp = Integer.parseInt(requestBody.get("otp"));
+//        boolean isOtpValid = redisOtpService.verifyOtp(email, otp);
+//        if (!isOtpValid) { return CommonResult.failed("Invalid OTP"); }
+//        userService.activateUser(email);
+//        return CommonResult.success("Seller account activated successfully");
+//    }
+
+    // New version here
+//    @PostMapping("/resendOtp")
+//    public CommonResult<String> resendOtp(@RequestBody Map<String, String> requestBody) {
+//        String email = requestBody.get("email");
+//        return otpService.resendOtpForSigningUp(email);
+//    }
 
     @PostMapping("/login")
     public CommonResult<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto) throws AccessDeniedException {

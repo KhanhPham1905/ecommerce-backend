@@ -1,5 +1,8 @@
 package com.ghtk.ecommercewebsite.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
+import com.ghtk.ecommercewebsite.models.enums.DiscountType;
+import com.ghtk.ecommercewebsite.models.enums.RepeatType;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -30,14 +33,17 @@ public class Voucher {
     @Column(name = "modified_at", nullable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP")
     private LocalDateTime modifiedAt;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "discount_type", nullable = false)
-    private int discountType;
+    private DiscountType discountType;
+//    private int discountType;
 
     @Column(name = "discount_value", precision = 12, scale = 2, nullable = false)
     private BigDecimal discountValue;
 
 
     @Column(name = "expired_at", nullable = false, columnDefinition = "DATETIME(6)")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime expiredAt;
 
     @Column(name = "is_active", nullable = false)
@@ -46,7 +52,8 @@ public class Voucher {
     @Column(name = "is_public", nullable = false)
     private boolean isPublic;
 
-    @Column(name = "maximum_discount_value", nullable = false)
+    // Can be null
+    @Column(name = "maximum_discount_value", precision = 12, scale = 2)
     private BigDecimal maximumDiscountValue;
 
     @Column(name = "name", length = 300, nullable = false)
@@ -57,6 +64,7 @@ public class Voucher {
     private Long shopId;
 
     @Column(name = "start_at", nullable = false, columnDefinition = "DATETIME(6)")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
     private LocalDateTime startAt;
 
     @Column(name = "quantity", nullable = false)
@@ -65,8 +73,10 @@ public class Voucher {
     @Column(name = "minimum_quantity_needed", nullable = false)
     private int minimumQuantityNeeded;
 
+    @Enumerated(EnumType.STRING)
     @Column(name = "type_repeat", nullable = false)
-    private boolean typeRepeat;
+    private RepeatType typeRepeat;
+//    private boolean typeRepeat;
 
     @PrePersist
     protected void onCreate() {

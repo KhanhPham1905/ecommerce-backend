@@ -2,6 +2,8 @@ package com.ghtk.ecommercewebsite.models.dtos;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.ghtk.ecommercewebsite.models.enums.DiscountType;
+import com.ghtk.ecommercewebsite.models.enums.RepeatType;
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
@@ -25,7 +27,7 @@ public class VoucherDTO {
 
     @NotNull(message = "Discount type is required")
     @JsonProperty("discount_type")
-    private int discountType;
+    private DiscountType discountType;
 
     @NotNull(message = "Discount value is required")
     @DecimalMin(value = "0.0", inclusive = false, message = "Discount value must be greater than 0")
@@ -71,5 +73,5 @@ public class VoucherDTO {
 
     @NotNull(message = "Type repeat is required")
     @JsonProperty("type_repeat")
-    private boolean typeRepeat;
+    private RepeatType typeRepeat;
 }

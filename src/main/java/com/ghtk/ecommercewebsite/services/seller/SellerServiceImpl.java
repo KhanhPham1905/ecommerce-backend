@@ -280,4 +280,99 @@ public class SellerServiceImpl implements SellerService{
             return user;
         }
     }
+
+    @Override
+    public User signUpNewestVersion(RegisterUserDto registerUserDto) throws DataNotFoundException, SellerAlreadyExistedException {
+        Role sellerRole = roleRepository.findByName(RoleEnum.SELLER)
+                .orElseThrow(() -> new DataNotFoundException("Role not found"));
+        Role userRole = roleRepository.findByName(RoleEnum.USER)
+                .orElseThrow(() -> new DataNotFoundException("Role not found"));
+
+        Optional<User> optionalUser = userRepository.findByEmail(registerUserDto.getEmail());
+
+        if (optionalUser.isPresent()) {
+            User existingUser = optionalUser.get();
+            Set<Role> existingRoles = existingUser.getRoles();
+
+            if (existingRoles.contains(sellerRole) && existingUser.isEnabled()) {
+                throw new SellerAlreadyExistedException(registerUserDto.getEmail());
+            }
+
+            existingRoles.add(sellerRole);
+            existingUser.setRoles(existingRoles);
+            userRepository.save(existingUser);
+            Shop shop = Shop.builder().userId(existingUser.getId()).build();
+            shopRepository.save(shop);
+            Seller seller = Seller.builder()
+                    .userId(existingUser.getId())
+                    .shopId(shop.getId())
+                    .build();
+            sellerRepository.save(seller);
+
+            Integer otp = redisOtpService.generateAndSaveOtp(registerUserDto.getEmail());
+            MailBody mailBody = MailBody.builder()
+                    .to(registerUserDto.getEmail())
+                    .text(
+                            "This is the OTP for your seller registration request: "
+                                    + otp
+                                    + "\nPlease verify your email to activate your account, you will be added the seller role."
+                    ).build();
+            emailService.sendSimpleMessage(mailBody);
+
+            return existingUser;
+        } else {
+            Set<Role> roles = new HashSet<>(List.of(sellerRole, userRole));
+
+            User user = User.builder()
+                    .fullName(registerUserDto.getFullName())
+                    .email(registerUserDto.getEmail())
+                    .password(passwordEncoder.encode(registerUserDto.getPassword()))
+                    .phone(registerUserDto.getPhone())
+                    .gender(registerUserDto.getGender())
+                    .status(false)
+                    .roles(roles)
+                    .build();
+            userRepository.save(user);
+
+            Address address = Address.builder()
+                    .country(registerUserDto.getCountry())
+                    .province(registerUserDto.getProvince())
+                    .district(registerUserDto.getDistrict())
+                    .commune(registerUserDto.getCommune())
+                    .addressDetail(registerUserDto.getAddressDetail())
+                    .userId(user.getId())
+                    .build();
+            addressRepository.save(address);
+
+            user.setAddressId(address.getId());
+            userRepository.save(user);
+
+            Shop shop = Shop.builder().build();
+            shop.setUserId(user.getId());
+            shopRepository.save(shop);
+
+            Seller seller = Seller.builder()
+//                    .tax(registerUserDto.getTax())
+//                    .cccd(registerUserDto.getCccd())
+                    .userId(user.getId())
+                    .shopId(shop.getId())
+                    .build();
+            sellerRepository.save(seller);
+
+            Integer otp = redisOtpService.generateAndSaveOtp(registerUserDto.getEmail());
+            MailBody mailBody = MailBody.builder()
+                    .to(registerUserDto.getEmail())
+                    .text(
+                            "This is the OTP for your seller registering request: "
+                                    + otp
+                                    + "\nPlease verify your email to activate your account. You will become seller after verifying your email."
+                                    + "\nYou will also use this as user account then."
+                                    + "\nIf you didn't request this, please ignore this email."
+                    )
+                    .build();
+            emailService.sendSimpleMessage(mailBody);
+
+            return user;
+        }
+    }
 }

@@ -3,6 +3,7 @@ package com.ghtk.ecommercewebsite.services.checkout;
 import com.ghtk.ecommercewebsite.mapper.OrderMapper;
 import com.ghtk.ecommercewebsite.models.dtos.OrdersDTO;
 import com.ghtk.ecommercewebsite.models.entities.*;
+import com.ghtk.ecommercewebsite.models.enums.DiscountType;
 import com.ghtk.ecommercewebsite.repositories.*;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -200,8 +201,9 @@ public class CheckoutServiceImpl implements ICheckoutService {
                 quantity >= voucher.getMinimumQuantityNeeded();
     }
 
+    // Changed from voucher.getDiscountType() == 1 to voucher.getDiscountType().equals(DiscountType.PERCENT)
     private BigDecimal applyVoucher(Voucher voucher, BigDecimal unitPrice, int quantity) {
-        BigDecimal discount = voucher.getDiscountType() == 1
+        BigDecimal discount = voucher.getDiscountType().equals(DiscountType.PERCENTAGE)
                 ? unitPrice.multiply(voucher.getDiscountValue()).divide(BigDecimal.valueOf(100))
                 : voucher.getDiscountValue();
         return discount.min(voucher.getMaximumDiscountValue()).multiply(BigDecimal.valueOf(quantity));
