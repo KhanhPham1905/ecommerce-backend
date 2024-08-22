@@ -39,8 +39,8 @@ public class Brand {
     private boolean status;
 
 
-    @Column(name = "shop_id", nullable = false)
-    private Long shopId;
+//    @Column(name = "shop_id", nullable = false)
+//    private Long shopId;
 
     @Column(name = "is_delete")
     private Boolean isDelete;

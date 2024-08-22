@@ -19,6 +19,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.file.AccessDeniedException;
+import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 
@@ -94,5 +95,14 @@ public class SellerController {
     public CommonResult updateInformationSeller(@RequestBody DetailSellerInfoDTO detailSellerInfoDTO) throws  Exception{
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return  CommonResult.success(sellerService.updateSellerInfo(detailSellerInfoDTO, user.getId()),"get information seller successfully");
+    }
+
+    @GetMapping("/basicInfor")
+    @PreAuthorize("hasAnyRole('ROLE_SELLER')")
+    public  CommonResult<Map<String, Long>> getBasicInfor() throws  Exception{
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Map<String, Long> result = new HashMap<>();
+        result = sellerService.getBasicInfo(user.getId());
+        return CommonResult.success(result,"get basic information success");
     }
 }

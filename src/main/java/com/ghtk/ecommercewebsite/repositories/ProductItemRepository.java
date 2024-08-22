@@ -64,4 +64,7 @@ public interface ProductItemRepository extends JpaRepository<ProductItem, Long> 
 
     @Query("SELECT SUM(pi.quantity) FROM ProductItem pi WHERE pi.productId = :id")
     Long getQuantityProduct(@Param("id") Long id);
+
+//    @Query("")
+//    Long getQuantityByShopId(@Param("shopId") Long shopId);
 }

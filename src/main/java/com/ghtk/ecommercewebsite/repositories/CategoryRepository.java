@@ -15,9 +15,8 @@ import java.util.List;
 public interface CategoryRepository extends JpaRepository<Category, Long> {
 
     @Query(value = "SELECT * FROM category c " +
-            "WHERE c.shop_id = ?1 " +
-            "AND c.name LIKE CONCAT('%',?2,'%') " +
+            "WHERE c.name LIKE CONCAT('%',?1,'%') " +
             "AND c.is_delete = 0", nativeQuery = true)
-    Page<Category> findByShopId(Long id, String name, Pageable pageable);
+    Page<Category> findByShopId(String name, Pageable pageable);
 
 }

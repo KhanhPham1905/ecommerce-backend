@@ -27,4 +27,6 @@ public interface SellerService {
     Shop updateShopInfo(Long userId, ShopDTO shopDTO) throws DataNotFoundException;
 
     User signUpNewVersion(SellerRegisterDto sellerRegisterDto);
+
+    Map<String, Long> getBasicInfo(Long userId) throws DataNotFoundException;
 }

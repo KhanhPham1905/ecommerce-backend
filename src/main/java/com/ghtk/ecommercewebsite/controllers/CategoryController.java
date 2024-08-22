@@ -32,7 +32,7 @@ public class CategoryController {
     }
 
     @PostMapping("")
-    @PreAuthorize("hasRole('ROLE_SELLER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public CommonResult<Object> createCategory (
             @Valid @RequestBody CategoryDTO categoryDTO
     ) throws Exception {
@@ -56,7 +56,7 @@ public class CategoryController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_SELLER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public  CommonResult deleteCategory(@PathVariable Long id) throws Exception{
         User user  = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         categoryService.deleteCategory(id, user.getId());
@@ -64,7 +64,7 @@ public class CategoryController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_SELLER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public CommonResult<Category> updateCategory(
             @PathVariable Long id,
             @Valid @RequestBody CategoryDTO categoryDTO
