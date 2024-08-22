@@ -27,9 +27,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
 import java.nio.file.AccessDeniedException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -63,9 +61,8 @@ public class ProductServiceImpl implements IProductService {
         Shop shop = shopRepository.findByUserId(userId);
         productDTO.setShopId(shop.getId());
         productDTO.setIsDelete(Boolean.FALSE);
-
-        CloudinaryResponse ThumbcloudinaryResponse = cloudinaryService.uploadImage(productDTO.getThumbnail());
-        productDTO.setThumbnailImg(ThumbcloudinaryResponse.getUrl());
+//        CloudinaryResponse ThumbcloudinaryResponse = cloudinaryService.uploadImage(productDTO.getThumbnail());
+//        productDTO.setThumbnailImg(ThumbcloudinaryResponse.getUrl());
         Product product = productsRepository.save(productMapper.toEntity(productDTO));
 
         for (int i = 0; i < productDTO.getCategoryIds().size(); i++){
@@ -146,9 +143,11 @@ public class ProductServiceImpl implements IProductService {
             long categoryCount,
             List<Long> brandIds,
             String keyword,
+            Long fromPrice ,
+            Long toPrice,
             PageRequest pageRequest
     ) throws Exception {
-        return productsRepository.searchProducts(categoryIds, categoryCount, brandIds, keyword, pageRequest)
+        return productsRepository.searchProducts(categoryIds, categoryCount, brandIds, keyword, fromPrice , toPrice, pageRequest)
             .map(product -> {
                 List<String> categoryNames = product.getCategoryList().stream()
                         .map(Category::getName)
@@ -164,8 +163,10 @@ public class ProductServiceImpl implements IProductService {
                         .id(product.getId())
                         .name(product.getName())
                         .description(product.getDescription())
+                        .minPrice(product.getMinPrice())
+                        .totalSold(product.getTotalSold())
                         .thumbnail(product.getThumbnail())
-                        .averageRate(rate == null? BigDecimal.valueOf(5):rate.getAverageStars())
+                        .averageRate(rate == null? BigDecimal.valueOf(0):rate.getAverageStars())
                         .brandId(brand.get().getId())
                         .brandName(brand.get().getName())
                         .quantityRate(rate==null?0:rate.getQuantity())
@@ -200,9 +201,11 @@ public class ProductServiceImpl implements IProductService {
                     return ProductResponse.builder()
                             .id(product.getId())
                             .name(product.getName())
+                            .minPrice(product.getMinPrice())
+                            .totalSold(product.getTotalSold())
                             .description(product.getDescription())
                             .thumbnail(product.getThumbnail())
-                            .averageRate(rate == null? BigDecimal.valueOf(5):rate.getAverageStars())
+                            .averageRate(rate == null? BigDecimal.valueOf(0):rate.getAverageStars())
                             .brandId(brand.get().getId())
                             .brandName(brand.get().getName())
                             .quantityRate(rate==null?0:rate.getQuantity())
@@ -230,9 +233,8 @@ public class ProductServiceImpl implements IProductService {
         productDTO.setId(product.getId());
 
         imagesRepository.deleteByProductId(product.getId());
-
-        CloudinaryResponse ThumbcloudinaryResponse = cloudinaryService.uploadImage(productDTO.getThumbnail());
-        productDTO.setThumbnailImg(ThumbcloudinaryResponse.getUrl());
+//        CloudinaryResponse ThumbcloudinaryResponse = cloudinaryService.uploadImage(productDTO.getThumbnail());
+//        productDTO.setThumbnailImg(ThumbcloudinaryResponse.getUrl());
         productsRepository.save(productMapper.toEntity(productDTO));
 
         for (int i = 0; i < productDTO.getCategoryIds().size(); i++){
@@ -274,13 +276,27 @@ public class ProductServiceImpl implements IProductService {
         Rate rate = rateRepository.findByProductId(id);
         Optional<Brand> brand = brandRepository.findById(product.getBrandId());
         List<String> imageList = imagesRepository.findLinkByProductId(product.getId());
-
+        List<ProductAttributes> productAttributes= productAttributesRepository.findAllByProductId(id);
+        ArrayList<Object> attributeAndValues = new ArrayList<>();
+        for(ProductAttributes productAttribute : productAttributes){
+            Map<String,Object> result = new HashMap<>();
+            result.put("id",productAttribute.getId());
+            result.put("attribute",productAttribute.getName());
+            result.put("values",attributeValuesRepository.findAttributeValuesByAttributeId(productAttribute.getId()));
+            attributeAndValues.add(result);
+        }
+        Long quantity = productItemRepository.getQuantityProduct(id);
         return ProductResponse.builder()
+                .attributeAndValues(attributeAndValues)
                 .id(product.getId())
+                .quantity(quantity)
                 .name(product.getName())
+                .status(product.getStatus())
+                .totalSold(product.getTotalSold())
+                .minPrice(product.getMinPrice())
                 .description(product.getDescription())
                 .thumbnail(product.getThumbnail())
-                .averageRate(rate == null? BigDecimal.valueOf(5):rate.getAverageStars())
+                .averageRate(rate == null? BigDecimal.valueOf(0):rate.getAverageStars())
                 .brandId(brand.get().getId())
                 .images(imageList)
                 .brandName(brand.get().getName())

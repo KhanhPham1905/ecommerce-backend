@@ -71,16 +71,25 @@ public class CartItemServiceImpl implements ICartItemService {
         }
     }
 
+    public CartItem updateCartItemQuantity(Long cartItemId, int quantity, Long userId) throws Exception {
+        // Lấy thông tin giỏ hàng dựa trên cartItemId và userId
+        CartItem cartItem = cartItemRepository.findByIdAndUserId(cartItemId, userId)
+                .orElseThrow(() -> new Exception("Cart item not found"));
+        // Cập nhật số lượng sản phẩm
+        cartItem.setQuantity(quantity);
+        // Lưu thay đổi
+        return cartItemRepository.save(cartItem);
+    }
+
     @Override
     public CartItem updateCartItem(Long id, CartItemDTO cartItemDTO, Long userId) throws Exception {
-        CartItem existingCartItem = cartItemRepository.findByIdAndUserId(id, userId)
-                .orElseThrow(() -> new Exception("Cart item not found or does not belong to the user"));
-
-        existingCartItem.setProductItemId(cartItemDTO.getProductItemId());
-        existingCartItem.setQuantity(cartItemDTO.getQuantity());
-        existingCartItem.setVoucherId(cartItemDTO.getVoucherId());
-        existingCartItem.setShopId(cartItemDTO.getShopId());
-
-        return cartItemRepository.save(existingCartItem);
+        return null;
     }
+
+    @Override
+    public Long getQuantityCartItem(Long userId) throws Exception {
+        Long quantityCartItem = cartItemRepository.getQuantityCartItem(userId);
+        return quantityCartItem;
+    }
+
 }

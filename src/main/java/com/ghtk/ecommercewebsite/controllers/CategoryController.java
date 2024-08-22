@@ -36,7 +36,7 @@ public class CategoryController {
     public CommonResult<Object> createCategory (
             @Valid @RequestBody CategoryDTO categoryDTO
     ) throws Exception {
-        User user  = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Category category = categoryService.createCategory(categoryDTO, user.getId());
         return CommonResult.success(category,"Create category successfully");
     }

@@ -28,7 +28,7 @@ public class Category {
     private LocalDateTime createdAt;
 
     @Column(name = "modified_at", columnDefinition = "DATETIME(6)")
-    @JsonFormat(pattern = "dd-MM-yyyy HH:mm:ss.SSS")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime modifiedAt;
 
     @Column(name = "name", length = 300, nullable = false)
