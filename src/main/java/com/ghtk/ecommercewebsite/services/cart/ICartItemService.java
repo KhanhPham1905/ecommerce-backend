@@ -5,6 +5,9 @@ import com.ghtk.ecommercewebsite.models.entities.CartItem;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 
+import java.math.BigDecimal;
+import java.util.List;
+
 
 public interface ICartItemService {
     CartItem getCartItemById(Long id) throws Exception;
@@ -14,4 +17,6 @@ public interface ICartItemService {
     CartItem updateCartItemQuantity(Long cartItemId, int quantity, Long userId) throws Exception ;
     CartItem updateCartItem(Long id, CartItemDTO cartItemDTO, Long userId) throws Exception;
     Long getQuantityCartItem(Long userId) throws Exception;
+    void applyVoucherToCartItem(Long cartItemId, Long voucherId, Long userId) throws Exception;
+
 }
