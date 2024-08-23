@@ -4,13 +4,17 @@ import com.ghtk.ecommercewebsite.mapper.CartItemMapper;
 import com.ghtk.ecommercewebsite.models.dtos.CartItemDTO;
 import com.ghtk.ecommercewebsite.models.entities.CartItem;
 import com.ghtk.ecommercewebsite.models.entities.ProductItem;
+import com.ghtk.ecommercewebsite.models.entities.Voucher;
 import com.ghtk.ecommercewebsite.repositories.CartItemRepository;
 import com.ghtk.ecommercewebsite.repositories.ProductItemRepository;
+import com.ghtk.ecommercewebsite.repositories.VoucherRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 @Service
@@ -18,6 +22,8 @@ import java.util.Optional;
 public class CartItemServiceImpl implements ICartItemService {
 
     private final CartItemRepository cartItemRepository;
+
+    private final VoucherRepository voucherRepository;
 
     private final CartItemMapper cartMapper;
 
@@ -30,7 +36,7 @@ public class CartItemServiceImpl implements ICartItemService {
     }
 
     @Override
-    public void createCartItem(CartItemDTO cartItemDTO, Long userId) throws Exception {
+    public void createCartItem(CartItemDTO cartItemDTO, Long userId) {
         // Lấy thông tin sản phẩm từ cơ sở dữ liệu
         ProductItem productItem = productItemRepository.findById(cartItemDTO.getProductItemId())
                 .orElseThrow(() -> new IllegalArgumentException("Product item not found"));
@@ -57,7 +63,7 @@ public class CartItemServiceImpl implements ICartItemService {
     }
 
     @Override
-    public Page<CartItem> getAllCartItems(PageRequest pageRequest, Long userId) throws Exception {
+    public Page<CartItem> getAllCartItems(PageRequest pageRequest, Long userId) {
         return cartItemRepository.findByUserId(userId, pageRequest);
     }
 
@@ -82,14 +88,30 @@ public class CartItemServiceImpl implements ICartItemService {
     }
 
     @Override
-    public CartItem updateCartItem(Long id, CartItemDTO cartItemDTO, Long userId) throws Exception {
+    public CartItem updateCartItem(Long id, CartItemDTO cartItemDTO, Long userId) {
         return null;
     }
 
     @Override
-    public Long getQuantityCartItem(Long userId) throws Exception {
-        Long quantityCartItem = cartItemRepository.getQuantityCartItem(userId);
-        return quantityCartItem;
+    public Long getQuantityCartItem(Long userId) {
+        return cartItemRepository.getQuantityCartItem(userId);
     }
 
+    @Override
+    @Transactional
+    public void applyVoucherToCartItem(Long cartItemId, Long voucherId, Long userId) {
+        // Lấy thông tin CartItem theo ID và UserID để đảm bảo tính xác thực
+        CartItem cartItem = cartItemRepository.findByIdAndUserId(cartItemId, userId)
+                .orElseThrow(() -> new IllegalArgumentException("CartItem không tồn tại hoặc không thuộc về người dùng"));
+        // Kiểm tra voucher có tồn tại không và có hợp lệ không
+        Voucher voucher = voucherRepository.findById(voucherId)
+                .orElseThrow(() -> new IllegalArgumentException("Voucher không tồn tại"));
+        // Kiểm tra điều kiện áp dụng voucher (nếu có)
+        if (!voucher.isPublic() || LocalDateTime.now().isAfter(voucher.getExpiredAt())) {
+            throw new IllegalArgumentException("Voucher không hợp lệ hoặc đã hết hạn");
+        }
+        // Áp dụng voucher cho CartItem
+        cartItem.setVoucherId(voucherId);
+        cartItemRepository.save(cartItem);
+    }
 }

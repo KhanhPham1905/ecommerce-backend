@@ -1,7 +1,6 @@
 package com.ghtk.ecommercewebsite.controllers;
 
 import com.ghtk.ecommercewebsite.models.dtos.OrdersDTO;
-import com.ghtk.ecommercewebsite.models.dtos.request.CheckoutDirectRequestDTO;
 import com.ghtk.ecommercewebsite.models.dtos.request.CheckoutRequestDTO;
 import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.responses.CommonResult;
@@ -12,12 +11,11 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -59,6 +57,15 @@ public class CheckoutController {
         }
     }
 
+
+    @GetMapping("/total-price")
+    public CommonResult<BigDecimal> getTotalPrice(
+            @RequestParam List<Long> selectedCartItems
+    ) throws Exception {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        BigDecimal totalPrice = checkoutService.calculateCartTotal(user.getId(), selectedCartItems);
+        return CommonResult.success(totalPrice, "Total price calculated successfully");
+    }
 //    @PostMapping("/checkout_direct")
 //    public ResponseEntity<CommonResult<Map<String, Object>>> checkoutDirect(@Valid @RequestBody CheckoutDirectRequestDTO checkoutDirectRequest) {
 //        try {

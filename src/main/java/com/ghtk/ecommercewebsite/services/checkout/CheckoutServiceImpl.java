@@ -41,7 +41,6 @@ public class CheckoutServiceImpl implements ICheckoutService {
         List<CartItem> cartItemList = cartItemRepository.findByUserIdAndIdIn(userId, selectedCartItems);
         if (cartItemList.isEmpty()) throw new IllegalArgumentException("Không có sản phẩm nào được chọn để thanh toán");
 
-
         Orders orders = createOrder(userId, method, note);
 
         Map<Long, ProductItem> productItemMap = fetchProductItems(cartItemList);
@@ -238,5 +237,35 @@ public class CheckoutServiceImpl implements ICheckoutService {
                 ? unitPrice.multiply(voucher.getDiscountValue()).divide(BigDecimal.valueOf(100))
                 : voucher.getDiscountValue();
         return discount.min(voucher.getMaximumDiscountValue()).multiply(BigDecimal.valueOf(quantity));
+    }
+
+    @Transactional
+    @Override
+    public BigDecimal calculateCartTotal(Long userId, List<Long> selectedCartItems) {
+        // Kiểm tra danh sách sản phẩm đã chọn có tồn tại không
+        List<CartItem> cartItemList = cartItemRepository.findByUserIdAndIdIn(userId, selectedCartItems);
+        if (cartItemList.isEmpty()) throw new IllegalArgumentException("Không có sản phẩm nào được chọn");
+
+        // Lấy danh sách ProductItem và Voucher tương ứng
+        Map<Long, ProductItem> productItemMap = fetchProductItems(cartItemList);
+        Map<Long, Voucher> voucherMap = fetchVouchers(cartItemList);
+
+        // Tính toán tổng giá tiền
+        return processCartItemsForTotal(cartItemList, productItemMap, voucherMap);
+    }
+
+    private BigDecimal processCartItemsForTotal(List<CartItem> cartItemList,
+                                                Map<Long, ProductItem> productItemMap,
+                                                Map<Long, Voucher> voucherMap) {
+        BigDecimal totalPrice = BigDecimal.ZERO;
+        for (CartItem cartItem : cartItemList) {
+            ProductItem productItem = productItemMap.get(cartItem.getProductItemId());
+            BigDecimal unitPrice = productItem.getPrice();
+            BigDecimal discount = calculateDiscount(cartItem, productItem, voucherMap);
+
+            BigDecimal finalPrice = unitPrice.subtract(discount).multiply(BigDecimal.valueOf(cartItem.getQuantity()));
+            totalPrice = totalPrice.add(finalPrice);
+        }
+        return totalPrice;
     }
 }
