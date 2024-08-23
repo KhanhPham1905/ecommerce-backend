@@ -1,4 +1,5 @@
 package com.ghtk.ecommercewebsite.controllers;
+import com.ghtk.ecommercewebsite.models.dtos.UserProfileDTO;
 import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.responses.CommonResult;
 import com.ghtk.ecommercewebsite.models.dtos.RefreshTokenDTO;
@@ -97,6 +98,40 @@ public class UserController {
         return CommonResult.success(userService.getAuthenticatedUser());
     }
 
+    @GetMapping("/profile")
+    @PreAuthorize("hasRole('USER')")
+    public CommonResult<UserProfileDTO> showUserProfile() {
+        return CommonResult.success(userService.getUserProfile());
+    }
+
+    @PostMapping("/updateProfile")
+    @PreAuthorize("hasRole('USER')")
+    public CommonResult<User> updateUserProfile(@RequestBody UserProfileDTO userProfileDTO) {
+        return CommonResult.success(userService.updateUserProfile(userProfileDTO));
+    }
+
+    @GetMapping("/registerAsSellerInHomePage")
+    @PreAuthorize("hasRole('USER')")
+    public CommonResult<User> registerAsSellerInHomePage() {
+        User user = userService.getAuthenticatedUser();
+        return CommonResult.success(userService.sendMail(user.getEmail()));
+    }
+
+    @PostMapping("/verifyOtpForAddingSellerRole")
+    public CommonResult<String> verifyOtpForAddingSellerRole(@RequestBody Map<String, String> requestBody) {
+        String email = requestBody.get("email");
+        Integer otp = Integer.parseInt(requestBody.get("otp"));
+        boolean isOtpValid = redisOtpService.verifyOtp(email, otp);
+        if (!isOtpValid) { return CommonResult.failed("Invalid OTP"); }
+        userService.addSellerRole(email);
+        return CommonResult.success("User activated successfully");
+    }
+
+    @PostMapping("/resendOtpForAddingSellerRole")
+    public CommonResult<String> resendOtpForAddingSellerRole(@RequestBody Map<String, String> requestBody) {
+        String email = requestBody.get("email");
+        return otpService.resendOtpForSigningUp(email);
+    }
 
     @PostMapping("/refreshToken")
     public CommonResult<LoginResponse> refreshToken(
