@@ -3,9 +3,11 @@ package com.ghtk.ecommercewebsite.controllers;
 import com.ghtk.ecommercewebsite.exceptions.DataNotFoundException;
 import com.ghtk.ecommercewebsite.mapper.OrderMapper;
 import com.ghtk.ecommercewebsite.models.dtos.OrdersDTO;
+import com.ghtk.ecommercewebsite.models.entities.OrderStatusHistory;
 import com.ghtk.ecommercewebsite.models.entities.Orders;
 import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.responses.CommonResult;
+import com.ghtk.ecommercewebsite.repositories.OrderStatusHistoryRepository;
 import com.ghtk.ecommercewebsite.services.orders.IOrdersService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -22,7 +24,8 @@ public class OrdersController {
 
     private final OrderMapper orderMapper;
     private final IOrdersService iOrdersService;
-
+    
+    private final OrderStatusHistoryRepository orderStatusHistoryRepository;
 
     @GetMapping
     public CommonResult<List<OrdersDTO>> getAllOrders() {
@@ -105,5 +108,15 @@ public class OrdersController {
 //        List<Orders> ordersList = iOrdersService.getAllOrderBySeller(user.getId());
 //        return CommonResult.success(ordersList);
 //    }
+
+
+    @GetMapping("/{orderId}/history")
+    public CommonResult<List<OrderStatusHistory>> getOrderStatusHistory(@PathVariable Long orderId) {
+        List<OrderStatusHistory> history = orderStatusHistoryRepository.findByOrderId(orderId);
+        if (history.isEmpty()) {
+            return CommonResult.error(404, "No history found for order with ID " + orderId);
+        }
+        return CommonResult.success(history);
+    }
 
 }
