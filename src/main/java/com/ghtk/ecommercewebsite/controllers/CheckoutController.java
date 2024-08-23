@@ -38,7 +38,8 @@ public class CheckoutController {
             OrdersDTO ordersDTO = checkoutService.checkoutCart(
                     userId, // Thay thế checkoutRequest.getUserId() bằng userId
                     checkoutRequest.isMethod(),
-                    checkoutRequest.getNote()
+                    checkoutRequest.getNote(),
+                    checkoutRequest.getSelectedCartItems()
             );
 
             // Gọi phương thức tạo phiên thanh toán sau khi tạo đơn hàng thành công

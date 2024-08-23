@@ -28,16 +28,19 @@ public class CheckoutServiceImpl implements ICheckoutService {
     private final ProductItemRepository productItemRepository;
     private final OrderMapper orderMapper;
 
+    private final OrderStatusHistoryRepository orderStatusHistoryRepository;
     private final AddressService addressService;
 
 
     @Transactional
     @Override
-    public OrdersDTO checkoutCart(Long userId, boolean method, String note) {
+    public OrdersDTO checkoutCart(Long userId, boolean method, String note, List<Long> selectedCartItems ) {
         validateCheckoutRequest(userId);
 
-        List<CartItem> cartItemList = cartItemRepository.findByUserId(userId);
-        if (cartItemList.isEmpty()) throw new IllegalArgumentException("Giỏ hàng trống");
+        // Lấy danh sách các CartItem được chọn
+        List<CartItem> cartItemList = cartItemRepository.findByUserIdAndIdIn(userId, selectedCartItems);
+        if (cartItemList.isEmpty()) throw new IllegalArgumentException("Không có sản phẩm nào được chọn để thanh toán");
+
 
         Orders orders = createOrder(userId, method, note);
 
@@ -47,7 +50,7 @@ public class CheckoutServiceImpl implements ICheckoutService {
         orders.setTotalPrice(totalPrice);
 
         orderRepository.save(orders);
-        cartItemRepository.deleteByUserId(userId);
+        cartItemRepository.deleteAllByIdIn(selectedCartItems);
 
         return orderMapper.toDto(orders);
     }
@@ -63,6 +66,7 @@ public class CheckoutServiceImpl implements ICheckoutService {
 
 
     private Orders createOrder(Long userId, boolean method, String note) {
+        // Tạo đối tượng đơn hàng nhưng chưa lưu vào DB
         Orders orders = Orders.builder()
                 .status(Orders.OrderStatus.PENDING)
                 .createdAt(LocalDateTime.now())
@@ -72,8 +76,26 @@ public class CheckoutServiceImpl implements ICheckoutService {
                 .method(method)
                 .userId(userId)
                 .build();
-        return orderRepository.save(orders);
+
+        // Lưu đơn hàng vào cơ sở dữ liệu và đảm bảo order đã có ID
+        orders = orderRepository.save(orders);
+
+        // Ghi lại lịch sử trạng thái đơn hàng
+        saveOrderStatusHistory(orders, orders.getStatus());
+
+        return orders;
     }
+
+
+    private void saveOrderStatusHistory(Orders order, Orders.OrderStatus status) {
+        OrderStatusHistory history = OrderStatusHistory.builder()
+                .orderId(order.getId())
+                .status(status)
+                .changedAt(LocalDateTime.now())
+                .build();
+        orderStatusHistoryRepository.save(history);
+    }
+
 
     private Map<Long, ProductItem> fetchProductItems(List<CartItem> cartItemList) {
         List<Long> productItemIds = cartItemList.stream()
@@ -150,7 +172,7 @@ public class CheckoutServiceImpl implements ICheckoutService {
                                     Long voucherId,
                                     String note,
                                     boolean method) {
-        validateDirectCheckout( productItemId, quantity);
+        validateDirectCheckout(productItemId, quantity);
 
         ProductItem productItem = productItemRepository.findById(productItemId)
                 .orElseThrow(() -> new IllegalArgumentException("Product item not found"));
@@ -173,7 +195,7 @@ public class CheckoutServiceImpl implements ICheckoutService {
         return orderMapper.toDto(orders);
     }
 
-    private void validateDirectCheckout( Long productItemId, int quantity) {
+    private void validateDirectCheckout(Long productItemId, int quantity) {
         if (productItemId == null || quantity <= 0)
             throw new IllegalArgumentException("Invalid product item or quantity");
     }
@@ -189,6 +211,8 @@ public class CheckoutServiceImpl implements ICheckoutService {
         }
         return discount;
     }
+
+
 
     private void saveDirectOrderItem(Orders orders, Long productItemId, int quantity, BigDecimal unitPrice, Long voucherId) {
         OrderItem orderItem = OrderItem.builder()
