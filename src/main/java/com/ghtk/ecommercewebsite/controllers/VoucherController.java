@@ -85,6 +85,13 @@ public class VoucherController {
         return CommonResult.success(iVoucherService.setVoucherInactive(voucherId, user.getId()));
     }
 
+    @PatchMapping("/getAllVouchers/switchStatus/{voucherId}")
+    @PreAuthorize("hasRole('ROLE_SELLER')")
+    public CommonResult<VoucherDTO> switchVoucherStatus(@PathVariable Long voucherId) throws DataNotFoundException {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return CommonResult.success(iVoucherService.switchVoucherStatus(voucherId, user.getId()));
+    }
+
     // Public/Private status now will be set automatically by the system
     // So we don't need to set it manually
 

@@ -1,8 +1,8 @@
 package com.ghtk.ecommercewebsite.services.user;
 
 import com.ghtk.ecommercewebsite.exceptions.DataNotFoundException;
-import com.ghtk.ecommercewebsite.models.dtos.MailBody;
-import com.ghtk.ecommercewebsite.models.dtos.UserDTO;
+import com.ghtk.ecommercewebsite.exceptions.SellerAlreadyExistedException;
+import com.ghtk.ecommercewebsite.models.dtos.*;
 import com.ghtk.ecommercewebsite.models.entities.*;
 import com.ghtk.ecommercewebsite.models.enums.RoleEnum;
 import com.ghtk.ecommercewebsite.repositories.*;
@@ -12,8 +12,6 @@ import com.ghtk.ecommercewebsite.services.RedisOtpService;
 import com.ghtk.ecommercewebsite.services.auth.AuthenticationService;
 import lombok.RequiredArgsConstructor;
 import com.ghtk.ecommercewebsite.exceptions.UserAlreadyExistedException;
-import com.ghtk.ecommercewebsite.models.dtos.LoginUserDto;
-import com.ghtk.ecommercewebsite.models.dtos.RegisterUserDto;
 import com.ghtk.ecommercewebsite.models.responses.LoginResponse;
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -352,6 +350,76 @@ public class UserServiceImpl implements UserService{
             User user = optionalUser.get();
             user.setStatus(true);
             userRepository.save(user);
+        }
+    }
+
+    @Override
+    public UserProfileDTO getUserProfile() {
+        User user = getAuthenticatedUser();
+        Address address = addressRepository.findById(user.getAddressId()).orElse(null);
+        return UserProfileDTO.builder()
+                .email(user.getEmail())
+                .fullName(user.getFullName())
+                .phone(user.getPhone())
+                .gender(user.getGender())
+                .country(address.getCountry())
+                .province(address.getProvince())
+                .district(address.getDistrict())
+                .commune(address.getCommune())
+                .addressDetail(address.getAddressDetail())
+                .build();
+//        return userProfileMapper.toDTO(user);
+    }
+
+    @Override
+    @Transactional
+    public User updateUserProfile(UserProfileDTO userProfileDTO) {
+        User currentUser = getAuthenticatedUser();
+        currentUser.setFullName(userProfileDTO.getFullName());
+        currentUser.setPhone(userProfileDTO.getPhone());
+        currentUser.setGender(userProfileDTO.getGender());
+
+        Address address = Address.builder()
+                .country(userProfileDTO.getCountry())
+                .province(userProfileDTO.getProvince())
+                .district(userProfileDTO.getDistrict())
+                .commune(userProfileDTO.getCommune())
+                .addressDetail(userProfileDTO.getAddressDetail())
+                .build();
+        addressRepository.save(address);
+        currentUser.setAddressId(address.getId());
+        return userRepository.save(currentUser);
+    }
+
+    @Override
+    public User sendMail(String email) {
+        Set<Role> existingRoles = getAuthenticatedUser().getRoles();
+        if (!existingRoles.contains(Role.builder().name(RoleEnum.SELLER).build())) {
+            Integer otp = redisOtpService.generateAndSaveOtp(email);
+            MailBody mailBody = MailBody.builder()
+                    .to(email)
+                    .text("This is the OTP for your request: " + otp)
+                    .build();
+            emailService.sendSimpleMessage(mailBody);
+        } else {
+            throw new SellerAlreadyExistedException("You are already a seller");
+        }
+        return getAuthenticatedUser();
+    }
+
+    @Override
+    public void addSellerRole(String email) {
+        Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.SELLER);
+        if (optionalRole.isEmpty()) { return; }
+        Role sellerRole = optionalRole.get();
+
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+        if (optionalUser.isPresent()) {
+            User existingUser = optionalUser.get();
+            Set<Role> existingRoles = existingUser.getRoles();
+            existingRoles.add(sellerRole);
+            existingUser.setRoles(existingRoles);
+            userRepository.save(existingUser);
         }
     }
 

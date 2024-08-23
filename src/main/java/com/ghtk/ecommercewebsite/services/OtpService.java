@@ -126,7 +126,7 @@ public class OtpService {
 
             MailBody mailBody = MailBody.builder()
                     .to(email)
-                    .text("This is the OTP for your Forgot Password request: " + otp)
+                    .text("This is the OTP for your request: " + otp)
                     .subject("OTP for Forgot Password request")
                     .build();
 
