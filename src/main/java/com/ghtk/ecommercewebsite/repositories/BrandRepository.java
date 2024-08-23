@@ -12,8 +12,7 @@ import org.springframework.stereotype.Repository;
 public interface BrandRepository extends JpaRepository<Brand, Long> {
 
     @Query(value = "SELECT * FROM brand b " +
-            "WHERE b.shop_id = ?1 " +
-            "AND b.name LIKE CONCAT('%',?2,'%') " +
+            "WHERE b.name LIKE CONCAT('%',?1,'%') " +
             "AND b.is_delete = 0", nativeQuery = true)
-    Page<Brand> findByShopId(Long id, String name, Pageable pageable);
+    Page<Brand> findAllBrand(String name, Pageable pageable);
 }

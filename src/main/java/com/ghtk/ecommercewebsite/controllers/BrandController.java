@@ -29,7 +29,7 @@ public class BrandController {
     }
 
     @PostMapping("")
-    @PreAuthorize("hasRole('ROLE_SELLER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public CommonResult<Object> createBrand (
             @Valid @RequestBody BrandDTO brandDTO
     ) throws Exception {
@@ -53,7 +53,7 @@ public class BrandController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_SELLER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public  CommonResult deleteBrand(@PathVariable Long id) throws Exception{
         User user  = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         brandService.deleteBrand(id, user.getId());
@@ -61,7 +61,7 @@ public class BrandController {
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasRole('ROLE_SELLER')")
+    @PreAuthorize("hasRole('ROLE_ADMIN')")
     public CommonResult<Brand> updateBrand(
             @PathVariable Long id,
             @Valid @RequestBody BrandDTO brandDTO
@@ -70,5 +70,4 @@ public class BrandController {
         Brand brand = brandService.updateBrand(id, brandDTO, user.getId());
         return CommonResult.success(brand, "Update brand successfully");
     }
-
 }

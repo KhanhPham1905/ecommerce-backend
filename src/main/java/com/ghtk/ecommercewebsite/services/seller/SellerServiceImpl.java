@@ -32,6 +32,11 @@ public class SellerServiceImpl implements SellerService{
     private final ShopRepository shopRepository;
     private final RedisOtpService redisOtpService;
     private final EmailService emailService;
+    private final ProductRepository productRepository;
+    private final ProductItemRepository productItemRepository;
+    private final OrdersRepository ordersRepository;
+    private final WarehouseRepository warehouseRepository;
+    private final VoucherRepository voucherRepository;
 
     @Override
     @Transactional
@@ -374,5 +379,21 @@ public class SellerServiceImpl implements SellerService{
 
             return user;
         }
+    }
+
+    @Override
+    public Map<String, Long> getBasicInfo(Long userId) throws DataNotFoundException{
+        Map<String, Long> result = new HashMap<>();
+        Shop shop = shopRepository.findShopByUserId(userId)
+                .orElseThrow(()-> new DataNotFoundException("shop not found by user id"));
+        Long quantityProduct = productRepository.getQuantityByShopId(shop.getId());
+        result.put("product_quantity", quantityProduct);
+//        Long quantityOrder = ordersRepository.getQuantityByShopId(shop.getId());
+//        result.put("order_quantiy", quantityOrder);
+        Long quantityWarehouse  =  warehouseRepository.getQuantityByShopId(shop.getId());
+        result.put("warehouse_quantity", quantityWarehouse);
+        Long quantityVoucher = voucherRepository.getQuantityByShopId(shop.getId());
+        result.put("voucher_quantity", quantityVoucher);
+        return result;
     }
 }

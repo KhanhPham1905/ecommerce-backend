@@ -29,4 +29,8 @@ public interface WarehouseRepository extends JpaRepository<Warehouse, Long> {
             "AND w.name LIKE CONCAT('%',?2,'%') " +
             "AND w.is_delete = 0", nativeQuery = true)
     Page<Warehouse> findByShopId(Long id, String name, Pageable pageable) ;
+
+
+    @Query("SELECT COUNT(*) FROM Warehouse w WHERE w.shopId = ?1")
+    Long getQuantityByShopId(Long shopId);
 }

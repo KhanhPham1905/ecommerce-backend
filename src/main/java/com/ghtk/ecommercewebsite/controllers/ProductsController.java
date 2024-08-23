@@ -47,8 +47,9 @@ public class ProductsController {
             @RequestParam(defaultValue = "default", name ="sort") String sortOption,
             @RequestParam(required = false, name = "fromPrice") Long fromPrice,
             @RequestParam(required = false, name = "toPrice") Long toPrice,
+            @RequestParam(defaultValue = "", name ="rate") Float rate,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "16") int limit
+            @RequestParam(defaultValue = "20") int limit
     ) throws Exception{
         Sort sort = switch (sortOption) {
             case "latest" -> Sort.by("createdAt").descending();
@@ -85,7 +86,7 @@ public class ProductsController {
         int totalPages = 0;
         List<ProductResponse> productResponses = null;
         if (productPage == null) {
-            productPage = iProductService.searchProducts(categoryList, categoryList == null ? 0 : categoryList.size(), brandList, keyword, fromPrice , toPrice , pageRequest);
+            productPage = iProductService.searchProducts(categoryList, categoryList == null ? 0 : categoryList.size(), brandList, keyword, fromPrice , toPrice ,rate, pageRequest);
             // Get total pages
             totalPages = productPage.getTotalPages();
             productResponses = productPage.getContent();
