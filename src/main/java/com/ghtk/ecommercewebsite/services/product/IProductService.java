@@ -28,7 +28,8 @@ public interface IProductService {
 
     List<Product> getAllProducts() throws  Exception;
 
-    Page<ProductResponse> searchProducts (List<Long> categoryIds, long categoryCount, List<Long> brandIds, String keyword, Long fromPrice , Long toPrice ,PageRequest pageRequest) throws Exception;
+    Page<ProductResponse> searchProducts (List<Long> categoryIds, long categoryCount, List<Long> brandIds, String keyword, Long fromPrice , Long toPrice, Float
+            rate ,PageRequest pageRequest) throws Exception;
 
     ProductResponse getProductById(Long id) throws  Exception;
 

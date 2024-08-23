@@ -25,13 +25,14 @@ public class VoucherController {
     private final IVoucherService iVoucherService;
 //    private final VoucherMapper voucherMapper;
 
-    // Get all vouchers by shop id
+    // User gets all vouchers from a shop, by shop's id
     @GetMapping("/getVouchers/{shopId}")
     @PreAuthorize("hasAnyRole('ROLE_USER')")
     public CommonResult<List<VoucherDTO>> getAllVouchersByShopId(@PathVariable Long shopId) {
         return CommonResult.success(iVoucherService.findAllVouchersByShopId(shopId));
     }
 
+    // From here is for sellers
     @GetMapping("/getAllVouchers")
     @PreAuthorize("hasRole('ROLE_SELLER')")
     public CommonResult<List<VoucherDTO>> getAllVoucherByShopFromSeller() throws DataNotFoundException {
@@ -84,19 +85,26 @@ public class VoucherController {
         return CommonResult.success(iVoucherService.setVoucherInactive(voucherId, user.getId()));
     }
 
-    @PatchMapping("/getAllVouchers/setPublic/{voucherId}")
-    @PreAuthorize("hasRole('ROLE_SELLER')")
-    public CommonResult<VoucherDTO> setVoucherPublic(@PathVariable Long voucherId) throws DataNotFoundException {
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return CommonResult.success(iVoucherService.setVoucherPublic(voucherId, user.getId()));
-    }
+    // Public/Private status now will be set automatically by the system
+    // So we don't need to set it manually
 
-    @PatchMapping("/getAllVouchers/setPrivate/{voucherId}")
-    @PreAuthorize("hasRole('ROLE_SELLER')")
-    public CommonResult<VoucherDTO> setVoucherPrivate(@PathVariable Long voucherId) throws DataNotFoundException {
-        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return CommonResult.success(iVoucherService.setVoucherPrivate(voucherId, user.getId()));
-    }
+//    @PatchMapping("/getAllVouchers/setPublic/{voucherId}")
+//    @PreAuthorize("hasRole('ROLE_SELLER')")
+//    public CommonResult<VoucherDTO> setVoucherPublic(@PathVariable Long voucherId) throws DataNotFoundException {
+//        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//        return CommonResult.success(iVoucherService.setVoucherPublic(voucherId, user.getId()));
+//    }
+//
+//    @PatchMapping("/getAllVouchers/setPrivate/{voucherId}")
+//    @PreAuthorize("hasRole('ROLE_SELLER')")
+//    public CommonResult<VoucherDTO> setVoucherPrivate(@PathVariable Long voucherId) throws DataNotFoundException {
+//        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//        return CommonResult.success(iVoucherService.setVoucherPrivate(voucherId, user.getId()));
+//    }
+
+
+
+
 
 
 //    @Autowired

@@ -29,6 +29,30 @@ public class OtpService {
     private final PasswordEncoder passwordEncoder;
     private final RedisOtpService redisOtpService;
 
+    // New version
+    public CommonResult<String> verifyEmailAndSendOtpNewVersion(String email) throws UsernameNotFoundException {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Please provide a valid email!"));
+
+        int otp = redisOtpService.generateAndSaveOtp(email);
+        MailBody mailBody = MailBody.builder()
+                .to(email)
+                .text("This is the OTP for your Forgot Password request: " + otp)
+                .subject("OTP for Forgot Password request")
+                .build();
+        emailService.sendSimpleMessage(mailBody);
+        // Return the email for the verification step
+        return CommonResult.success(email, "Email sent for verification!");
+    }
+
+//    public CommonResult<String> verifyOtpForForgotPasswordRequest(Integer otp, String email) {
+//        boolean isValid = redisOtpService.verifyOtp(email, otp);
+//        if (isValid) {
+//            return ResponseEntity.ok("OTP verified!");
+//        }
+//        return new ResponseEntity<>("Invalid or expired OTP!", HttpStatus.BAD_REQUEST);
+//    }
+
     public ResponseEntity<String> verifyEmailAndSendOtp(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Please provide a valid email!"));

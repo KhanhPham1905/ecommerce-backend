@@ -61,7 +61,7 @@ public class ProductItemServiceImpl implements ProductItemService
                 .collect(Collectors.toList());
         if(productAttributesList.size() == valuesCount ) {
             List<ProductItem> productItemList = productItemRepository.findProductItemByAttributesValues(detailProductItemDTO.getProductId(), valuesIds, valuesCount);
-            if(productItemList.size() >= 0 ){
+            if(productItemList.size() > 0 ){
                 throw new Exception("product item already exists");
             }
         }

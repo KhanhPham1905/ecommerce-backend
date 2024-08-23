@@ -41,7 +41,7 @@ public class UserServiceImpl implements UserService{
     private final RedisOtpService redisOtpService;
     private final EmailService emailService;
 //    private final LocationRepository locationRepository;
-//    private final AddressRepository addressRepository;
+    private final AddressRepository addressRepository;
 //    private final EmailService emailService;
 //    public static final String KEY = "cacheKey";
 
@@ -283,33 +283,33 @@ public class UserServiceImpl implements UserService{
 
             if (existingRoles.contains(userRole) && existingUser.isEnabled()) {
                 throw new UserAlreadyExistedException(registerUserDto.getEmail());
-            } else {
-                existingRoles.add(userRole);
-                existingUser.setRoles(existingRoles);
-                existingUser.setPassword(registerUserDto.getPassword());
-                existingUser.setFullName(registerUserDto.getFullName());
-                existingUser.setPhone(registerUserDto.getPhone());
-                existingUser.setGender(registerUserDto.getGender());
-                existingUser.setStatus(false);
-                // Save as inactive account
-                userRepository.save(existingUser);
-
-                Integer otp = redisOtpService.generateAndSaveOtp(registerUserDto.getEmail());
-                String roleNames = String.valueOf(existingRoles.stream()
-                        .map(role -> role.getName().name())
-                        .collect(Collectors.toList()));
-                MailBody mailBody = MailBody.builder()
-                        .to(registerUserDto.getEmail())
-                        .text("You are already an " + roleNames + " in our system. This is the OTP for your request: " + otp)
-                        .build();
-                emailService.sendSimpleMessage(mailBody);
-
-                return existingUser;
-
-            }
+            } //else {
+//                existingRoles.add(userRole);
+//                existingUser.setRoles(existingRoles);
+//                existingUser.setPassword(registerUserDto.getPassword());
+//                existingUser.setFullName(registerUserDto.getFullName());
+//                existingUser.setPhone(registerUserDto.getPhone());
+//                existingUser.setGender(registerUserDto.getGender());
+//                existingUser.setStatus(false);
+//                // Save as inactive account
+//                userRepository.save(existingUser);
+//
+//                Integer otp = redisOtpService.generateAndSaveOtp(registerUserDto.getEmail());
+//                String roleNames = String.valueOf(existingRoles.stream()
+//                        .map(role -> role.getName().name())
+//                        .collect(Collectors.toList()));
+//                MailBody mailBody = MailBody.builder()
+//                        .to(registerUserDto.getEmail())
+//                        .text("You are already an " + roleNames + " in our system. This is the OTP for your request: " + otp)
+//                        .build();
+//                emailService.sendSimpleMessage(mailBody);
+//
+//                return existingUser;
+//
+//            }
         } else {
             Set<Role> roles = new HashSet<>(List.of(optionalRole.get()));
-            var user = User.builder()
+            User user = User.builder()
                     .fullName(registerUserDto.getFullName())
                     .email(registerUserDto.getEmail())
                     .password(passwordEncoder.encode(registerUserDto.getPassword()))
@@ -318,8 +318,21 @@ public class UserServiceImpl implements UserService{
                     .status(false)
                     .roles(roles)
                     .build();
-
             userRepository.save(user);
+
+            Address address = Address.builder()
+                    .country(registerUserDto.getCountry())
+                    .province(registerUserDto.getProvince())
+                    .district(registerUserDto.getDistrict())
+                    .commune(registerUserDto.getCommune())
+                    .addressDetail(registerUserDto.getAddressDetail())
+                    .userId(user.getId())
+                    .build();
+            addressRepository.save(address);
+
+            user.setAddressId(address.getId());
+            userRepository.save(user);
+
             Integer otp = redisOtpService.generateAndSaveOtp(registerUserDto.getEmail());
             MailBody mailBody = MailBody.builder()
                     .to(registerUserDto.getEmail())
@@ -329,6 +342,7 @@ public class UserServiceImpl implements UserService{
 
             return user;
         }
+        return null;
     }
 
     @Override
