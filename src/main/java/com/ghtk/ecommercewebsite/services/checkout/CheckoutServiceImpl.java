@@ -27,7 +27,6 @@ public class CheckoutServiceImpl implements ICheckoutService {
     private final VoucherRepository voucherRepository;
     private final ProductItemRepository productItemRepository;
     private final OrderMapper orderMapper;
-
     private final OrderStatusHistoryRepository orderStatusHistoryRepository;
     private final AddressService addressService;
 
@@ -124,7 +123,6 @@ public class CheckoutServiceImpl implements ICheckoutService {
             ProductItem productItem = productItemMap.get(cartItem.getProductItemId());
             BigDecimal unitPrice = productItem.getPrice();
             BigDecimal discount = calculateDiscount(cartItem, productItem, voucherMap);
-
             BigDecimal finalPrice = unitPrice.subtract(discount).multiply(BigDecimal.valueOf(cartItem.getQuantity()));
             totalPrice = totalPrice.add(finalPrice);
 
