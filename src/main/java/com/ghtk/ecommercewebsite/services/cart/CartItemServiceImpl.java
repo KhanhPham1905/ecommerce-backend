@@ -60,8 +60,7 @@ public class CartItemServiceImpl implements ICartItemService {
             cartItem.setUserId(userId);
             cartItem.setShopId(shopId);
             BigDecimal unitPrice = productItem.getPrice();
-            BigDecimal discount = calculateDirectDiscount(cartItemDTO.getVoucherId(), cartItemDTO.getQuantity(), unitPrice);
-            BigDecimal finalPrice = unitPrice.subtract(discount).multiply(BigDecimal.valueOf(cartItemDTO.getQuantity()));
+            BigDecimal finalPrice = unitPrice.multiply(BigDecimal.valueOf(cartItemDTO.getQuantity()));
             cartItem.setTotalPrice(finalPrice);
             cartItemRepository.save(cartItem);
         }
@@ -86,11 +85,28 @@ public class CartItemServiceImpl implements ICartItemService {
     }
 
     private BigDecimal applyVoucher(Voucher voucher, BigDecimal unitPrice, int quantity) {
-        BigDecimal discount = voucher.getDiscountType().equals(DiscountType.PERCENTAGE)
-                ? unitPrice.multiply(voucher.getDiscountValue()).divide(BigDecimal.valueOf(100))
-                : voucher.getDiscountValue();
-        return discount.min(voucher.getMaximumDiscountValue()).multiply(BigDecimal.valueOf(quantity));
+        // Tính tổng giá trị giảm giá ban đầu là 0
+        BigDecimal discount = BigDecimal.ZERO;
+
+        // Kiểm tra loại giảm giá
+        if (voucher.getDiscountType().equals(DiscountType.PERCENTAGE)) {
+            // Giảm theo phần trăm dựa trên đơn giá và số lượng
+            discount = unitPrice.multiply(BigDecimal.valueOf(quantity))
+                    .multiply(voucher.getDiscountValue())
+                    .divide(BigDecimal.valueOf(100));
+        } else if (voucher.getDiscountType().equals(DiscountType.FIXEDAMOUNT)) {
+            // Giảm theo giá trị cố định, nhân với số lượng
+            discount = voucher.getDiscountValue().multiply(BigDecimal.valueOf(quantity));
+        }
+
+        // Nếu có giá trị giảm giá tối đa
+        if (voucher.getMaximumDiscountValue() != null) {
+            discount = discount.min(voucher.getMaximumDiscountValue().multiply(BigDecimal.valueOf(quantity)));
+        }
+
+        return discount;
     }
+
 
     @Override
     public Page<CartItem> getAllCartItems(PageRequest pageRequest, Long userId) {
@@ -107,6 +123,7 @@ public class CartItemServiceImpl implements ICartItemService {
         }
     }
 
+    @Override
     public CartItem updateCartItemQuantity(Long cartItemId, int quantity, Long userId) throws Exception {
         // Lấy thông tin giỏ hàng dựa trên cartItemId và userId
         CartItem cartItem = cartItemRepository.findByIdAndUserId(cartItemId, userId)
@@ -120,10 +137,9 @@ public class CartItemServiceImpl implements ICartItemService {
         cartItem.setQuantity(quantity);
         // Tính toán lại giá cuối cùng
         BigDecimal unitPrice = productItem.getPrice();
-        BigDecimal discount = calculateDirectDiscount(cartItem.getVoucherId(), quantity, unitPrice);
-        BigDecimal finalPrice = unitPrice.subtract(discount).multiply(BigDecimal.valueOf(quantity));
+        BigDecimal discount = applyVoucher(voucherRepository.findById(cartItem.getVoucherId()).orElseThrow(), unitPrice, quantity);
+        BigDecimal finalPrice = unitPrice.multiply(BigDecimal.valueOf(quantity)).subtract(discount);
         cartItem.setTotalPrice(finalPrice);
-        cartItem.setQuantity(quantity);
         // Lưu thay đổi
         return cartItemRepository.save(cartItem);
     }
@@ -154,10 +170,13 @@ public class CartItemServiceImpl implements ICartItemService {
                 throw new IllegalArgumentException("Voucher không hợp lệ hoặc đã hết hạn");
             BigDecimal unitPrice = productItem.getPrice();
             BigDecimal discount = applyVoucher(voucher, unitPrice, cartItem.getQuantity());
-            BigDecimal finalPrice = unitPrice.subtract(discount).multiply(BigDecimal.valueOf(cartItem.getQuantity()));
+            System.out.println("sfsdjfiaf" + unitPrice);
+            System.out.println("sdfafa" + cartItem.getQuantity());
+            System.out.println("xdgsdgsdgsgs " + discount);
+            BigDecimal finalPrice = unitPrice.multiply(BigDecimal.valueOf(cartItem.getQuantity())).subtract(discount);
             cartItem.setVoucherId(voucherId);
             cartItem.setTotalPrice(finalPrice);
-            cartItemRepository.save(cartItem) ;
+            cartItemRepository.save(cartItem);
         } else {
             BigDecimal unitPrice = productItem.getPrice();
             BigDecimal finalPrice = unitPrice.multiply(BigDecimal.valueOf(cartItem.getQuantity()));
@@ -165,7 +184,5 @@ public class CartItemServiceImpl implements ICartItemService {
             cartItemRepository.save(cartItem);
             cartItem.setVoucherId(null);
         }
-
-        cartItemRepository.save(cartItem);
     }
 }
