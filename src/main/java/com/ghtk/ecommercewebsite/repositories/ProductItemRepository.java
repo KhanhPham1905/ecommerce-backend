@@ -41,6 +41,7 @@ public interface ProductItemRepository extends JpaRepository<ProductItem, Long> 
             "LEFT JOIN ProductItemAttributes pia ON pi.id = pia.productItemId "+
             "WHERE pia.attributeValueId IN :valuesIds " +
             "AND pi.productId = :id " +
+            "AND pi.isDelete = false " +
             "GROUP BY pi.id " +
             "HAVING COUNT(DISTINCT pia.attributeValueId) = :valuesCount "
     )

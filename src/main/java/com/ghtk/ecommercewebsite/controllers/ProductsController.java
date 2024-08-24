@@ -2,6 +2,7 @@ package com.ghtk.ecommercewebsite.controllers;
 
 import com.cloudinary.Cloudinary;
 import com.ghtk.ecommercewebsite.configs.Contant;
+import com.ghtk.ecommercewebsite.exceptions.DataNotFoundException;
 import com.ghtk.ecommercewebsite.mapper.ProductMapper;
 import com.ghtk.ecommercewebsite.models.dtos.ListAttributeValuesDTO;
 import com.ghtk.ecommercewebsite.models.dtos.ProductDTO;
@@ -11,6 +12,7 @@ import com.ghtk.ecommercewebsite.models.responses.CloudinaryResponse;
 import com.ghtk.ecommercewebsite.models.responses.CommonResult;
 import com.ghtk.ecommercewebsite.models.responses.ProductListResponse;
 import com.ghtk.ecommercewebsite.models.responses.ProductResponse;
+import com.ghtk.ecommercewebsite.repositories.ImagesRepository;
 import com.ghtk.ecommercewebsite.services.CloudinaryService;
 import com.ghtk.ecommercewebsite.services.images.ImagesService;
 import com.ghtk.ecommercewebsite.services.product.IProductService;
@@ -36,10 +38,10 @@ public class ProductsController {
     private final IProductService iProductService;
     private final ProductMapper productMapper;
     private final CloudinaryService cloudinaryService;
+    private final ImagesService imagesService;
 
 
     @GetMapping("/user")
-    @PreAuthorize("hasRole('ROLE_USER')")
     public CommonResult<ProductListResponse> getAllProductsUser(
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "", name = "category-ids") String categoryIds,
@@ -242,7 +244,7 @@ public class ProductsController {
 //        return CommonResult.success(products, "Search products by description successfully");
 //    }
 
-    @PostMapping(value = "uploads/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/uploads", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public CommonResult<?> uploadImages(
             @PathVariable("id") Long id,
             @ModelAttribute("files") List<MultipartFile> files
@@ -264,7 +266,17 @@ public class ProductsController {
                 return CommonResult.failed("you must up load file is image");
             }
             CloudinaryResponse cloudinaryResponse = cloudinaryService.uploadImage(file);
+//            imagesService.addImageProduct(cloudinaryResponse,id);
         }
         return CommonResult.success("sac set");
     }
+
+//    @PostMapping("/uploadsText/{id}/{image}")
+//    public  CommonResult<String> ImageText(
+//            @PathVariable  String image,
+//            @PathVariable Long id
+//    ) throws DataNotFoundException {
+//        imagesService.addImageTextProduct(id, image);
+//        return CommonResult.success("upload img text success");
+//    }
 }

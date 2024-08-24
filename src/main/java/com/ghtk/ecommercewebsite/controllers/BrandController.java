@@ -47,8 +47,7 @@ public class BrandController {
         PageRequest pageRequest = PageRequest.of(
                 page, limit,
                 Sort.by("id").ascending());
-        User user  = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Page<Brand> brandsPages = brandService.getAllBrands(pageRequest,user.getId(), name);
+        Page<Brand> brandsPages = brandService.getAllBrands(pageRequest, name);
         return CommonResult.success(brandsPages, "Get all brands");
     }
 

@@ -37,6 +37,7 @@ public class ProductAttributesServiceImpl implements ProductAttributesService
         }
 
         ProductAttributes productAttributes = productAttributesMapper.toEntity(productAttributesDTO);
+        productAttributes.setIsDelete(Boolean.FALSE);
         Shop shop = shopRepository.findShopByUserId(userId)
                 .orElseThrow(() -> new DataNotFoundException("Cannot find shop by id"));
         Product product = productRepository.findById(id)
@@ -44,7 +45,6 @@ public class ProductAttributesServiceImpl implements ProductAttributesService
         if (!product.getShopId().equals(shop.getId())) {
             throw new AccessDeniedException("User does not have access to this product.");
         }
-
         return productAttributesMapper.toDTO(productAttributesRepository.save(productAttributes));
     }
 

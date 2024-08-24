@@ -219,6 +219,56 @@ public class ProductServiceImpl implements IProductService {
                 });
     }
 
+//    @Override
+//    @Transactional
+//    public Product updateProductById(Long id, ProductDTO productDTO, Long userId) throws Exception {
+//        Product product = productsRepository.findById(id)
+//                .orElseThrow(()-> new DataNotFoundException("Cannot find product"));
+//
+//        Shop shop = shopRepository.findByUserId(userId);
+//        if(!product.getShopId().equals(shop.getId())){
+//            throw new AccessDeniedException("you do not have access");
+//        }
+//
+//        productDTO.setShopId(shop.getId());
+//        productDTO.setId(product.getId());
+//
+//        imagesRepository.deleteByProductId(product.getId());
+////        CloudinaryResponse ThumbcloudinaryResponse = cloudinaryService.uploadImage(productDTO.getThumbnail());
+////        productDTO.setThumbnailImg(ThumbcloudinaryResponse.getUrl());
+//        productsRepository.save(productMapper.toEntity(productDTO));
+//
+//        for (int i = 0; i < productDTO.getCategoryIds().size(); i++){
+//            ProductCategory productCategory = ProductCategory.builder()
+//                    .categoryId(productDTO.getCategoryIds().get(i))
+//                    .productId(product.getId())
+//                    .build();
+//            categoryProductRepository.save(productCategory);
+//        }
+//
+//        List<MultipartFile> files = productDTO.getImages();
+//        files = files == null ? new ArrayList<MultipartFile>() : files;
+//        if(files.size() > Contant.MAXIMUM_IMAGES_PER_PRODUCT){
+//            new Exception("You can only upload max : " + Contant.MAXIMUM_IMAGES_PER_PRODUCT);
+//        }
+//
+//        for (MultipartFile file: files){
+//            if(file.getSize() == 0){
+//                continue;
+//            }
+//            if (file.getSize() > 2*1024*1024){
+//                new Exception("you can only upload file Maximum 2MB");
+//            }
+//            String contentType = file.getContentType();
+//            if (contentType == null && ! contentType.startsWith("image/")){
+//                new Exception("you must up load file is image");
+//            }
+//            CloudinaryResponse cloudinaryResponse = cloudinaryService.uploadImage(file);
+//            imagesService.addImageProduct(cloudinaryResponse, product.getId());
+//        }
+//        return product;
+//    }
+
     @Override
     @Transactional
     public Product updateProductById(Long id, ProductDTO productDTO, Long userId) throws Exception {
@@ -232,6 +282,8 @@ public class ProductServiceImpl implements IProductService {
 
         productDTO.setShopId(shop.getId());
         productDTO.setId(product.getId());
+        productDTO.setIsDelete(Boolean.FALSE);
+        productDTO.setMinPrice(product.getMinPrice());
 
         imagesRepository.deleteByProductId(product.getId());
 //        CloudinaryResponse ThumbcloudinaryResponse = cloudinaryService.uploadImage(productDTO.getThumbnail());
@@ -241,9 +293,11 @@ public class ProductServiceImpl implements IProductService {
         for (int i = 0; i < productDTO.getCategoryIds().size(); i++){
             ProductCategory productCategory = ProductCategory.builder()
                     .categoryId(productDTO.getCategoryIds().get(i))
+                    .isDelete(Boolean.FALSE)
                     .productId(product.getId())
                     .build();
-            categoryProductRepository.save(productCategory);
+            ProductCategory productCategoryNew=  categoryProductRepository.save(productCategory);
+            Long x = 0L;
         }
 
         List<MultipartFile> files = productDTO.getImages();
@@ -265,6 +319,9 @@ public class ProductServiceImpl implements IProductService {
             }
             CloudinaryResponse cloudinaryResponse = cloudinaryService.uploadImage(file);
             imagesService.addImageProduct(cloudinaryResponse, product.getId());
+        }
+        for(String img : productDTO.getImagesText()){
+            imagesService.addImageTextProduct(id,img);
         }
         return product;
     }

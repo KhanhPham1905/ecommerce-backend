@@ -35,7 +35,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "WHERE (:categoryIds IS NULL OR c.id IN :categoryIds) " +
             "AND (:rate IS NULL OR r.averageStars >= :rate) " +
             "AND (:brandIds IS NULL OR p.brandId IN :brandIds) " +
-            "AND (:keyword IS NULL OR :keyword = '' OR p.name LIKE %:keyword%) " +
+            "AND (:keyword IS NULL OR :keyword = '' OR (p.name LIKE %:keyword%)) " +
             "AND p.status = 1 AND p.isDelete = False " +
             "AND ((:fromPrice IS NULL OR :toPrice IS NULL) OR (p.minPrice BETWEEN :fromPrice AND :toPrice)) " +
             "AND p.minPrice > 0 " +
@@ -55,7 +55,7 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "LEFT JOIN p.categoryList c " +
             "WHERE (:categoryIds IS NULL OR c.id IN :categoryIds) " +
             "AND (:brandIds IS NULL OR p.brandId IN :brandIds) " +
-            "AND (:keyword IS NULL OR :keyword = '' OR p.name LIKE %:keyword% OR p.description LIKE %:keyword%) " +
+            "AND (:keyword IS NULL OR :keyword = '' OR p.name LIKE %:keyword%) " +
             "AND p.isDelete = False " +
             "GROUP BY p.id " +
             "HAVING (:categoryIds IS NULL OR COUNT(DISTINCT c.id) = :categoryCount)")

@@ -21,7 +21,7 @@ public interface ProductAttributesRepository extends JpaRepository<ProductAttrib
     @Query("UPDATE ProductAttributes pa SET pa.isDelete = true WHERE pa.productId = :id")
     void softDeleteProductAttributesByProductId(@Param("id") Long id);
 
-    @Query("SELECT pa FROM ProductAttributes pa WHERE pa.productId = :id")
+    @Query("SELECT pa FROM ProductAttributes pa WHERE pa.productId = :id AND pa.isDelete = false")
     List<ProductAttributes> findAllByProductId(@Param("id") Long id);
 
 }

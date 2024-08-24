@@ -97,9 +97,11 @@ public class ProductItemServiceImpl implements ProductItemService
             AttributeValues attributeValues = attributeValuesRepository.findById(productItemAttributesDTO.getAttributeValueId())
                     .orElseThrow(()-> new DataNotFoundException("Cannot found attribute values by id"));
 
+            Long attributeId = attributeValuesRepository.findAttributeIdByAttributeValueId(attributeValues.getId());
             ProductItemAttributes productItemAttributes = ProductItemAttributes.builder()
                     .productItemId(productItem.getId())
                     .value(attributeValues.getValue())
+                    .productAttributesId(attributeId)
                     .attributeValueId(productItemAttributesDTO.getAttributeValueId())
                     .build();
             productItemAttributesRepository.save(productItemAttributes);
@@ -120,7 +122,7 @@ public class ProductItemServiceImpl implements ProductItemService
             for (ProductItem productItem :productItems) {
                 List<ProductItemAttributes> attributeValues = productItemAttributesRepository.findByProductItemId(productItem.getId());
                 List<ProductItemAttributesDTO> attributeDTOs = attributeValues.stream()
-                        .map(attr -> new ProductItemAttributesDTO(attr.getValue(),attr.getAttributeValueId(), attr.getId()))
+                        .map(attr -> new ProductItemAttributesDTO(attr.getValue(),attr.getAttributeValueId(), attr.getId(), attr.getProductAttributesId()))
                         .collect(Collectors.toList());
 
                 DetailProductItemDTO detailProductItemDTO = DetailProductItemDTO.builder()
@@ -164,6 +166,7 @@ public class ProductItemServiceImpl implements ProductItemService
         ProductItem newProductItem = ProductItem.builder()
                 .skuCode(detailProductItemDTO.getSkuCode())
                 .id(productItem.getId())
+                .isDelete(Boolean.TRUE)
                 .importPrice(productItem.getImportPrice())
                 .productId(detailProductItemDTO.getProductId())
                 .price(detailProductItemDTO.getPrice())
@@ -207,9 +210,8 @@ public class ProductItemServiceImpl implements ProductItemService
         List<String> images = imagesRepository.findLinkByProductId(product.getId());
         List<ProductItemAttributes> attributeValues = productItemAttributesRepository.findByProductItemId(productItem.getId());
         List<ProductItemAttributesDTO> attributeDTOs = attributeValues.stream()
-                .map(attr -> new ProductItemAttributesDTO(attr.getValue(),attr.getAttributeValueId(), attr.getId()))
+                .map(attr -> new ProductItemAttributesDTO(attr.getValue(),attr.getAttributeValueId(),attr.getProductAttributesId(), attr.getId()))
                 .collect(Collectors.toList());
-
         DetailProductItemDTO detailProductItemDTO = DetailProductItemDTO.builder()
                 .id(productItem.getId())
                 .quantity(productItem.getQuantity())
