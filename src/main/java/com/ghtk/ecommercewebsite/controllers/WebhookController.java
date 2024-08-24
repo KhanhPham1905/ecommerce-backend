@@ -94,6 +94,7 @@ public class WebhookController {
                 String paymentIntentId = session.getPaymentIntent();
                 PaymentIntent paymentIntent = PaymentIntent.retrieve(paymentIntentId);
 
+
                 String orderId = session.getMetadata().get("order_id");
                 if (orderId == null) {
                     throw new RuntimeException("Order ID is missing in session metadata");
