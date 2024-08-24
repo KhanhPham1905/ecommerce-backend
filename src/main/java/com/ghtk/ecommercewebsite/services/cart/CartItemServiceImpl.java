@@ -144,15 +144,27 @@ public class CartItemServiceImpl implements ICartItemService {
         CartItem cartItem = cartItemRepository.findByIdAndUserId(cartItemId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("CartItem không tồn tại hoặc không thuộc về người dùng"));
 
+        ProductItem productItem = productItemRepository.findById(cartItem.getProductItemId())
+                .orElseThrow(() -> new IllegalArgumentException("Product item not found"));
         if (voucherId != null) {
             Voucher voucher = voucherRepository.findById(voucherId)
                     .orElseThrow(() -> new IllegalArgumentException("Voucher không tồn tại"));
             // Kiểm tra điều kiện của voucher
             if (!voucher.getIsPublic() || LocalDateTime.now().isAfter(voucher.getExpiredAt()))
                 throw new IllegalArgumentException("Voucher không hợp lệ hoặc đã hết hạn");
+            BigDecimal unitPrice = productItem.getPrice();
+            BigDecimal discount = applyVoucher(voucher, unitPrice, cartItem.getQuantity());
+            BigDecimal finalPrice = unitPrice.subtract(discount).multiply(BigDecimal.valueOf(cartItem.getQuantity()));
             cartItem.setVoucherId(voucherId);
-        } else cartItem.setVoucherId(null);
-
+            cartItem.setTotalPrice(finalPrice);
+            cartItemRepository.save(cartItem) ;
+        } else {
+            BigDecimal unitPrice = productItem.getPrice();
+            BigDecimal finalPrice = unitPrice.multiply(BigDecimal.valueOf(cartItem.getQuantity()));
+            cartItem.setTotalPrice(finalPrice);
+            cartItemRepository.save(cartItem);
+            cartItem.setVoucherId(null);
+        }
 
         cartItemRepository.save(cartItem);
     }
