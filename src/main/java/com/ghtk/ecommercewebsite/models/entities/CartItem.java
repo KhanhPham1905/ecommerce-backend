@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -41,6 +42,11 @@ public class CartItem {
 
     @Column(name = "shop_id", nullable = false)
     private Long shopId;
+
+    @Column(name = "total_price")
+    private BigDecimal totalPrice;
+
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
