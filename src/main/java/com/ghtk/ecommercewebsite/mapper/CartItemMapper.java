@@ -15,6 +15,7 @@ public class CartItemMapper {
                 .userId(dto.getUserId())
                 .voucherId(dto.getVoucherId())
                 .shopId(dto.getShopId())
+                .totalPrice(dto.getTotalPrice())
                 .build();
     }
 
@@ -26,6 +27,7 @@ public class CartItemMapper {
                 .userId(entity.getUserId())
                 .voucherId(entity.getVoucherId())
                 .shopId(entity.getShopId())
+                .totalPrice(entity.getTotalPrice())
                 .build();
     }
 }

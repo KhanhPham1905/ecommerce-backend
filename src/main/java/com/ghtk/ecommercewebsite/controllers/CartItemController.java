@@ -1,6 +1,7 @@
 package com.ghtk.ecommercewebsite.controllers;
 
 import com.ghtk.ecommercewebsite.models.dtos.CartItemDTO;
+import com.ghtk.ecommercewebsite.models.dtos.request.ApplyVoucherDTO;
 import com.ghtk.ecommercewebsite.models.dtos.request.UpdateCartItemQuantityDTO;
 import com.ghtk.ecommercewebsite.models.entities.CartItem;
 import com.ghtk.ecommercewebsite.models.entities.User;
@@ -73,5 +74,14 @@ public class CartItemController {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long quantityCartItem = cartItemService.getQuantityCartItem(user.getId());
         return CommonResult.success(quantityCartItem, "get quantity success");
+    }
+
+    @PostMapping("/apply-voucher")
+    public CommonResult<Object> applyVoucherToCartItem(
+            @RequestBody ApplyVoucherDTO applyVoucherDTO
+    ) throws Exception {
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        cartItemService.applyVoucherToCartItem(applyVoucherDTO.getCartItemId(), applyVoucherDTO.getVoucherId(), user.getId());
+        return CommonResult.success("Voucher applied successfully to cart item");
     }
 }

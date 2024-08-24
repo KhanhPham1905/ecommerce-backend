@@ -47,10 +47,10 @@ public class Voucher {
     private LocalDateTime expiredAt;
 
     @Column(name = "is_active", nullable = false)
-    private boolean isActive;
+    private Boolean isActive;
 
     @Column(name = "is_public", nullable = false)
-    private boolean isPublic;
+    private Boolean isPublic;
 
     // Can be null
     @Column(name = "maximum_discount_value", precision = 12, scale = 2)
@@ -68,10 +68,10 @@ public class Voucher {
     private LocalDateTime startAt;
 
     @Column(name = "quantity", nullable = false)
-    private int quantity;
+    private Integer quantity;
 
     @Column(name = "minimum_quantity_needed", nullable = false)
-    private int minimumQuantityNeeded;
+    private Integer minimumQuantityNeeded;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "type_repeat", nullable = false)

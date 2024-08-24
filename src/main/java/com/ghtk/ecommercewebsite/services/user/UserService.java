@@ -5,6 +5,7 @@ import com.ghtk.ecommercewebsite.exceptions.UserAlreadyExistedException;
 import com.ghtk.ecommercewebsite.models.dtos.LoginUserDto;
 import com.ghtk.ecommercewebsite.models.dtos.RegisterUserDto;
 import com.ghtk.ecommercewebsite.models.dtos.UserDTO;
+import com.ghtk.ecommercewebsite.models.dtos.UserProfileDTO;
 import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.responses.LoginResponse;
 import org.springframework.data.domain.Page;
@@ -34,4 +35,12 @@ public interface UserService {
     User signUpNewVersion(RegisterUserDto registerUserDto);
 
     void activateUser(String email);
+
+    UserProfileDTO getUserProfile();
+
+    User updateUserProfile(UserProfileDTO userProfileDTO);
+
+    User sendMail(String email);
+
+    void addSellerRole(String email);
 }

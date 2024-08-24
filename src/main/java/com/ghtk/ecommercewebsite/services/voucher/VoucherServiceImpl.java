@@ -70,15 +70,15 @@ public class VoucherServiceImpl implements IVoucherService {
 //            System.out.println("Voucher Expiry Time: " + voucher.getExpiredAt());
 
             if (now.isAfter(startAt) && now.isBefore(expiredAt)) {
-                if (!voucher.isPublic()) {
-                    voucher.setPublic(true);
+                if (!voucher.getIsPublic()) {
+                    voucher.setIsPublic(true);
                     voucherRepository.save(voucher);
                 }
             }
 
             if (now.isAfter(expiredAt)) {
-                if (voucher.isPublic()) {
-                    voucher.setPublic(false);
+                if (voucher.getIsPublic()) {
+                    voucher.setIsPublic(false);
                     voucherRepository.save(voucher);
                 }
 
@@ -247,6 +247,38 @@ public class VoucherServiceImpl implements IVoucherService {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public VoucherDTO switchVoucherStatus(Long voucherId, Long userId) throws DataNotFoundException {
+        Shop shop = shopRepository.findShopByUserId(userId)
+                .orElseThrow(() -> new DataNotFoundException("No shop found with this user"));
+        Voucher voucher = voucherRepository.findById(voucherId)
+                .orElseThrow(() -> new DataNotFoundException("Voucher not found with this id"));
+
+        if (!voucher.getShopId().equals(shop.getId())) {
+            throw new DataNotFoundException("You cannot modify this voucher");
+        }
+        boolean newActiveStatus = !voucher.getIsActive();
+        voucher.setIsActive(newActiveStatus);
+
+        // Additional part
+        if (newActiveStatus) {
+            ZonedDateTime now = ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
+            ZonedDateTime startAt = ZonedDateTime.of(voucher.getStartAt(), ZoneId.of("Asia/Ho_Chi_Minh"));
+            ZonedDateTime expiredAt = ZonedDateTime.of(voucher.getExpiredAt(), ZoneId.of("Asia/Ho_Chi_Minh"));
+
+            if (now.isAfter(startAt) && now.isBefore(expiredAt)) {
+                voucher.setIsPublic(true);
+            } else {
+                voucher.setIsPublic(false);
+            }
+        } else {
+            voucher.setIsPublic(false);
+        }
+
+        voucherRepository.save(voucher);
+        return voucherMapper.toDTO(voucher);
+    }
+
     private VoucherDTO updateVoucherStatus(Long voucherId, Long userId, Boolean isActive, Boolean isPublic) throws DataNotFoundException {
         Shop shop = shopRepository.findShopByUserId(userId)
                 .orElseThrow(() -> new DataNotFoundException("No shop found with this user"));
@@ -258,10 +290,10 @@ public class VoucherServiceImpl implements IVoucherService {
         }
 
         if (isActive != null) {
-            voucher.setActive(isActive);
+            voucher.setIsActive(isActive);
         }
         if (isPublic != null) {
-            voucher.setPublic(isPublic);
+            voucher.setIsPublic(isPublic);
         }
 
         voucherRepository.save(voucher);
@@ -273,8 +305,8 @@ public class VoucherServiceImpl implements IVoucherService {
         voucher.setDiscountType(voucherDTO.getDiscountType());
         voucher.setDiscountValue(voucherDTO.getDiscountValue());
         voucher.setExpiredAt(voucherDTO.getExpiredAt());
-        voucher.setActive(voucherDTO.isActive());
-        voucher.setPublic(voucherDTO.isPublic());
+        voucher.setIsActive(voucherDTO.isActive());
+        voucher.setIsPublic(voucherDTO.isPublic());
         voucher.setMaximumDiscountValue(voucherDTO.getMaximumDiscountValue());
         voucher.setName(voucherDTO.getName());
         voucher.setStartAt(voucherDTO.getStartAt());
