@@ -70,15 +70,15 @@ public class VoucherServiceImpl implements IVoucherService {
 //            System.out.println("Voucher Expiry Time: " + voucher.getExpiredAt());
 
             if (now.isAfter(startAt) && now.isBefore(expiredAt)) {
-                if (!voucher.isPublic()) {
-                    voucher.setPublic(true);
+                if (!voucher.getIsPublic()) {
+                    voucher.setIsPublic(true);
                     voucherRepository.save(voucher);
                 }
             }
 
             if (now.isAfter(expiredAt)) {
-                if (voucher.isPublic()) {
-                    voucher.setPublic(false);
+                if (voucher.getIsPublic()) {
+                    voucher.setIsPublic(false);
                     voucherRepository.save(voucher);
                 }
 
@@ -257,8 +257,8 @@ public class VoucherServiceImpl implements IVoucherService {
         if (!voucher.getShopId().equals(shop.getId())) {
             throw new DataNotFoundException("You cannot modify this voucher");
         }
-        boolean newActiveStatus = !voucher.isActive();
-        voucher.setActive(newActiveStatus);
+        boolean newActiveStatus = !voucher.getIsActive();
+        voucher.setIsActive(newActiveStatus);
 
         // Additional part
         if (newActiveStatus) {
@@ -267,12 +267,12 @@ public class VoucherServiceImpl implements IVoucherService {
             ZonedDateTime expiredAt = ZonedDateTime.of(voucher.getExpiredAt(), ZoneId.of("Asia/Ho_Chi_Minh"));
 
             if (now.isAfter(startAt) && now.isBefore(expiredAt)) {
-                voucher.setPublic(true);
+                voucher.setIsPublic(true);
             } else {
-                voucher.setPublic(false);
+                voucher.setIsPublic(false);
             }
         } else {
-            voucher.setPublic(false);
+            voucher.setIsPublic(false);
         }
 
         voucherRepository.save(voucher);
@@ -290,10 +290,10 @@ public class VoucherServiceImpl implements IVoucherService {
         }
 
         if (isActive != null) {
-            voucher.setActive(isActive);
+            voucher.setIsActive(isActive);
         }
         if (isPublic != null) {
-            voucher.setPublic(isPublic);
+            voucher.setIsPublic(isPublic);
         }
 
         voucherRepository.save(voucher);
@@ -305,8 +305,8 @@ public class VoucherServiceImpl implements IVoucherService {
         voucher.setDiscountType(voucherDTO.getDiscountType());
         voucher.setDiscountValue(voucherDTO.getDiscountValue());
         voucher.setExpiredAt(voucherDTO.getExpiredAt());
-        voucher.setActive(voucherDTO.isActive());
-        voucher.setPublic(voucherDTO.isPublic());
+        voucher.setIsActive(voucherDTO.isActive());
+        voucher.setIsPublic(voucherDTO.isPublic());
         voucher.setMaximumDiscountValue(voucherDTO.getMaximumDiscountValue());
         voucher.setName(voucherDTO.getName());
         voucher.setStartAt(voucherDTO.getStartAt());
