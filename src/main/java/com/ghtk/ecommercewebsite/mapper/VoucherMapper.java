@@ -32,8 +32,8 @@ public class VoucherMapper {
         dto.setDiscountType(voucher.getDiscountType());
         dto.setDiscountValue(voucher.getDiscountValue());
         dto.setExpiredAt(voucher.getExpiredAt());
-        dto.setActive(voucher.isActive());
-        dto.setPublic(voucher.isPublic());
+        dto.setActive(voucher.getIsActive());
+        dto.setPublic(voucher.getIsPublic());
         dto.setMaximumDiscountValue(voucher.getMaximumDiscountValue());
         dto.setName(voucher.getName());
 //        dto.setShopId(voucher.getShopId());

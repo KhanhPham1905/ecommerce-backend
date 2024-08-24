@@ -80,7 +80,7 @@ public class CartItemServiceImpl implements ICartItemService {
     }
 
     private boolean isVoucherApplicable(Voucher voucher, int quantity) {
-        return voucher.isPublic() &&
+        return voucher.getIsPublic() &&
                 LocalDateTime.now().isBefore(voucher.getExpiredAt()) &&
                 quantity >= voucher.getMinimumQuantityNeeded();
     }
@@ -143,12 +143,17 @@ public class CartItemServiceImpl implements ICartItemService {
     public void applyVoucherToCartItem(Long cartItemId, Long voucherId, Long userId) {
         CartItem cartItem = cartItemRepository.findByIdAndUserId(cartItemId, userId)
                 .orElseThrow(() -> new IllegalArgumentException("CartItem không tồn tại hoặc không thuộc về người dùng"));
-        Voucher voucher = voucherRepository.findById(voucherId)
-                .orElseThrow(() -> new IllegalArgumentException("Voucher không tồn tại"));
-        if (!voucher.isPublic() || LocalDateTime.now().isAfter(voucher.getExpiredAt())) {
-            throw new IllegalArgumentException("Voucher không hợp lệ hoặc đã hết hạn");
-        }
-        cartItem.setVoucherId(voucherId);
+
+        if (voucherId != null) {
+            Voucher voucher = voucherRepository.findById(voucherId)
+                    .orElseThrow(() -> new IllegalArgumentException("Voucher không tồn tại"));
+            // Kiểm tra điều kiện của voucher
+            if (!voucher.getIsPublic() || LocalDateTime.now().isAfter(voucher.getExpiredAt()))
+                throw new IllegalArgumentException("Voucher không hợp lệ hoặc đã hết hạn");
+            cartItem.setVoucherId(voucherId);
+        } else cartItem.setVoucherId(null);
+
+
         cartItemRepository.save(cartItem);
     }
 }

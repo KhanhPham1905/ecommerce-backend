@@ -76,13 +76,12 @@ public class CartItemController {
         return CommonResult.success(quantityCartItem, "get quantity success");
     }
 
-    @PostMapping("/{cartItemId}/apply-voucher/{voucherId}")
+    @PostMapping("/apply-voucher")
     public CommonResult<Object> applyVoucherToCartItem(
-            @PathVariable Long cartItemId,
-            @PathVariable Long voucherId
+            @RequestBody ApplyVoucherDTO applyVoucherDTO
     ) throws Exception {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        cartItemService.applyVoucherToCartItem(cartItemId, voucherId, user.getId());
+        cartItemService.applyVoucherToCartItem(applyVoucherDTO.getCartItemId(), applyVoucherDTO.getVoucherId(), user.getId());
         return CommonResult.success("Voucher applied successfully to cart item");
     }
 }
