@@ -21,7 +21,6 @@ public class BlacklistTokenServiceImpl implements BlacklistTokenService{
     private int expiration;
 
     private final BlackListTokenRepository blackListTokenRepository;
-
     @Override
     @Transactional
     public void addToBlackList(String token, User user) {
