@@ -27,8 +27,9 @@ public class OrdersController {
     private final OrderStatusHistoryRepository orderStatusHistoryRepository;
 
     @GetMapping
-    public CommonResult<List<OrdersDTO>> getAllOrders() {
-        List<OrdersDTO> orders = iOrdersService.findAll().stream().map(orderMapper::toDto).collect(Collectors.toList());
+    public CommonResult<List<OrdersDTO>> getAllOrders() throws Exception{
+        User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        List<OrdersDTO> orders = iOrdersService.findAll(user.getId()).stream().map(orderMapper::toDto).collect(Collectors.toList());
         return CommonResult.success(orders, "Get all orders successfully");
     }
 
@@ -51,7 +52,7 @@ public class OrdersController {
     @PreAuthorize("hasRole('ROLE_USER')")
     public CommonResult<OrdersDTO> createOrder(@RequestBody OrdersDTO ordersDTO) throws DataNotFoundException {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return CommonResult.success(iOrdersService.addOrder(ordersDTO, user.getId()));
+        return CommonResult.success(iOrdersService.addOrder(ordersDTO, user));
 //        Orders order = orderMapper.toEntity(ordersDTO);
 //        Orders savedOrder = iOrdersService.save(order);
 //        return CommonResult.success(orderMapper.toDto(savedOrder), "Create order successfully");

@@ -39,6 +39,17 @@ public class OrdersDTO {
 
     private Long addressID;
 
+    @JsonProperty("address")
+    private String address;
+
+    @JsonProperty("address_detail")
+    private String addressDetail;
+
+    @JsonProperty("receiver_phone")
+    private String receiverPhone;
+
+    @JsonProperty("buyer")
+    private String buyer;
 
     public enum OrderStatus {
         PENDING,

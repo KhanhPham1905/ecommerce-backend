@@ -43,6 +43,21 @@ public class Orders {
     @Column(name = "modified_at", columnDefinition = "DATETIME(6)")
     private LocalDateTime modifiedAt;
 
+    @Column(name = "address")
+    private String address;
+
+    @Column(name = "address_detail")
+    private String addressDetail;
+
+    @Column(name = "receiver_phone")
+    private String receiverPhone;
+
+    @Column(name = "buyer")
+    private String buyer;
+
+    @Column(name = "shop_id")
+    private Long shopId;
+
 
     @PrePersist
     protected void onCreate() {
