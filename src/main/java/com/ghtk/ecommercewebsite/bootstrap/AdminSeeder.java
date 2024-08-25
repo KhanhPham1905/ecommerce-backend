@@ -36,7 +36,6 @@ public class AdminSeeder implements ApplicationListener<ContextRefreshedEvent> {
         createAdmin();
     }
 
-    // private to public
     public void createAdmin() {
         Optional<User> optionalAdmin = userRepository.findByEmail("admin@gmail.com");
         if (optionalAdmin.isPresent()) return;

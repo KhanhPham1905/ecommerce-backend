@@ -1,24 +1,26 @@
 package com.ghtk.ecommercewebsite.controllers;
 
 import com.ghtk.ecommercewebsite.exceptions.DataNotFoundException;
-import com.ghtk.ecommercewebsite.models.dtos.*;
-import com.ghtk.ecommercewebsite.models.entities.Orders;
+import com.ghtk.ecommercewebsite.models.dtos.LoginUserDto;
+import com.ghtk.ecommercewebsite.models.dtos.RegisterUserDto;
+import com.ghtk.ecommercewebsite.models.dtos.SellerDTO;
+import com.ghtk.ecommercewebsite.models.dtos.UserDTO;
 import com.ghtk.ecommercewebsite.models.entities.Seller;
 import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.responses.CommonResult;
+import com.ghtk.ecommercewebsite.models.responses.LoginResponse;
 import com.ghtk.ecommercewebsite.services.admin.AdminService;
 import com.ghtk.ecommercewebsite.services.seller.SellerService;
 import com.ghtk.ecommercewebsite.services.user.UserService;
 import lombok.RequiredArgsConstructor;
-import com.ghtk.ecommercewebsite.models.responses.LoginResponse;
-import org.springframework.data.domain.*;
-import org.springframework.data.web.PageableDefault;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.nio.file.AccessDeniedException;
-import java.util.Collections;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/v1/admin")

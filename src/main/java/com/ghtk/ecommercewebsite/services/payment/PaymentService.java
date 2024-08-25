@@ -61,7 +61,7 @@ public class PaymentService {
 
                     SessionCreateParams.LineItem.PriceData priceData =
                             SessionCreateParams.LineItem.PriceData.builder()
-                                    .setCurrency("usd")
+                                    .setCurrency("vnd")
                                     .setUnitAmount(item.getUnitPrice().multiply(new BigDecimal(100)).longValue())  // Đơn giá sản phẩm
                                     .setProductData(productData)
                                     .build();

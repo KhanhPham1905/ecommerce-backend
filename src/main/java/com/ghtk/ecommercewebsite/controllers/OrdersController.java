@@ -125,7 +125,7 @@ public class OrdersController {
 
     @GetMapping("/{orderId}/history")
     public CommonResult<List<OrderStatusHistory>> getOrderStatusHistory(@PathVariable Long orderId) {
-        List<OrderStatusHistory> history = orderStatusHistoryRepository.findByOrderId(orderId);
+        List<OrderStatusHistory> history = iOrdersService.getOrderHistory(orderId);
         if (history.isEmpty()) {
             return CommonResult.error(404, "No history found for order with ID " + orderId);
         }
