@@ -15,7 +15,6 @@ public interface ICartItemService {
     Page<CartItem> getAllCartItems(PageRequest pageRequest, Long userId) throws Exception;
     void deleteCartItem(Long id, Long userId) throws Exception;
     CartItem updateCartItemQuantity(Long cartItemId, int quantity, Long userId) throws Exception ;
-    CartItem updateCartItem(Long id, CartItemDTO cartItemDTO, Long userId) throws Exception;
     Long getQuantityCartItem(Long userId) throws Exception;
     void applyVoucherToCartItem(Long cartItemId, Long voucherId, Long userId) throws Exception;
 

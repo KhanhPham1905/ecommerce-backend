@@ -42,29 +42,51 @@ public class CartItemServiceImpl implements ICartItemService {
         // Lấy thông tin sản phẩm từ cơ sở dữ liệu
         ProductItem productItem = productItemRepository.findById(cartItemDTO.getProductItemId())
                 .orElseThrow(() -> new IllegalArgumentException("Product item not found"));
-        // Kiểm tra số lượng sản phẩm
+
+        // Kiểm tra số lượng sản phẩm có sẵn
         if (productItem.getQuantity() < cartItemDTO.getQuantity()) {
             throw new IllegalArgumentException("Not enough quantity available");
         }
+
         // Cập nhật số lượng sản phẩm trong giỏ hàng nếu đã có
         CartItem existingCartItem = cartItemRepository.findByProductItemIdAndUserId(cartItemDTO.getProductItemId(), userId);
         if (existingCartItem != null) {
             // Nếu sản phẩm đã có trong giỏ hàng, cập nhật số lượng
-            existingCartItem.setQuantity(existingCartItem.getQuantity() + cartItemDTO.getQuantity());
+            int newQuantity = existingCartItem.getQuantity() + cartItemDTO.getQuantity();
+
+            // Kiểm tra số lượng mới có vượt quá số lượng sản phẩm hiện có hay không
+            if (productItem.getQuantity() < newQuantity) {
+                throw new IllegalArgumentException("Not enough quantity available for update");
+            }
+
+            // Cập nhật số lượng và tổng giá
+            existingCartItem.setQuantity(newQuantity);
+            BigDecimal finalPrice = productItem.getPrice().multiply(BigDecimal.valueOf(newQuantity));
+            existingCartItem.setTotalPrice(finalPrice);
             cartItemRepository.save(existingCartItem);
         } else {
             // Nếu sản phẩm chưa có trong giỏ hàng, tạo mới
             CartItem cartItem = cartMapper.toEntity(cartItemDTO);
             // Lấy shopId và gán cho cartItem
+            // Lấy shopId và gán cho cartItem
             Long shopId = productItemRepository.findShopIdByProductItemId(cartItemDTO.getProductItemId());
             cartItem.setUserId(userId);
             cartItem.setShopId(shopId);
+
+            // Tính toán tổng giá dựa trên số lượng và giá của sản phẩm
             BigDecimal unitPrice = productItem.getPrice();
             BigDecimal finalPrice = unitPrice.multiply(BigDecimal.valueOf(cartItemDTO.getQuantity()));
             cartItem.setTotalPrice(finalPrice);
+
+            // Lưu mới cartItem vào cơ sở dữ liệu
             cartItemRepository.save(cartItem);
         }
+
+        // Giảm số lượng sản phẩm có sẵn trong productItem
+        productItem.setQuantity(productItem.getQuantity() - cartItemDTO.getQuantity());
+        productItemRepository.save(productItem);
     }
+
 
     private BigDecimal calculateDirectDiscount(Long voucherId, int quantity, BigDecimal unitPrice) {
         BigDecimal discount = BigDecimal.ZERO;
@@ -128,29 +150,44 @@ public class CartItemServiceImpl implements ICartItemService {
         // Lấy thông tin giỏ hàng dựa trên cartItemId và userId
         CartItem cartItem = cartItemRepository.findByIdAndUserId(cartItemId, userId)
                 .orElseThrow(() -> new Exception("Cart item not found"));
+
         // Cập nhật số lượng sản phẩm
-        ProductItem productItem = productItemRepository.findById(cartItem.getProductItemId()).orElseThrow(() -> new IllegalArgumentException("Product item not found"));
+        ProductItem productItem = productItemRepository.findById(cartItem.getProductItemId())
+                .orElseThrow(() -> new IllegalArgumentException("Product item not found"));
+
+        // Kiểm tra số lượng sản phẩm có đủ không
         if (productItem.getQuantity() < quantity) {
             throw new IllegalArgumentException("Not enough quantity available");
         }
-        // Cập nhật số lượng sản phẩm
+
+        // Cập nhật số lượng trong productItem
+        int currentQuantityInCart = cartItem.getQuantity();
+        int quantityDifference = quantity - currentQuantityInCart;
+        if (productItem.getQuantity() < quantityDifference) {
+            throw new IllegalArgumentException("Not enough quantity available");
+        }
+        productItem.setQuantity(productItem.getQuantity() - quantityDifference);
+
+        // Lưu thông tin productItem đã cập nhật
+        productItemRepository.save(productItem);
+
+        // Cập nhật số lượng trong cartItem
         cartItem.setQuantity(quantity);
+
         // Tính toán lại giá cuối cùng
         BigDecimal unitPrice = productItem.getPrice();
         BigDecimal discount = BigDecimal.ZERO;
         if (cartItem.getVoucherId() != null) {
-            discount = applyVoucher(voucherRepository.findById(cartItem.getVoucherId()).orElseThrow(), unitPrice, quantity);
+            discount = applyVoucher(voucherRepository.findById(cartItem.getVoucherId())
+                    .orElseThrow(), unitPrice, quantity);
         }
         BigDecimal finalPrice = unitPrice.multiply(BigDecimal.valueOf(quantity)).subtract(discount);
         cartItem.setTotalPrice(finalPrice);
+
         // Lưu thay đổi
         return cartItemRepository.save(cartItem);
     }
 
-    @Override
-    public CartItem updateCartItem(Long id, CartItemDTO cartItemDTO, Long userId) {
-        return null;
-    }
 
     @Override
     public Long getQuantityCartItem(Long userId) {
