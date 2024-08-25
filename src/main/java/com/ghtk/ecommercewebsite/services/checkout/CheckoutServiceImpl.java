@@ -14,8 +14,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -33,7 +31,7 @@ public class CheckoutServiceImpl implements ICheckoutService {
 
     @Transactional
     @Override
-    public OrdersDTO checkoutCart(Long userId, boolean method, String note, List<Long> selectedCartItems ) {
+    public OrdersDTO checkoutCart(Long userId, boolean method, String note, List<Long> selectedCartItems) {
         validateCheckoutRequest(userId);
 
         // Lấy danh sách các CartItem được chọn
@@ -41,11 +39,6 @@ public class CheckoutServiceImpl implements ICheckoutService {
         if (cartItemList.isEmpty()) throw new IllegalArgumentException("Không có sản phẩm nào được chọn để thanh toán");
 
         Orders orders = createOrder(userId, method, note);
-
-        Map<Long, ProductItem> productItemMap = fetchProductItems(cartItemList);
-        Map<Long, Voucher> voucherMap = fetchVouchers(cartItemList);
-        BigDecimal totalPrice = processCartItems(cartItemList, orders, productItemMap, voucherMap);
-        orders.setTotalPrice(totalPrice);
 
         orderRepository.save(orders);
         cartItemRepository.deleteAllByIdIn(selectedCartItems);
@@ -95,25 +88,6 @@ public class CheckoutServiceImpl implements ICheckoutService {
     }
 
 
-    private Map<Long, ProductItem> fetchProductItems(List<CartItem> cartItemList) {
-        List<Long> productItemIds = cartItemList.stream()
-                .map(CartItem::getProductItemId)
-                .collect(Collectors.toList());
-        return productItemRepository.findAllById(productItemIds)
-                .stream()
-                .collect(Collectors.toMap(ProductItem::getId, item -> item));
-    }
-
-    private Map<Long, Voucher> fetchVouchers(List<CartItem> cartItemList) {
-        List<Long> voucherIds = cartItemList.stream()
-                .map(CartItem::getVoucherId)
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-        return voucherRepository.findAllById(voucherIds)
-                .stream()
-                .collect(Collectors.toMap(Voucher::getId, voucher -> voucher));
-    }
-
     private BigDecimal processCartItems(List<CartItem> cartItemList,
                                         Orders orders,
                                         Map<Long, ProductItem> productItemMap,
@@ -122,7 +96,7 @@ public class CheckoutServiceImpl implements ICheckoutService {
         for (CartItem cartItem : cartItemList) {
             ProductItem productItem = productItemMap.get(cartItem.getProductItemId());
             BigDecimal unitPrice = productItem.getPrice();
-            BigDecimal discount = calculateDiscount(cartItem, productItem, voucherMap);
+            BigDecimal discount = applyVoucher(voucherMap.get(cartItem.getVoucherId()), unitPrice, cartItem.getQuantity());
             BigDecimal finalPrice = unitPrice.subtract(discount).multiply(BigDecimal.valueOf(cartItem.getQuantity()));
             totalPrice = totalPrice.add(finalPrice);
 
@@ -133,16 +107,6 @@ public class CheckoutServiceImpl implements ICheckoutService {
         return totalPrice;
     }
 
-    private BigDecimal calculateDiscount(CartItem cartItem, ProductItem productItem, Map<Long, Voucher> voucherMap) {
-        BigDecimal discount = BigDecimal.ZERO;
-        if (cartItem.getVoucherId() != null) {
-            Voucher voucher = voucherMap.get(cartItem.getVoucherId());
-            if (isVoucherApplicable(voucher, cartItem.getQuantity())) {
-                discount = applyVoucher(voucher, productItem.getPrice(), cartItem.getQuantity());
-            }
-        }
-        return discount;
-    }
 
     private void saveOrderItem(Orders orders, CartItem cartItem, BigDecimal unitPrice) {
         OrderItem orderItem = OrderItem.builder()
@@ -210,7 +174,6 @@ public class CheckoutServiceImpl implements ICheckoutService {
     }
 
 
-
     private void saveDirectOrderItem(Orders orders, Long productItemId, int quantity, BigDecimal unitPrice, Long voucherId) {
         OrderItem orderItem = OrderItem.builder()
                 .orderId(orders.getId())
@@ -243,25 +206,14 @@ public class CheckoutServiceImpl implements ICheckoutService {
         // Kiểm tra danh sách sản phẩm đã chọn có tồn tại không
         List<CartItem> cartItemList = cartItemRepository.findByUserIdAndIdIn(userId, selectedCartItems);
         if (cartItemList.isEmpty()) throw new IllegalArgumentException("Không có sản phẩm nào được chọn");
-
-        // Lấy danh sách ProductItem và Voucher tương ứng
-        Map<Long, ProductItem> productItemMap = fetchProductItems(cartItemList);
-        Map<Long, Voucher> voucherMap = fetchVouchers(cartItemList);
-
         // Tính toán tổng giá tiền
-        return processCartItemsForTotal(cartItemList, productItemMap, voucherMap);
+        return processCartItemsForTotal(cartItemList);
     }
 
-    private BigDecimal processCartItemsForTotal(List<CartItem> cartItemList,
-                                                Map<Long, ProductItem> productItemMap,
-                                                Map<Long, Voucher> voucherMap) {
+    private BigDecimal processCartItemsForTotal(List<CartItem> cartItemList) {
         BigDecimal totalPrice = BigDecimal.ZERO;
         for (CartItem cartItem : cartItemList) {
-            ProductItem productItem = productItemMap.get(cartItem.getProductItemId());
-            BigDecimal unitPrice = productItem.getPrice();
-            BigDecimal discount = calculateDiscount(cartItem, productItem, voucherMap);
-
-            BigDecimal finalPrice = unitPrice.subtract(discount).multiply(BigDecimal.valueOf(cartItem.getQuantity()));
+            BigDecimal finalPrice = cartItem.getTotalPrice();
             totalPrice = totalPrice.add(finalPrice);
         }
         return totalPrice;
