@@ -43,4 +43,6 @@ public interface UserService {
     User sendMail(String email);
 
     void addSellerRole(String email);
+
+    String sendOtpForForgotPasswordRequest(String email) throws DataNotFoundException;
 }

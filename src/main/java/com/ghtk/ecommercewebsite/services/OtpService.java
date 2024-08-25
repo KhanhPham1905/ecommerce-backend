@@ -1,6 +1,8 @@
 package com.ghtk.ecommercewebsite.services;
 
 import com.ghtk.ecommercewebsite.models.dtos.MailBody;
+import com.ghtk.ecommercewebsite.models.dtos.request.ChangePasswordDTO;
+import com.ghtk.ecommercewebsite.models.dtos.request.ChangePasswordNoEmailDTO;
 import com.ghtk.ecommercewebsite.models.entities.ForgotPassword;
 import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.responses.CommonResult;
@@ -144,6 +146,23 @@ public class OtpService {
 
             MailBody mailBody = MailBody.builder()
                     .to(email)
+                    .text("This is the OTP for your signing up request: " + otp)
+                    .subject("OTP for signing up request")
+                    .build();
+
+            emailService.sendSimpleMessage(mailBody);
+            return CommonResult.success("OTP has been resent!");
+        } catch (RuntimeException e) {
+            return CommonResult.tooManyRequests("Too many OTP requests. Please wait before trying again.");
+        }
+    }
+
+    public CommonResult<String> resendOtpForForgotPassword(String email) {
+        try {
+            int otp = redisOtpService.generateAndSaveOtp(email);
+
+            MailBody mailBody = MailBody.builder()
+                    .to(email)
                     .text("This is the OTP for your Forgot Password request: " + otp)
                     .subject("OTP for Forgot Password request")
                     .build();
@@ -155,4 +174,32 @@ public class OtpService {
         }
     }
 
+    public CommonResult<String> changePasswordNewVersion(ChangePasswordDTO changePasswordDTO) {
+        User user = userRepository.findByEmail(changePasswordDTO.getEmail())
+                .orElseThrow(() -> new UsernameNotFoundException("Please provide a valid email!"));
+//        String encodedOldPassword = passwordEncoder.encode(changePasswordDTO.getOldPassword());
+        if (!passwordEncoder.matches(changePasswordDTO.getOldPassword(), user.getPassword())) {
+            return CommonResult.failed("Invalid old password!");
+        }
+
+        if (!Objects.equals(changePasswordDTO.getNewPassword(), changePasswordDTO.getConfirmPassword())) {
+            return CommonResult.failed("Please enter the password again!");
+        }
+        String encodedPassword = passwordEncoder.encode(changePasswordDTO.getNewPassword());
+        userRepository.updatePassword(user.getEmail(), encodedPassword);
+
+        return CommonResult.success("Password has been changed!");
+    }
+
+    public CommonResult<String> changePasswordForgotPasswordVersion(String email, String password, String confirmPassword) {
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new UsernameNotFoundException("Please provide a valid email!"));
+        if (!Objects.equals(password, confirmPassword)) {
+            return CommonResult.failed("Please enter the password again!");
+        }
+        String encodedPassword = passwordEncoder.encode(password);
+        userRepository.updatePassword(user.getEmail(), encodedPassword);
+
+        return CommonResult.success("Password has been changed!");
+    }
 }
