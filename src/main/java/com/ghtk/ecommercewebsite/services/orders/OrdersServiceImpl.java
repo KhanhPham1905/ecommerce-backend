@@ -96,12 +96,10 @@ public class OrdersServiceImpl implements IOrdersService {
     public void updateOrderStatus(Long orderId, Orders.OrderStatus newStatus) {
         Orders order = ordersRepository.findById(orderId)
                 .orElseThrow(() -> new RuntimeException("Order not found"));
-
         // Cập nhật trạng thái đơn hàng
         order.setStatus(newStatus);
         order.setModifiedAt(LocalDateTime.now());
         ordersRepository.save(order);
-
         // Lưu vào lịch sử thay đổi trạng thái
         OrderStatusHistory history = OrderStatusHistory.builder()
                 .orderId(orderId)
