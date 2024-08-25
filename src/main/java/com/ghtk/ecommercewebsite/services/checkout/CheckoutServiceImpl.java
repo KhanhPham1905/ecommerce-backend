@@ -12,7 +12,10 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -30,18 +33,48 @@ public class CheckoutServiceImpl implements ICheckoutService {
 
     @Transactional
     @Override
-    public OrdersDTO checkoutCart(Long userId, boolean method, String note, List<Long> selectedCartItems) {
+    public List<OrdersDTO> checkoutCart(Long userId, boolean method, String note, List<Long> selectedCartItems) {
         validateCheckoutRequest(userId);
         // Lấy danh sách các CartItem được chọn
         List<CartItem> cartItemList = cartItemRepository.findByUserIdAndIdIn(userId, selectedCartItems);
         if (cartItemList.isEmpty()) throw new IllegalArgumentException("Không có sản phẩm nào được chọn để thanh toán");
-        Orders orders = createOrder(userId, method, note);
-        orderRepository.save(orders);
-        for (CartItem cartItem : cartItemList) {
-            saveOrderItem(orders, cartItem, cartItem.getTotalPrice());
+
+        // Nhóm các CartItem theo shopId
+        Map<Long, List<CartItem>> cartItemsByShop = groupCartItemsByShopId(cartItemList);
+
+        List<Orders> ordersList = new ArrayList<>();
+        for (Map.Entry<Long, List<CartItem>> entry : cartItemsByShop.entrySet()) {
+            Long shopId = entry.getKey();
+            List<CartItem> itemsForShop = entry.getValue();
+            // Tạo đơn hàng cho từng shopId
+            Orders orders = createOrder(userId, method, note, shopId);
+            for (CartItem cartItem : itemsForShop) {
+                BigDecimal totalPrice = cartItem.getTotalPrice();
+                int quantity = cartItem.getQuantity();
+                BigDecimal unit = totalPrice.divide(BigDecimal.valueOf(quantity), BigDecimal.ROUND_HALF_UP);
+                saveOrderItem(orders, cartItem, unit);
+            }
+            // Cập nhật tổng giá của đơn hàng
+            BigDecimal orderTotalPrice = calculateOrderTotalPrice(orders.getId());
+            orders.setTotalPrice(orderTotalPrice);
+            orderRepository.save(orders);
+            ordersList.add(orders);  // Thêm đơn hàng vào danh sách
+
         }
+        // Xóa các CartItem đã được xử lý
         cartItemRepository.deleteAllByIdIn(selectedCartItems);
-        return orderMapper.toDto(orders);
+        // Chuyển đổi danh sách đơn hàng thành danh sách DTO
+        return ordersList.stream()
+                .map(orderMapper::toDto)
+                .collect(Collectors.toList());
+
+    }
+
+    private BigDecimal calculateOrderTotalPrice(Long orderId) {
+        List<OrderItem> orderItems = orderItemRepository.findByOrderId(orderId);
+        return orderItems.stream()
+                .map(item -> item.getUnitPrice().multiply(BigDecimal.valueOf(item.getQuantity())))
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
     private void validateCheckoutRequest(Long userId) throws IllegalArgumentException {
@@ -53,7 +86,13 @@ public class CheckoutServiceImpl implements ICheckoutService {
         }
     }
 
-    private Orders createOrder(Long userId, boolean method, String note) {
+    private Map<Long, List<CartItem>> groupCartItemsByShopId(List<CartItem> cartItemList) {
+        return cartItemList.stream()
+                .collect(Collectors.groupingBy(CartItem::getShopId));
+    }
+
+
+    private Orders createOrder(Long userId, boolean method, String note, Long shopId) {
         // Tạo đối tượng đơn hàng nhưng chưa lưu vào DB
         Orders orders = Orders.builder()
                 .status(Orders.OrderStatus.PENDING)
@@ -62,6 +101,7 @@ public class CheckoutServiceImpl implements ICheckoutService {
                 .note(note)
                 .totalPrice(BigDecimal.ZERO)
                 .method(method)
+                .shopId(shopId)
                 .userId(userId)
                 .build();
 
@@ -91,6 +131,7 @@ public class CheckoutServiceImpl implements ICheckoutService {
                 .unitPrice(unitPrice)
                 .voucherId(cartItem.getVoucherId())
                 .createdAt(LocalDateTime.now())
+                .shopId(cartItem.getShopId())
                 .build();
         orderItemRepository.save(orderItem);
     }
@@ -101,32 +142,32 @@ public class CheckoutServiceImpl implements ICheckoutService {
         productItemRepository.save(productItem);
     }
 
-    @Override
-    public OrdersDTO checkoutDirect(Long userId,
-                                    Long productItemId, int quantity, Long voucherId, String note,
-                                    boolean method) {
-        validateDirectCheckout(productItemId, quantity);
-
-        ProductItem productItem = productItemRepository.findById(productItemId)
-                .orElseThrow(() -> new IllegalArgumentException("Product item not found"));
-
-        if (productItem.getQuantity() < quantity)
-            throw new IllegalArgumentException("Insufficient stock for the product item");
-
-        Orders orders = createOrder(userId, method, note);
-
-        BigDecimal unitPrice = productItem.getPrice();
-        BigDecimal discount = calculateDirectDiscount(voucherId, quantity, unitPrice);
-
-        BigDecimal finalPrice = unitPrice.subtract(discount).multiply(BigDecimal.valueOf(quantity));
-        saveDirectOrderItem(orders, productItemId, quantity, unitPrice, voucherId);
-
-        orders.setTotalPrice(finalPrice);
-        orderRepository.save(orders);
-        updateProductStock(productItem, quantity);
-
-        return orderMapper.toDto(orders);
-    }
+//    @Override
+//    public OrdersDTO checkoutDirect(Long userId,
+//                                    Long productItemId, int quantity, Long voucherId, String note,
+//                                    boolean method) {
+//        validateDirectCheckout(productItemId, quantity);
+//
+//        ProductItem productItem = productItemRepository.findById(productItemId)
+//                .orElseThrow(() -> new IllegalArgumentException("Product item not found"));
+//
+//        if (productItem.getQuantity() < quantity)
+//            throw new IllegalArgumentException("Insufficient stock for the product item");
+//
+//        Orders orders = createOrder(userId, method, note);
+//
+//        BigDecimal unitPrice = productItem.getPrice();
+//        BigDecimal discount = calculateDirectDiscount(voucherId, quantity, unitPrice);
+//
+//        BigDecimal finalPrice = unitPrice.subtract(discount).multiply(BigDecimal.valueOf(quantity));
+//        saveDirectOrderItem(orders, productItemId, quantity, unitPrice, voucherId);
+//
+//        orders.setTotalPrice(finalPrice);
+//        orderRepository.save(orders);
+//        updateProductStock(productItem, quantity);
+//
+//        return orderMapper.toDto(orders);
+//    }
 
     private void validateDirectCheckout(Long productItemId, int quantity) {
         if (productItemId == null || quantity <= 0)

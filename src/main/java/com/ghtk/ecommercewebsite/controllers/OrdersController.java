@@ -29,7 +29,7 @@ public class OrdersController {
     @GetMapping
     public CommonResult<List<OrdersDTO>> getAllOrders() throws Exception{
         User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        List<OrdersDTO> orders = iOrdersService.findAll(user.getId()).stream().map(orderMapper::toDto).collect(Collectors.toList());
+        List<OrdersDTO> orders = iOrdersService.findAll().stream().map(orderMapper::toDto).collect(Collectors.toList());
         return CommonResult.success(orders, "Get all orders successfully");
     }
 
@@ -52,7 +52,7 @@ public class OrdersController {
     @PreAuthorize("hasRole('ROLE_USER')")
     public CommonResult<OrdersDTO> createOrder(@RequestBody OrdersDTO ordersDTO) throws DataNotFoundException {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return CommonResult.success(iOrdersService.addOrder(ordersDTO, user));
+        return CommonResult.success(iOrdersService.addOrder(ordersDTO, user.getId()));
 //        Orders order = orderMapper.toEntity(ordersDTO);
 //        Orders savedOrder = iOrdersService.save(order);
 //        return CommonResult.success(orderMapper.toDto(savedOrder), "Create order successfully");
@@ -126,7 +126,7 @@ public class OrdersController {
 
     @GetMapping("/{orderId}/history")
     public CommonResult<List<OrderStatusHistory>> getOrderStatusHistory(@PathVariable Long orderId) {
-        List<OrderStatusHistory> history = orderStatusHistoryRepository.findByOrderId(orderId);
+        List<OrderStatusHistory> history = iOrdersService.getOrderHistory(orderId);
         if (history.isEmpty()) {
             return CommonResult.error(404, "No history found for order with ID " + orderId);
         }
