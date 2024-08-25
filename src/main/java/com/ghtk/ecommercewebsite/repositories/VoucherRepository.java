@@ -1,6 +1,10 @@
 package com.ghtk.ecommercewebsite.repositories;
 
 import com.ghtk.ecommercewebsite.models.entities.Voucher;
+import com.ghtk.ecommercewebsite.models.enums.DiscountType;
+import com.ghtk.ecommercewebsite.models.enums.RepeatType;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.jpa.repository.Modifying;
@@ -15,7 +19,17 @@ import java.util.List;
 @Repository
 public interface VoucherRepository extends JpaRepository<Voucher, Long> {
 
+    List<Voucher> findByNameContainingIgnoreCaseAndShopId(String name, Long shopId);
+    List<Voucher> findByCouponCodeContainingIgnoreCaseAndShopId(String couponCode, Long shopId);
+    List<Voucher> findByDiscountTypeAndShopId(DiscountType discountType, Long shopId);
+    List<Voucher> findByTypeRepeatAndShopId(RepeatType typeRepeat, Long shopId);
+    List<Voucher> findByIsActiveAndShopId(Boolean isActive, Long shopId);
+    List<Voucher> findByIsPublicAndShopId(Boolean isPublic, Long shopId);
+    List<Voucher> findByStartAtBetweenAndShopId(LocalDateTime startAt, LocalDateTime endAt, Long shopId);
+    List<Voucher> findByExpiredAtBetweenAndShopId(LocalDateTime startAt, LocalDateTime endAt, Long shopId);
+    List<Voucher> findByShopIdAndIsActiveAndIsPublic(Long shopId, Boolean isActive, Boolean isPublic);
     List<Voucher> findByShopId(Long shopId);
+    Page<Voucher> findByShopId(Long shopId, Pageable pageable);
     List<Voucher> findByShopIdAndIsPublic(Long shopId, boolean isActive);
     List<Voucher> findByShopIdAndIsActiveAndIsPublic(Long shopId, boolean isActive, boolean isPublic);
 

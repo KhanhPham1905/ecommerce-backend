@@ -3,18 +3,28 @@ package com.ghtk.ecommercewebsite.services.voucher;
 import com.ghtk.ecommercewebsite.exceptions.DataNotFoundException;
 import com.ghtk.ecommercewebsite.mapper.VoucherMapper;
 import com.ghtk.ecommercewebsite.models.dtos.VoucherDTO;
+import com.ghtk.ecommercewebsite.models.entities.Role;
 import com.ghtk.ecommercewebsite.models.entities.Shop;
+import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.entities.Voucher;
+import com.ghtk.ecommercewebsite.models.enums.DiscountType;
+import com.ghtk.ecommercewebsite.models.enums.RepeatType;
+import com.ghtk.ecommercewebsite.models.enums.RoleEnum;
 import com.ghtk.ecommercewebsite.repositories.ShopRepository;
 import com.ghtk.ecommercewebsite.repositories.VoucherRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ScheduledExecutorService;
@@ -140,8 +150,9 @@ public class VoucherServiceImpl implements IVoucherService {
 //        }
 //    }
 
+    // Old version
     @Override
-    public List<VoucherDTO> findAllVouchersByShopFromUser(Long userId) throws DataNotFoundException {
+    public Page<VoucherDTO> findAllVouchersByShopFromUser(Long userId, Pageable pageable) throws DataNotFoundException {
 //        Long shopId = shopRepository.findShopByUserId(userId)
 //                .orElseThrow(() -> new DataNotFoundException("No shop found with this user")).getId();
 //        Shop shopFound = shopRepository.findById(shopId)
@@ -149,10 +160,189 @@ public class VoucherServiceImpl implements IVoucherService {
         Shop shop = shopRepository.findShopByUserId(userId)
                 .orElseThrow(() -> new DataNotFoundException("No shop found with this user"));
 
-        List<Voucher> vouchers = voucherRepository.findByShopId(shop.getId());
+//        List<Voucher> vouchers = voucherRepository.findByShopId(shop.getId());
+        Page<Voucher> voucherPage = voucherRepository.findByShopId(shop.getId(), pageable);
+        return (Page<VoucherDTO>) voucherPage.getContent().stream()
+                .map(voucherMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<VoucherDTO> findAllVouchersByShopFromSeller(Long userId, Pageable pageable) throws DataNotFoundException {
+        Shop shop = shopRepository.findShopByUserId(userId)
+                .orElseThrow(() -> new DataNotFoundException("No shop found with this user"));
+
+        List<VoucherDTO> vouchers = findAllVouchers(shop.getId());
+        return convertListToPage(vouchers, pageable);
+    }
+
+//    @Override
+    public List<VoucherDTO> findAllVouchers(Long shopId) {
+        List<Voucher> vouchers = voucherRepository.findByShopId(shopId);
         return vouchers.stream()
                 .map(voucherMapper::toDTO)
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<VoucherDTO> findVouchersByNameFromSeller(Long userId, String name, Pageable pageable) throws DataNotFoundException {
+        Shop shop = shopRepository.findShopByUserId(userId)
+                .orElseThrow(() -> new DataNotFoundException("No shop found with this user"));
+
+        List<VoucherDTO> vouchers = findVouchersByName(name, shop.getId());
+        return convertListToPage(vouchers, pageable);
+    }
+
+    public List<VoucherDTO> findVouchersByName(String name, Long shopId) {
+        List<Voucher> vouchers = voucherRepository.findByNameContainingIgnoreCaseAndShopId(name, shopId);
+        return vouchers.stream()
+                .map(voucherMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<VoucherDTO> findVouchersByCouponCodeFromSeller(Long userId, String couponCode, Pageable pageable) throws DataNotFoundException {
+        Shop shop = shopRepository.findShopByUserId(userId)
+                .orElseThrow(() -> new DataNotFoundException("No shop found with this user"));
+
+        List<VoucherDTO> vouchers = findVouchersByCouponCode(couponCode, shop.getId());
+        return convertListToPage(vouchers, pageable);
+    }
+
+    public List<VoucherDTO> findVouchersByCouponCode(String couponCode, Long shopId) {
+        List<Voucher> vouchers = voucherRepository.findByCouponCodeContainingIgnoreCaseAndShopId(couponCode, shopId);
+        return vouchers.stream()
+                .map(voucherMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<VoucherDTO> findVouchersByDiscountTypeFromSeller(Long userId, DiscountType discountType, Pageable pageable) throws DataNotFoundException {
+        Shop shop = shopRepository.findShopByUserId(userId)
+                .orElseThrow(() -> new DataNotFoundException("No shop found with this user"));
+
+        List<VoucherDTO> vouchers = findVouchersByDiscountType(discountType, shop.getId());
+        return convertListToPage(vouchers, pageable);
+    }
+
+    public List<VoucherDTO> findVouchersByDiscountType(DiscountType discountType, Long shopId) {
+        List<Voucher> vouchers = voucherRepository.findByDiscountTypeAndShopId(discountType, shopId);
+        return vouchers.stream()
+                .map(voucherMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<VoucherDTO> findVouchersByRepeatTypeFromSeller(Long userId, RepeatType repeatType, Pageable pageable) throws DataNotFoundException {
+        Shop shop = shopRepository.findShopByUserId(userId)
+                .orElseThrow(() -> new DataNotFoundException("No shop found with this user"));
+
+        List<VoucherDTO> vouchers = findVouchersByTypeRepeat(repeatType, shop.getId());
+        return convertListToPage(vouchers, pageable);
+    }
+
+    public List<VoucherDTO> findVouchersByTypeRepeat(RepeatType repeatType, Long shopId) {
+        List<Voucher> vouchers = voucherRepository.findByTypeRepeatAndShopId(repeatType, shopId);
+        return vouchers.stream()
+                .map(voucherMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<VoucherDTO> findActiveVouchersFromSeller(Long userId, Boolean isActive, Pageable pageable) throws DataNotFoundException {
+        Shop shop = shopRepository.findShopByUserId(userId)
+                .orElseThrow(() -> new DataNotFoundException("No shop found with this user"));
+
+        List<VoucherDTO> vouchers = findActiveVouchers(isActive, shop.getId());
+        return convertListToPage(vouchers, pageable);
+    }
+
+    public List<VoucherDTO> findActiveVouchers(Boolean isActive, Long shopId) {
+        List<Voucher> vouchers = voucherRepository.findByIsActiveAndShopId(isActive, shopId);
+        return vouchers.stream()
+                .map(voucherMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<VoucherDTO> findPublicVouchersFromSeller(Long userId, Boolean isPublic, Pageable pageable) throws DataNotFoundException {
+        Shop shop = shopRepository.findShopByUserId(userId)
+                .orElseThrow(() -> new DataNotFoundException("No shop found with this user"));
+
+        List<VoucherDTO> vouchers = findPublicVouchers(isPublic, shop.getId());
+        return convertListToPage(vouchers, pageable);
+    }
+
+    public List<VoucherDTO> findPublicVouchers(Boolean isPublic, Long shopId) {
+        List<Voucher> vouchers = voucherRepository.findByIsPublicAndShopId(isPublic, shopId);
+        return vouchers.stream()
+                .map(voucherMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<VoucherDTO> searchVouchersByStartDateRange(Long userId, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) throws DataNotFoundException {
+        Shop shop = shopRepository.findShopByUserId(userId)
+                .orElseThrow(() -> new DataNotFoundException("No shop found with this user"));
+
+        List<VoucherDTO> vouchers = findVouchersByStartDateRange(startDate, endDate, shop.getId());
+        return convertListToPage(vouchers, pageable);
+    }
+
+    public List<VoucherDTO> findVouchersByStartDateRange(LocalDateTime startDate, LocalDateTime endDate, Long shopId) {
+        List<Voucher> vouchers = voucherRepository.findByStartAtBetweenAndShopId(startDate, endDate, shopId);
+        return vouchers.stream()
+                .map(voucherMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<VoucherDTO> searchVouchersByExpiredDateRange(Long userId, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) throws DataNotFoundException {
+        Shop shop = shopRepository.findShopByUserId(userId)
+                .orElseThrow(() -> new DataNotFoundException("No shop found with this user"));
+
+        List<VoucherDTO> vouchers = findVouchersByExpiredDateRange(startDate, endDate, shop.getId());
+        return convertListToPage(vouchers, pageable);
+    }
+
+    public List<VoucherDTO> findVouchersByExpiredDateRange(LocalDateTime startDate, LocalDateTime endDate, Long shopId) {
+        List<Voucher> vouchers = voucherRepository.findByExpiredAtBetweenAndShopId(startDate, endDate, shopId);
+        return vouchers.stream()
+                .map(voucherMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public Page<VoucherDTO> findActiveAndPublicVouchersFromSeller(Long userId, Boolean isActive, Boolean isPublic, Pageable pageable) throws DataNotFoundException {
+        Shop shop = shopRepository.findShopByUserId(userId)
+                .orElseThrow(() -> new DataNotFoundException("No shop found with this user"));
+
+        List<VoucherDTO> vouchers = findActiveAndPublicVouchers(isActive, isPublic, shop.getId());
+        return convertListToPage(vouchers, pageable);
+    }
+
+    public List<VoucherDTO> findActiveAndPublicVouchers(Boolean isActive, Boolean isPublic, Long shopId) {
+        List<Voucher> vouchers = voucherRepository.findByShopIdAndIsActiveAndIsPublic(shopId, isActive, isPublic);
+        return vouchers.stream()
+                .map(voucherMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    private Page<VoucherDTO> convertListToPage(List<VoucherDTO> vouchers, Pageable pageable) {
+        int pageSize = pageable.getPageSize();
+        int currentPage = pageable.getPageNumber();
+        int startItem = currentPage * pageSize;
+
+        List<VoucherDTO> pagedVouchers;
+
+        if (vouchers.size() < startItem) {
+            pagedVouchers = Collections.emptyList();
+        } else {
+            int toIndex = Math.min(startItem + pageSize, vouchers.size());
+            pagedVouchers = vouchers.subList(startItem, toIndex);
+        }
+
+        return new PageImpl<>(pagedVouchers, pageable, vouchers.size());
     }
 
     @Override
