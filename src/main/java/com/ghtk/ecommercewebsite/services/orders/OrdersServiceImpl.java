@@ -88,4 +88,10 @@ public class OrdersServiceImpl implements IOrdersService {
         orderStatusHistoryRepository.save(history);
     }
 
+    @Override
+    public List<OrderStatusHistory> getOrderHistory(Long orderId) {
+        return orderStatusHistoryRepository.findByOrderId(orderId);
+    }
+
+
 }

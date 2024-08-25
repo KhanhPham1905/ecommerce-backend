@@ -38,7 +38,10 @@ public class CheckoutServiceImpl implements ICheckoutService {
         Orders orders = createOrder(userId, method, note);
         orderRepository.save(orders);
         for (CartItem cartItem : cartItemList) {
-            saveOrderItem(orders, cartItem, cartItem.getTotalPrice());
+            BigDecimal totalPrice = cartItem.getTotalPrice();
+            int quantity = cartItem.getQuantity();
+            BigDecimal unit = totalPrice.divide(BigDecimal.valueOf(quantity), BigDecimal.ROUND_HALF_UP);
+            saveOrderItem(orders, cartItem, unit);
         }
         cartItemRepository.deleteAllByIdIn(selectedCartItems);
         return orderMapper.toDto(orders);
