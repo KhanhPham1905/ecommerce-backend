@@ -14,6 +14,7 @@ public class OrderMapper {
     public OrdersDTO toDto(Orders order) {
         return OrdersDTO.builder()
                 .id(order.getId())
+                .shopId(order.getShopId())
                 .userId(order.getUserId())
                 .note(order.getNote())
                 .status(OrdersDTO.OrderStatus.valueOf(order.getStatus().name()))
@@ -25,6 +26,7 @@ public class OrderMapper {
     public Orders toEntity(OrdersDTO orderDTO) {
         return Orders.builder()
                 .id(orderDTO.getId())
+                .shopId(orderDTO.getShopId())
                 .userId(orderDTO.getUserId())
                 .note(orderDTO.getNote())
                 .status(Orders.OrderStatus.valueOf(orderDTO.getStatus().name()))

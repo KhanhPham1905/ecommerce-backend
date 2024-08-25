@@ -1,5 +1,6 @@
 package com.ghtk.ecommercewebsite.services.payment;
 
+import com.ghtk.ecommercewebsite.models.dtos.OrdersDTO;
 import com.ghtk.ecommercewebsite.models.entities.OrderItem;
 import com.ghtk.ecommercewebsite.models.entities.Orders;
 import com.ghtk.ecommercewebsite.models.entities.Product;
@@ -32,47 +33,54 @@ public class PaymentService {
     @Value("${stripe.api.key}")
     private String stripeApiKey;
 
-    public Map<String, Object> createCheckoutSession(Long orderId) throws StripeException {
+    public Map<String, Object> createCheckoutSession(List<OrdersDTO> ordersDTOList) throws StripeException {
         Stripe.apiKey = stripeApiKey;
-        // Lấy thông tin đơn hàng từ cơ sở dữ liệu
-        Orders order = orderRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
 
-        // Tạo danh sách LineItems từ thông tin của đơn hàng
+        // Tạo danh sách LineItems từ thông tin của tất cả các đơn hàng
         List<SessionCreateParams.LineItem> lineItems = new ArrayList<>();
-        List<OrderItem> orderItems = iOrdersService.getOrderItems(orderId);
 
-        for (OrderItem item : orderItems) {
-            // Lấy ProductItem dựa trên productItemId
-            Optional<ProductItem> productItemOptional = productItemRepository.findById(item.getProductItemId());
-            if (productItemOptional.isPresent()) {
-                ProductItem productItem = productItemOptional.get();
+        for (OrdersDTO ordersDTO : ordersDTOList) {
+            Long orderId = ordersDTO.getId();  // Lấy orderId từ OrdersDTO
 
-                // Lấy Product dựa trên productId trong ProductItem
-                Optional<Product> productOptional = productRepository.findById(productItem.getProductId());
-                if (productOptional.isPresent()) {
-                    Product product = productOptional.get();
-                    String productName = product.getName();  // Lấy tên sản phẩm
-                    // Tạo PriceData và ProductData cho phiên thanh toán Stripe
-                    SessionCreateParams.LineItem.PriceData.ProductData productData =
-                            SessionCreateParams.LineItem.PriceData.ProductData.builder()
-                                    .setName("Product Name: " + productName)  // Sử dụng tên sản phẩm thực tế
-                                    .build();
+            // Lấy thông tin đơn hàng từ cơ sở dữ liệu
+            Orders order = orderRepository.findById(orderId)
+                    .orElseThrow(() -> new RuntimeException("Order not found"));
 
-                    SessionCreateParams.LineItem.PriceData priceData =
-                            SessionCreateParams.LineItem.PriceData.builder()
-                                    .setCurrency("vnd")
-                                    .setUnitAmount(item.getUnitPrice().multiply(new BigDecimal(100)).longValue())  // Đơn giá sản phẩm
-                                    .setProductData(productData)
-                                    .build();
+            // Lấy danh sách các OrderItem cho đơn hàng hiện tại
+            List<OrderItem> orderItems = iOrdersService.getOrderItems(orderId);
 
-                    SessionCreateParams.LineItem lineItem =
-                            SessionCreateParams.LineItem.builder()
-                                    .setPriceData(priceData)
-                                    .setQuantity((long) item.getQuantity())
-                                    .build();
+            for (OrderItem item : orderItems) {
+                // Lấy ProductItem dựa trên productItemId
+                Optional<ProductItem> productItemOptional = productItemRepository.findById(item.getProductItemId());
+                if (productItemOptional.isPresent()) {
+                    ProductItem productItem = productItemOptional.get();
 
-                    lineItems.add(lineItem);
+                    // Lấy Product dựa trên productId trong ProductItem
+                    Optional<Product> productOptional = productRepository.findById(productItem.getProductId());
+                    if (productOptional.isPresent()) {
+                        Product product = productOptional.get();
+                        String productName = product.getName();  // Lấy tên sản phẩm
+                        // Tạo PriceData và ProductData cho phiên thanh toán Stripe
+                        SessionCreateParams.LineItem.PriceData.ProductData productData =
+                                SessionCreateParams.LineItem.PriceData.ProductData.builder()
+                                        .setName("Product Name: " + productName)  // Sử dụng tên sản phẩm thực tế
+                                        .build();
+
+                        SessionCreateParams.LineItem.PriceData priceData =
+                                SessionCreateParams.LineItem.PriceData.builder()
+                                        .setCurrency("vnd")
+                                        .setUnitAmount(item.getUnitPrice().multiply(new BigDecimal(1000)).longValue())  // Đơn giá sản phẩm
+                                        .setProductData(productData)
+                                        .build();
+
+                        SessionCreateParams.LineItem lineItem =
+                                SessionCreateParams.LineItem.builder()
+                                        .setPriceData(priceData)
+                                        .setQuantity((long) item.getQuantity())
+                                        .build();
+
+                        lineItems.add(lineItem);
+                    }
                 }
             }
         }
@@ -82,7 +90,10 @@ public class PaymentService {
                 SessionCreateParams.builder()
                         .addAllLineItem(lineItems)
                         .setMode(SessionCreateParams.Mode.PAYMENT)
-                        .putMetadata("order_id", String.valueOf(orderId))
+                        .putMetadata("order_ids", ordersDTOList.stream()
+                                .map(order -> String.valueOf(order.getId()))
+                                .reduce((a, b) -> a + "," + b)
+                                .orElse(""))
                         .setSuccessUrl("http://localhost:8080/api/payment/checkout/success?session_id={CHECKOUT_SESSION_ID}")
                         .setCancelUrl("http://localhost:8080/api/payment/checkout/cancel")
                         .build();

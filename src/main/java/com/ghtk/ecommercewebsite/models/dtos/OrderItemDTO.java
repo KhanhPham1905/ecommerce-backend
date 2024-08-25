@@ -21,7 +21,7 @@ public class OrderItemDTO {
     private Long productItemId;
 
     private int quantity;
-
+    private Long shopId;
     private BigDecimal unitPrice;
 
     private Long voucherId;
