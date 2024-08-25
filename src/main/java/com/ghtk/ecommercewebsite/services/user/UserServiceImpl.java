@@ -423,6 +423,28 @@ public class UserServiceImpl implements UserService{
         }
     }
 
+    @Override
+    public String sendOtpForForgotPasswordRequest(String email) throws DataNotFoundException {
+        Optional<User> optionalUser = userRepository.findByEmail(email);
+        if (optionalUser.isEmpty()) {
+            throw new DataNotFoundException("There is no user with this email");
+        }
+//        User existingUser = optionalUser.get();
+        Integer otp = redisOtpService.generateAndSaveOtp(email);
+        MailBody mailBody = MailBody.builder()
+                .to(email)
+                .text("This is the OTP for your forgot password request: " + otp
+                + ". Please make sure to use this OTP to reset your password."
+                + "The OTP will be expired in 5 minutes. You can resend the OTP after 1 minute.")
+                .build();
+        emailService.sendSimpleMessage(mailBody);
+        if (otp == null) {
+            return "OTP request rate limit exceeded. Please wait before trying again.";
+        } else {
+            return "OTP has been sent to your email. Please check your email.";
+        }
+    }
+
 
     // Better approach
     @Override

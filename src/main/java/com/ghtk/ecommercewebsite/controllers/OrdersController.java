@@ -109,6 +109,20 @@ public class OrdersController {
 //    }
 
 
+    // API để cập nhật trạng thái đơn hàng
+    @PutMapping("/{orderId}/status")
+    public CommonResult<Object> updateOrderStatus(
+            @PathVariable Long orderId,
+            @RequestParam Orders.OrderStatus status
+    ) {
+        try {
+            iOrdersService.updateOrderStatus(orderId, status);
+            return CommonResult.success("Order status updated successfully");
+        } catch (Exception e) {
+            return CommonResult.forbidden("Failed to update order status: " + e.getMessage());
+        }
+    }
+
     @GetMapping("/{orderId}/history")
     public CommonResult<List<OrderStatusHistory>> getOrderStatusHistory(@PathVariable Long orderId) {
         List<OrderStatusHistory> history = orderStatusHistoryRepository.findByOrderId(orderId);

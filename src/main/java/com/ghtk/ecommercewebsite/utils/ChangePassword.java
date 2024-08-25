@@ -1,4 +1,8 @@
 package com.ghtk.ecommercewebsite.utils;
 
-public record ChangePassword(String password, String repeatPassword) {
+import com.fasterxml.jackson.annotation.JsonProperty;
+
+public record ChangePassword(
+        @JsonProperty("password") String password,
+        @JsonProperty("repeat_password") String repeatPassword) {
 }
