@@ -24,7 +24,7 @@ public class OrdersController {
 
     private final OrderMapper orderMapper;
     private final IOrdersService iOrdersService;
-    
+
     private final OrderStatusHistoryRepository orderStatusHistoryRepository;
 
     @GetMapping
@@ -73,7 +73,6 @@ public class OrdersController {
     }
 
 
-
     @PatchMapping("/{id}")
     public CommonResult<OrdersDTO> patchOrder(@PathVariable Long id, @RequestBody OrdersDTO orderDetails) {
         return iOrdersService.findById(id)
@@ -109,6 +108,20 @@ public class OrdersController {
 //        return CommonResult.success(ordersList);
 //    }
 
+
+    // API để cập nhật trạng thái đơn hàng
+    @PutMapping("/{orderId}/status")
+    public CommonResult<Object> updateOrderStatus(
+            @PathVariable Long orderId,
+            @RequestParam Orders.OrderStatus status
+    ) {
+        try {
+            iOrdersService.updateOrderStatus(orderId, status);
+            return CommonResult.success("Order status updated successfully");
+        } catch (Exception e) {
+            return CommonResult.forbidden("Failed to update order status: " + e.getMessage());
+        }
+    }
 
     @GetMapping("/{orderId}/history")
     public CommonResult<List<OrderStatusHistory>> getOrderStatusHistory(@PathVariable Long orderId) {

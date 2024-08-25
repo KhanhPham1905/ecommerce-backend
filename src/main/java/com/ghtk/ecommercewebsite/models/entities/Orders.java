@@ -57,8 +57,13 @@ public class Orders {
         modifiedAt = LocalDateTime.now();
     }
     public enum OrderStatus {
-        PENDING,
-        COMPLETED,
-        CANCELLED
+        PENDING,        // Đang chờ xử lý
+        CONFIRMED,      // Đã xác nhận
+        PACKED,         // Đã đóng gói
+        SHIPPED,        // Đang giao hàng
+        DELIVERED,      // Đã giao hàng
+        CANCELLED,      // Đã hủy
+        RETURNED,       // Đã trả hàng
+        COMPLETED
     }
 }

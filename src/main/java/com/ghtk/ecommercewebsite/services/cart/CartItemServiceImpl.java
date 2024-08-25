@@ -137,7 +137,10 @@ public class CartItemServiceImpl implements ICartItemService {
         cartItem.setQuantity(quantity);
         // Tính toán lại giá cuối cùng
         BigDecimal unitPrice = productItem.getPrice();
-        BigDecimal discount = applyVoucher(voucherRepository.findById(cartItem.getVoucherId()).orElseThrow(), unitPrice, quantity);
+        BigDecimal discount = BigDecimal.ZERO;
+        if (cartItem.getVoucherId() != null) {
+            discount = applyVoucher(voucherRepository.findById(cartItem.getVoucherId()).orElseThrow(), unitPrice, quantity);
+        }
         BigDecimal finalPrice = unitPrice.multiply(BigDecimal.valueOf(quantity)).subtract(discount);
         cartItem.setTotalPrice(finalPrice);
         // Lưu thay đổi
@@ -170,9 +173,6 @@ public class CartItemServiceImpl implements ICartItemService {
                 throw new IllegalArgumentException("Voucher không hợp lệ hoặc đã hết hạn");
             BigDecimal unitPrice = productItem.getPrice();
             BigDecimal discount = applyVoucher(voucher, unitPrice, cartItem.getQuantity());
-            System.out.println("sfsdjfiaf" + unitPrice);
-            System.out.println("sdfafa" + cartItem.getQuantity());
-            System.out.println("xdgsdgsdgsgs " + discount);
             BigDecimal finalPrice = unitPrice.multiply(BigDecimal.valueOf(cartItem.getQuantity())).subtract(discount);
             cartItem.setVoucherId(voucherId);
             cartItem.setTotalPrice(finalPrice);
