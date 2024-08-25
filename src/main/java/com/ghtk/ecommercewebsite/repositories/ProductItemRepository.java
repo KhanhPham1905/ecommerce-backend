@@ -13,7 +13,10 @@ import java.util.Optional;
 
 @Repository
 public interface ProductItemRepository extends JpaRepository<ProductItem, Long> {
-    ProductItem findBySkuCode(String skuCode);
+
+
+    @Query("SELECT pi FROM ProductItem pi WHERE pi.skuCode = ?1 AND pi.productId = ?2 ")
+    ProductItem findBySkuCode(String skuCode, Long productId);
 
     @Query(name = "ProductItem.GetAllProductItemByProductId", nativeQuery = true)
     List<DetailProductItemDTO> findAllProductItemByProductId(@Param("product_id") Long productId);
@@ -67,4 +70,7 @@ public interface ProductItemRepository extends JpaRepository<ProductItem, Long> 
     Long getQuantityProduct(@Param("id") Long id);
 
     Optional<ProductItem> findById(Long id);
+
+    @Query("SELECT pi FROM ProductItem pi LEFT JOIN Product p ON p.shopId = ?2 WHERE pi.productId = ?1 AND pi.isDelete = false")
+    List<ProductItem> getListProductItemByProductId(Long productId, Long shopId);
 }

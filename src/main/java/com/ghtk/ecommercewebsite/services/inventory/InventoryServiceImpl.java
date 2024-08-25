@@ -60,9 +60,13 @@ public class InventoryServiceImpl implements InventoryService{
 
     @Override
     @Transactional
-    public DetailInventoryDTO importWarehouse(DetailInventoryDTO detailInventoryDTO, Long userId) throws Exception {
-        ProductItem productItem = productItemRepository.findBySkuCode(detailInventoryDTO.getSkuCode());
-
+    public DetailInventoryDTO importWarehouse(DetailInventoryDTO detailInventoryDTO, Long userId) throws DataNotFoundException {
+        ProductItem productItem = productItemRepository.findBySkuCode(detailInventoryDTO.getSkuCode(), detailInventoryDTO.getProductId());
+        if(productItem == null){
+            throw new DataNotFoundException("Cannot found productItem");
+        }
+        productItem.setQuantity(productItem.getQuantity()==null?0: productItem.getQuantity() + detailInventoryDTO.getQuantity());
+        productItemRepository.save(productItem);
         Supply supply = Supply.builder()
                 .quantity(detailInventoryDTO.getQuantity())
                 .warehouseId(detailInventoryDTO.getWarehouseId())

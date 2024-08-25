@@ -42,6 +42,8 @@ public class ProductItemServiceImpl implements ProductItemService
 
     private final ProductAttributesRepository productAttributesRepository;
 
+    private final ShopRepository shopRepository;
+
     @Transactional
     public void deleteProductItemById(Long id) {
         // Xóa các bản ghi trong cart_item tham chiếu đến product_item
@@ -80,7 +82,7 @@ public class ProductItemServiceImpl implements ProductItemService
             productRepository.save(product);
         }
 
-        ProductItem checkProductItem = productItemRepository.findBySkuCode(detailProductItemDTO.getSkuCode());
+        ProductItem checkProductItem = productItemRepository.findBySkuCode(detailProductItemDTO.getSkuCode(), detailProductItemDTO.getProductId());
         if(checkProductItem != null){
             throw new AlreadyExistedException("sku code has been used");
         }
@@ -158,7 +160,7 @@ public class ProductItemServiceImpl implements ProductItemService
             productRepository.save(product);
         }
 
-        ProductItem productItem = productItemRepository.findBySkuCode(detailProductItemDTO.getSkuCode());
+        ProductItem productItem = productItemRepository.findBySkuCode(detailProductItemDTO.getSkuCode(), detailProductItemDTO.getProductId());
         if (productItem == null){
             throw new DataNotFoundException("Cannot find product item");
         }
@@ -240,5 +242,15 @@ public class ProductItemServiceImpl implements ProductItemService
         result.put("product_item",productItemList);
         result.put("quantity", sumQuantity);
         return result;
+    }
+
+    @Override
+    public List<ProductItem> getListProductItemByProductId(Long productId, Long userId) throws DataNotFoundException {
+            Shop shop = shopRepository.findByUserId(userId);
+            if(shop == null){
+                throw  new DataNotFoundException("cannot find shopId by userId");
+            }
+            List<ProductItem> productItems = productItemRepository.getListProductItemByProductId(productId, shop.getId());
+        return productItems;
     }
 }

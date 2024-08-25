@@ -56,6 +56,9 @@ public class DetailInventoryDTO {
     @JsonProperty("import_price")
     private BigDecimal importPrice;
 
+    @JsonProperty("product_id")
+    private Long productId;
+
     public DetailInventoryDTO(Integer quantity, String skuCode, String name, String warehouse) {
         this.quantity = quantity;
         this.skuCode = skuCode;
