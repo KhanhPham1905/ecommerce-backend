@@ -33,7 +33,7 @@ public class CheckoutController {
             User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
             Long userId = user.getId(); // Lấy userId từ đối tượng User
             // Thực hiện checkout
-            OrdersDTO ordersDTO = checkoutService.checkoutCart(
+            List<OrdersDTO> ordersDTO = checkoutService.checkoutCart(
                     userId, // Thay thế checkoutRequest.getUserId() bằng userId
                     checkoutRequest.isMethod(),
                     checkoutRequest.getNote(),
@@ -41,7 +41,7 @@ public class CheckoutController {
             );
 
             // Gọi phương thức tạo phiên thanh toán sau khi tạo đơn hàng thành công
-            Map<String, Object> paymentSession = paymentService.createCheckoutSession(ordersDTO.getId());
+            Map<String, Object> paymentSession = paymentService.createCheckoutSession(ordersDTO);
 
             // Lấy URL từ phiên thanh toán
             String checkoutUrl = (String) paymentSession.get("url");
@@ -63,7 +63,7 @@ public class CheckoutController {
             @RequestParam List<Long> selectedCartItems
     ) throws Exception {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        BigDecimal totalPrice = checkoutService.calculateCartTotal(user.getId(), selectedCartItems);
+        BigDecimal totalPrice = checkoutService.calculateCartTotal(user.getId(), selectedCartItems).multiply(new BigDecimal(1000));
         return CommonResult.success(totalPrice, "Total price calculated successfully");
     }
 //    @PostMapping("/checkout_direct")

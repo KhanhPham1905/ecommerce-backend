@@ -31,7 +31,6 @@ public class Orders {
     @Column(name = "total_price", precision = 12, scale = 2)
     private BigDecimal totalPrice;
 
-
     private boolean method;
 
     @Column(name = "user_id", nullable = false)
@@ -43,6 +42,8 @@ public class Orders {
     @Column(name = "modified_at", columnDefinition = "DATETIME(6)")
     private LocalDateTime modifiedAt;
 
+    @Column(name = "shop_id", nullable = false) // Thêm trường shopId
+    private Long shopId;
 
     @PrePersist
     protected void onCreate() {

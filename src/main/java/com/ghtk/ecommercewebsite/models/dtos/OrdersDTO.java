@@ -37,6 +37,7 @@ public class OrdersDTO {
 
     private Long userId;
 
+    private Long shopId;
     private Long addressID;
 
 

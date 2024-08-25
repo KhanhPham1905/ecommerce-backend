@@ -9,14 +9,15 @@ import java.util.List;
 
 public interface ICheckoutService {
 
-    OrdersDTO checkoutCart(Long userId, boolean method, String note, List<Long> selectedCartItems);
+    List<OrdersDTO> checkoutCart(Long userId, boolean method, String note, List<Long> selectedCartItems);
 
-    BigDecimal calculateCartTotal(Long userId, List<Long> selectedCartItems) ;
+    BigDecimal calculateCartTotal(Long userId, List<Long> selectedCartItems);
 
-    OrdersDTO checkoutDirect(Long userId,
-                             Long productItemId,
-                             int quantity,
-                             Long voucherId,
-                             String note,
-                             boolean method);
+//    OrdersDTO checkoutDirect(Long userId,
+//                             Long productItemId,
+//                             int quantity,
+//                             Long voucherId,
+//                             String note,
+//                             boolean method);
+//}
 }

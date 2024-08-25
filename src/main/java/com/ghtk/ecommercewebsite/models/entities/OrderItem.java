@@ -36,6 +36,9 @@ public class OrderItem {
     @Column(name = "voucher_id", nullable = true)
     private Long voucherId;
 
+    @Column(name = "shop_id", nullable = false) // Thêm trường shopId
+    private Long shopId;
+
     @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
     private LocalDateTime createdAt;
 
