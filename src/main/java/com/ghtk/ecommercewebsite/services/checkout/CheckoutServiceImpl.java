@@ -13,7 +13,6 @@ import org.springframework.stereotype.Service;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -33,16 +32,15 @@ public class CheckoutServiceImpl implements ICheckoutService {
     @Override
     public OrdersDTO checkoutCart(Long userId, boolean method, String note, List<Long> selectedCartItems) {
         validateCheckoutRequest(userId);
-
         // Lấy danh sách các CartItem được chọn
         List<CartItem> cartItemList = cartItemRepository.findByUserIdAndIdIn(userId, selectedCartItems);
         if (cartItemList.isEmpty()) throw new IllegalArgumentException("Không có sản phẩm nào được chọn để thanh toán");
-
         Orders orders = createOrder(userId, method, note);
-
         orderRepository.save(orders);
+        for (CartItem cartItem : cartItemList) {
+            saveOrderItem(orders, cartItem, cartItem.getTotalPrice());
+        }
         cartItemRepository.deleteAllByIdIn(selectedCartItems);
-
         return orderMapper.toDto(orders);
     }
 
@@ -54,7 +52,6 @@ public class CheckoutServiceImpl implements ICheckoutService {
             throw new IllegalArgumentException("User with id " + userId + " does not have a valid address");
         }
     }
-
 
     private Orders createOrder(Long userId, boolean method, String note) {
         // Tạo đối tượng đơn hàng nhưng chưa lưu vào DB
@@ -77,7 +74,6 @@ public class CheckoutServiceImpl implements ICheckoutService {
         return orders;
     }
 
-
     private void saveOrderStatusHistory(Orders order, Orders.OrderStatus status) {
         OrderStatusHistory history = OrderStatusHistory.builder()
                 .orderId(order.getId())
@@ -86,27 +82,6 @@ public class CheckoutServiceImpl implements ICheckoutService {
                 .build();
         orderStatusHistoryRepository.save(history);
     }
-
-
-    private BigDecimal processCartItems(List<CartItem> cartItemList,
-                                        Orders orders,
-                                        Map<Long, ProductItem> productItemMap,
-                                        Map<Long, Voucher> voucherMap) {
-        BigDecimal totalPrice = BigDecimal.ZERO;
-        for (CartItem cartItem : cartItemList) {
-            ProductItem productItem = productItemMap.get(cartItem.getProductItemId());
-            BigDecimal unitPrice = productItem.getPrice();
-            BigDecimal discount = applyVoucher(voucherMap.get(cartItem.getVoucherId()), unitPrice, cartItem.getQuantity());
-            BigDecimal finalPrice = unitPrice.subtract(discount).multiply(BigDecimal.valueOf(cartItem.getQuantity()));
-            totalPrice = totalPrice.add(finalPrice);
-
-            saveOrderItem(orders, cartItem, unitPrice);
-
-            updateProductStock(productItem, cartItem.getQuantity());
-        }
-        return totalPrice;
-    }
-
 
     private void saveOrderItem(Orders orders, CartItem cartItem, BigDecimal unitPrice) {
         OrderItem orderItem = OrderItem.builder()
@@ -128,10 +103,7 @@ public class CheckoutServiceImpl implements ICheckoutService {
 
     @Override
     public OrdersDTO checkoutDirect(Long userId,
-                                    Long productItemId,
-                                    int quantity,
-                                    Long voucherId,
-                                    String note,
+                                    Long productItemId, int quantity, Long voucherId, String note,
                                     boolean method) {
         validateDirectCheckout(productItemId, quantity);
 
