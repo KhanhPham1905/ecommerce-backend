@@ -2,9 +2,7 @@ package com.ghtk.ecommercewebsite.services.orders;
 
 import com.ghtk.ecommercewebsite.exceptions.DataNotFoundException;
 import com.ghtk.ecommercewebsite.mapper.OrderMapper;
-import com.ghtk.ecommercewebsite.models.dtos.CartItemDTO;
 import com.ghtk.ecommercewebsite.models.dtos.OrdersDTO;
-import com.ghtk.ecommercewebsite.models.entities.CartItem;
 import com.ghtk.ecommercewebsite.models.entities.OrderItem;
 import com.ghtk.ecommercewebsite.models.entities.OrderStatusHistory;
 import com.ghtk.ecommercewebsite.models.entities.Orders;
@@ -24,7 +22,6 @@ public class OrdersServiceImpl implements IOrdersService {
     private final OrdersRepository ordersRepository;
     private final UserRepository userRepository;
     private final OrderStatusHistoryRepository orderStatusHistoryRepository;
-    private final CartItemRepository cartItemRepository;
     private final OrderItemRepository orderItemRepository;
 
 
@@ -68,27 +65,10 @@ public class OrdersServiceImpl implements IOrdersService {
         return orderItemRepository.findByOrderId(orderId);
     }
 
-    public void addProductToCart(CartItemDTO cartItemDTO, Long userId) throws Exception {
-        // Kiểm tra xem sản phẩm đã tồn tại trong giỏ hàng của người dùng chưa
-        CartItem existingCartItem = cartItemRepository.findByProductItemIdAndUserId(cartItemDTO.getProductItemId(), userId);
-
-        if (existingCartItem != null) {
-            // Nếu sản phẩm đã có trong giỏ hàng, tăng số lượng
-            existingCartItem.setQuantity(existingCartItem.getQuantity() + cartItemDTO.getQuantity());
-            cartItemRepository.save(existingCartItem);
-        } else {
-            // Nếu chưa có, thêm sản phẩm mới vào giỏ hàng
-            CartItem newCartItem = new CartItem();
-            newCartItem.setUserId(userId);
-            newCartItem.setProductItemId(cartItemDTO.getProductItemId());
-            newCartItem.setQuantity(cartItemDTO.getQuantity());
-            cartItemRepository.save(newCartItem);
-        }
-    }
 
 
     @Override
-    public List<Orders> getAllOrderBySeller(Long userId) throws Exception {
+    public List<Orders> getAllOrderBySeller(Long userId) {
         return List.of();
     }
 
