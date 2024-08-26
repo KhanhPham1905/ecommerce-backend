@@ -32,7 +32,7 @@ public interface UserService {
     void checkUserExistence(RegisterUserDto registerUserDto);
     void sendMailForSignUpUser(RegisterUserDto registerUserDto);
 
-    User signUpNewVersion(RegisterUserDto registerUserDto);
+    User signUpNewVersion(RegisterUserDto registerUserDto) throws UserAlreadyExistedException;
 
     void activateUser(String email);
 

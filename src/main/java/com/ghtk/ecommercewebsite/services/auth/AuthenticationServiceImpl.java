@@ -43,8 +43,15 @@ public class AuthenticationServiceImpl implements AuthenticationService{
 
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         if (userDetails.getAuthorities().stream().anyMatch(authority -> authority.getAuthority().equals("ROLE_" + role))) {
-            return userRepository.findByEmail(loginUserDto.getEmail())
+            User user = userRepository.findByEmail(loginUserDto.getEmail())
                     .orElseThrow(() -> new UsernameNotFoundException("User not found"));
+
+            if (!user.getStatus()) {
+                throw new AccessDeniedException("User is not activated");
+            }
+            return user;
+//            return userRepository.findByEmail(loginUserDto.getEmail())
+//                    .orElseThrow(() -> new UsernameNotFoundException("User not found"));
         } else {
             throw new AccessDeniedException("User does not have the required role (" + role + ")");
         }
