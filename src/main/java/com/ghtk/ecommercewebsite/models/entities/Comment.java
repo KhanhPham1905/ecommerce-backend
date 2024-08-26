@@ -1,5 +1,6 @@
 package com.ghtk.ecommercewebsite.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
@@ -29,9 +30,9 @@ public class Comment {
     private String content;
 
 
-    @NotNull(message = "Product item ID cannot be null")
-    @Column(name = "product_item_id", nullable = false)
-    private Long productItemId;
+    @NotNull(message = "Product ID cannot be null")
+    @Column(name = "product_id", nullable = false)
+    private Long productId;
 
     @NotNull(message = "User ID cannot be null")
     @Column(name = "user_id", nullable = false)
@@ -44,13 +45,14 @@ public class Comment {
 
 
     @Column(name = "modified_at", columnDefinition = "DATETIME(6)")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime modifiedAt;
     @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime createdAt;
 
-    @Column(name = "status", nullable = false)
-    @Enumerated(EnumType.STRING)
-    private CommentStatus status;
+    @Column(name = "full_name", nullable = false)
+    private String fullName;
 
     @Column(name = "reply_to")
     private Long replyTo;
@@ -65,8 +67,5 @@ public class Comment {
         modifiedAt = LocalDateTime.now();
     }
 
-    public enum CommentStatus {
-        APPROVED,
-        REJECTED
-    }
+
 }

@@ -2,6 +2,7 @@ package com.ghtk.ecommercewebsite.models.dtos;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.ghtk.ecommercewebsite.models.entities.Comment;
+import jakarta.persistence.Column;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
@@ -19,8 +20,8 @@ public class CommentDTO {
     @NotNull(message = "Content cannot be null")
     private String content;
 
-    @NotNull(message = "Product item ID cannot be null")
-    private Long productItemId;
+    @NotNull(message = "Product  ID cannot be null")
+    private Long productId;
 
     @NotNull(message = "User ID cannot be null")
     private Long userId;
@@ -31,10 +32,11 @@ public class CommentDTO {
 
     private Long replyTo;
 
-    private String status;
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    private String fullName;
+
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime createdAt;
 
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime modifiedAt;
 }

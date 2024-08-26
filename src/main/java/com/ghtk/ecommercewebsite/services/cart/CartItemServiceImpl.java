@@ -88,17 +88,7 @@ public class CartItemServiceImpl implements ICartItemService {
     }
 
 
-    private BigDecimal calculateDirectDiscount(Long voucherId, int quantity, BigDecimal unitPrice) {
-        BigDecimal discount = BigDecimal.ZERO;
-        if (voucherId != null) {
-            Voucher voucher = voucherRepository.findById(voucherId)
-                    .orElseThrow(() -> new IllegalArgumentException("Voucher not found"));
-            if (isVoucherApplicable(voucher, quantity)) {
-                discount = applyVoucher(voucher, unitPrice, quantity);
-            }
-        }
-        return discount;
-    }
+
 
     private boolean isVoucherApplicable(Voucher voucher, int quantity) {
         return voucher.getIsPublic() &&
