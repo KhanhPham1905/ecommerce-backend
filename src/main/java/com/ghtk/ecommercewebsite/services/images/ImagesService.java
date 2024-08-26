@@ -6,5 +6,5 @@ import org.springframework.web.multipart.MultipartFile;
 
 public interface ImagesService {
     void addImageProduct(CloudinaryResponse cloudinaryResponse, Long productId) throws Exception;
-    void  addImageTextProduct(Long id, String text) throws DataNotFoundException;
+    void  addImageTextProduct(String text, Long id) throws DataNotFoundException;
 }

@@ -30,7 +30,7 @@ public class ImagesServiceImpl implements ImagesService{
 
     @Override
     @Transactional
-    public void addImageTextProduct(Long id, String img) throws DataNotFoundException{
+    public void addImageTextProduct(String img, Long id) throws DataNotFoundException{
         imagesRepository.deleteByLink(img);
         Image image = Image.builder()
                 .link(img)

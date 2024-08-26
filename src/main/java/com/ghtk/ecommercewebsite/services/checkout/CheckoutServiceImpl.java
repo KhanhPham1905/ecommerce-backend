@@ -1,5 +1,6 @@
 package com.ghtk.ecommercewebsite.services.checkout;
 
+import com.ghtk.ecommercewebsite.exceptions.DataNotFoundException;
 import com.ghtk.ecommercewebsite.mapper.OrderMapper;
 import com.ghtk.ecommercewebsite.models.dtos.OrdersDTO;
 import com.ghtk.ecommercewebsite.models.entities.*;
@@ -29,19 +30,23 @@ public class CheckoutServiceImpl implements ICheckoutService {
     private final OrderMapper orderMapper;
     private final OrderStatusHistoryRepository orderStatusHistoryRepository;
     private final AddressService addressService;
-
+    private final AddressRepository addressRepository;
+    private final UserRepository userRepository;
 
     @Transactional
     @Override
-    public List<OrdersDTO> checkoutCart(Long userId, boolean method, String note, List<Long> selectedCartItems) {
+    public List<OrdersDTO> checkoutCart(Long userId, boolean method, String note, List<Long> selectedCartItems) throws  DataNotFoundException{
         validateCheckoutRequest(userId);
         // Lấy danh sách các CartItem được chọn
         List<CartItem> cartItemList = cartItemRepository.findByUserIdAndIdIn(userId, selectedCartItems);
         if (cartItemList.isEmpty()) throw new IllegalArgumentException("Không có sản phẩm nào được chọn để thanh toán");
-
+        User user = userRepository.findById(userId)
+                .orElseThrow(()-> new DataNotFoundException("Cannot find user by this id"));
         // Nhóm các CartItem theo shopId
         Map<Long, List<CartItem>> cartItemsByShop = groupCartItemsByShopId(cartItemList);
-
+        Address address = addressRepository.findByUserId(userId).orElseThrow(()-> new DataNotFoundException(""));
+//                .orElseThrow(()-> new DataNotFoundException("Cannot find address by userId"));
+        String addressReceiver = address.getCommune() + ", " + address.getDistrict() + ", " + address.getProvince() + "," + address.getCountry();
         List<Orders> ordersList = new ArrayList<>();
         for (Map.Entry<Long, List<CartItem>> entry : cartItemsByShop.entrySet()) {
             Long shopId = entry.getKey();
@@ -57,6 +62,11 @@ public class CheckoutServiceImpl implements ICheckoutService {
             // Cập nhật tổng giá của đơn hàng
             BigDecimal orderTotalPrice = calculateOrderTotalPrice(orders.getId());
             orders.setTotalPrice(orderTotalPrice);
+            orders.setAddress(addressReceiver);
+            orders.setAddressDetail(address.getAddressDetail());
+            orders.setBuyer(user.getFullName());
+            orders.setReceiverPhone(user.getPhone());
+//            orders.setShopId(orderDTO.getShopId());
             orderRepository.save(orders);
             ordersList.add(orders);  // Thêm đơn hàng vào danh sách
 

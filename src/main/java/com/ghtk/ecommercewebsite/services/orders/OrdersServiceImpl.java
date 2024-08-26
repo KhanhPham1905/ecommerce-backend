@@ -29,18 +29,17 @@ public class OrdersServiceImpl implements IOrdersService {
 
     @Override
     public OrdersDTO addOrder(OrdersDTO orderDTO, Long userId) throws DataNotFoundException {
-        if (userRepository.findById(userId).isEmpty()) {
-            throw new DataNotFoundException("Cannot find user by this id");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(()-> new DataNotFoundException("Cannot find user by this id"));
         Address address = addressRepository.findByUserId(userId)
                 .orElseThrow(()-> new DataNotFoundException("Cannot find address by userId"));
         String addressReceiver = address.getCommune() + ", " + address.getDistrict() + ", " + address.getProvince() + "," + address.getCountry();
         Orders order = orderMapper.toEntity(orderDTO);
-//        order.setAddress(addressReceiver);
-//        order.setAddressDetail(address.getAddressDetail());
-//        order.setBuyer(user.getFullName());
-//        order.setReceiverPhone(user.getPhone());
-//        order.setShopId();
+        order.setAddress(addressReceiver);
+        order.setAddressDetail(address.getAddressDetail());
+        order.setBuyer(user.getFullName());
+        order.setReceiverPhone(user.getPhone());
+        order.setShopId(orderDTO.getShopId());
         ordersRepository.save(order);
         return orderDTO;
     }

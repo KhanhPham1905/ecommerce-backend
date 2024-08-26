@@ -40,9 +40,10 @@ public class OrdersController {
                 .orElse(CommonResult.error(404, "Order not found"));
     }
 
-    @GetMapping("/user/{userId}")
-    public CommonResult<List<OrdersDTO>> getUserOrders(@PathVariable Long userId) {
-        List<Orders> ordersList = iOrdersService.findByUserId(userId);
+    @GetMapping("/user")
+    public CommonResult<List<OrdersDTO>> getUserOrders() {
+        User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        List<Orders> ordersList = iOrdersService.findByUserId(user.getId());
         List<OrdersDTO> ordersDTOList = ordersList.stream().map(orderMapper::toDto).collect(Collectors.toList());
         return CommonResult.success(ordersDTOList, "Get user orders successfully");
     }

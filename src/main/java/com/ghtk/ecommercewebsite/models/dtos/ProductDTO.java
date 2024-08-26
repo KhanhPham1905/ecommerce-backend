@@ -46,7 +46,7 @@ public class ProductDTO {
 
     private List<Long> categoryIds;
 
-    private List<MultipartFile> images;
+    private List<String> images;
 
     private MultipartFile thumbnail;
 

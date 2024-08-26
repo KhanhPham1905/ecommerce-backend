@@ -244,32 +244,52 @@ public class ProductsController {
 //        return CommonResult.success(products, "Search products by description successfully");
 //    }
 
-    @PostMapping(value = "/uploads", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public CommonResult<?> uploadImages(
-            @PathVariable("id") Long id,
-            @ModelAttribute("files") List<MultipartFile> files
-    ) throws  Exception{
-        files = files == null ? new ArrayList<MultipartFile>() : files;
-        if(files.size() > Contant.MAXIMUM_IMAGES_PER_PRODUCT){
-            return  CommonResult.failed("You can only upload max : " + Contant.MAXIMUM_IMAGES_PER_PRODUCT);
-        }
-
-        for (MultipartFile file: files){
-            if(file.getSize() == 0){
-                continue;
-            }
-            if (file.getSize() > 10*1024*1024){
-                return CommonResult.failed("you can only upload file Maximum 10MB");
-            }
-            String contentType = file.getContentType();
-            if (contentType == null && ! contentType.startsWith("image/")){
-                return CommonResult.failed("you must up load file is image");
-            }
-            CloudinaryResponse cloudinaryResponse = cloudinaryService.uploadImage(file);
-//            imagesService.addImageProduct(cloudinaryResponse,id);
-        }
-        return CommonResult.success("sac set");
+//    @PostMapping(value = "/uploads", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//    public CommonResult<String> uploadImages(
+//            @ModelAttribute("files") List<MultipartFile> files
+//    ) throws  Exception{
+//        files = files == null ? new ArrayList<MultipartFile>() : files;
+//        if(files.size() > Contant.MAXIMUM_IMAGES_PER_PRODUCT){
+//            return  CommonResult.failed("You can only upload max : " + Contant.MAXIMUM_IMAGES_PER_PRODUCT);
+//        }
+//
+//        for (MultipartFile file: files){
+//            if(file.getSize() == 0){
+//                continue;
+//            }
+//            if (file.getSize() > 10*1024*1024){
+//                return CommonResult.failed("you can only upload file Maximum 10MB");
+//            }
+//            String contentType = file.getContentType();
+//            if (contentType == null && ! contentType.startsWith("image/")){
+//                return CommonResult.failed("you must up load file is image");
+//            }
+//            CloudinaryResponse cloudinaryResponse = cloudinaryService.uploadImage(file);
+//        }
+//        return CommonResult.success("sac set");
+//    }
+@PostMapping(value = "/uploads", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+public CommonResult<String> uploadImage(
+        @RequestParam("files") MultipartFile file
+) throws Exception {
+    if (file == null || file.isEmpty()) {
+        return CommonResult.failed("File không được rỗng");
     }
+
+    if (file.getSize() > 10 * 1024 * 1024) {
+        return CommonResult.failed("Bạn chỉ có thể tải lên tệp tối đa 10MB");
+    }
+
+    String contentType = file.getContentType();
+    if (contentType == null || !contentType.startsWith("image/")) {
+        return CommonResult.failed("Bạn chỉ có thể tải lên tệp là hình ảnh");
+    }
+
+    // Tải lên hình ảnh
+    CloudinaryResponse cloudinaryResponse = cloudinaryService.uploadImage(file);
+
+    return CommonResult.success(cloudinaryResponse.getUrl(), "Tải lên thành công");
+}
 
 //    @PostMapping("/uploadsText/{id}/{image}")
 //    public  CommonResult<String> ImageText(

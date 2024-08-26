@@ -1,5 +1,6 @@
 package com.ghtk.ecommercewebsite.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -38,9 +39,11 @@ public class Orders {
     private Long userId;
 
     @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime createdAt;
 
     @Column(name = "modified_at", columnDefinition = "DATETIME(6)")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime modifiedAt;
 
     @Column(name = "address")

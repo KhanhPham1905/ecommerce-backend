@@ -65,7 +65,8 @@ public class InventoryServiceImpl implements InventoryService{
         if(productItem == null){
             throw new DataNotFoundException("Cannot found productItem");
         }
-        productItem.setQuantity(productItem.getQuantity()==null?0: productItem.getQuantity() + detailInventoryDTO.getQuantity());
+        int quantity  = productItem.getQuantity()==null?0: productItem.getQuantity();
+        productItem.setQuantity(quantity + detailInventoryDTO.getQuantity());
         productItemRepository.save(productItem);
         Supply supply = Supply.builder()
                 .quantity(detailInventoryDTO.getQuantity())
