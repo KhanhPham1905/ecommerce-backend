@@ -10,6 +10,7 @@ import com.ghtk.ecommercewebsite.models.responses.CommonResult;
 import com.ghtk.ecommercewebsite.repositories.OrderStatusHistoryRepository;
 import com.ghtk.ecommercewebsite.services.orders.IOrdersService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
@@ -132,4 +133,19 @@ public class OrdersController {
         return CommonResult.success(history);
     }
 
+    @GetMapping("/check-purchase/{productId}")
+    public ResponseEntity<CommonResult<Boolean>> checkUserPurchasedProduct(
+            @PathVariable("productId") Long productId) {
+
+        // Lấy userId từ SecurityContextHolder
+        User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+
+        // Kiểm tra xem người dùng đã mua sản phẩm chưa
+        boolean hasPurchased = iOrdersService.checkUserPurchasedProduct(user.getId(), productId);
+        if (hasPurchased) {
+            return ResponseEntity.ok(CommonResult.success(hasPurchased, "User has purchased the product"));
+        } else {
+            return ResponseEntity.ok(CommonResult.failed("User has not purchased the product"));
+        }
+    }
 }
