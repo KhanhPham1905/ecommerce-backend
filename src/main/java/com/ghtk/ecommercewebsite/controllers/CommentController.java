@@ -3,12 +3,14 @@ package com.ghtk.ecommercewebsite.controllers;
 import com.ghtk.ecommercewebsite.models.dtos.CommentDTO;
 import com.ghtk.ecommercewebsite.models.dtos.request.AddCommentRequestDTO;
 import com.ghtk.ecommercewebsite.models.dtos.request.UpdateCommentRequestDTO;
+import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.responses.CommonResult;
 import com.ghtk.ecommercewebsite.services.comment.ICommentService;
 import com.ghtk.ecommercewebsite.services.user.UserService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -25,13 +27,15 @@ public class CommentController {
     @PostMapping("/add_comment")
     public CommonResult<CommentDTO> addComment(@Valid @RequestBody AddCommentRequestDTO requestDTO) {
         try {
-            CommentDTO commentDTO = commentService.addComment(requestDTO);
+            User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            CommentDTO commentDTO = commentService.addComment(requestDTO, user.getId(), user.getFullName());
             return CommonResult.success(commentDTO, "Comment added successfully");
         } catch (Exception e) {
             return CommonResult.error(HttpStatus.INTERNAL_SERVER_ERROR.value(), e.getMessage());
         }
     }
-        // Cần xác thực người dùng và admin thì mới đc xóa comment
+
+
     @DeleteMapping("/delete_comment/{id}")
     public CommonResult<String> deleteComment(@PathVariable Long id) {
         return commentService.findById(id)
@@ -39,8 +43,11 @@ public class CommentController {
                     commentService.deleteComment(id);
                     return CommonResult.success("Comment with ID " + id + " has been deleted.");
                 }).orElse(CommonResult.error(404, "Comment not found"));
-
     }
+
+
+
+
 
     @GetMapping("/product/{productId}/sort-by-date")
     public CommonResult<List<CommentDTO>> getCommentsByProductIdSortedByDate(@PathVariable("productId") Long productId) {
@@ -74,16 +81,6 @@ public class CommentController {
         }
     }
 
-
-    @DeleteMapping("/softDelete/{commentId}")
-    public CommonResult<Object> softDeleteComment(@PathVariable Long commentId) {
-        try {
-            commentService.softDeleteComment(commentId);
-            return CommonResult.success(null, "Comment soft deleted successfully");
-        } catch (IllegalArgumentException e) {
-            return CommonResult.failed(e.getMessage());
-        }
-    }
 
 }
 

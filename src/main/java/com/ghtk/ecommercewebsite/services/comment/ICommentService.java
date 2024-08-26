@@ -9,7 +9,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ICommentService {
-    CommentDTO addComment(AddCommentRequestDTO requestDTO);
+    CommentDTO addComment(AddCommentRequestDTO requestDTO,  Long userID, String fullName);
 
     Optional<Comment> findById(Long id);
 
@@ -21,8 +21,6 @@ public interface ICommentService {
 
     CommentDTO updateComment(Long id, UpdateCommentRequestDTO requestDTO) ;
 
-    Comment updateCommentStatus(Long id, Comment.CommentStatus status) ;
 
-    void softDeleteComment(Long commentId) ;
 
 }
