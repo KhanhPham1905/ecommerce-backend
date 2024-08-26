@@ -305,6 +305,28 @@ public class SellerServiceImpl implements SellerService{
 
             existingRoles.add(sellerRole);
             existingUser.setRoles(existingRoles);
+
+            existingUser.setFullName(registerUserDto.getFullName());
+            existingUser.setPassword(registerUserDto.getPassword());
+            existingUser.setPhone(registerUserDto.getPhone());
+            existingUser.setGender(registerUserDto.getGender());
+            userRepository.save(existingUser);
+
+            Address existingAddress = addressRepository.findById(existingUser.getAddressId()).orElse(null);
+            if (isSameAddress(existingAddress, registerUserDto)) {
+                existingUser.setAddressId(existingAddress.getId());
+            } else {
+                existingAddress.setCountry(registerUserDto.getCountry());
+                existingAddress.setProvince(registerUserDto.getProvince());
+                existingAddress.setDistrict(registerUserDto.getDistrict());
+                existingAddress.setCommune(registerUserDto.getCommune());
+                existingAddress.setAddressDetail(registerUserDto.getAddressDetail());
+                existingAddress.setUserId(existingUser.getId());
+            }
+            addressRepository.save(existingAddress);
+            existingUser.setAddressId(existingAddress.getId());
+            existingUser.setStatus(false);
+
             userRepository.save(existingUser);
             Shop shop = Shop.builder().userId(existingUser.getId()).build();
             shopRepository.save(shop);
@@ -379,6 +401,14 @@ public class SellerServiceImpl implements SellerService{
 
             return user;
         }
+    }
+
+    private boolean isSameAddress(Address existingAddress, RegisterUserDto registerUserDto) {
+        return Objects.equals(existingAddress.getCountry(), registerUserDto.getCountry())
+                && Objects.equals(existingAddress.getProvince(), registerUserDto.getProvince())
+                && Objects.equals(existingAddress.getDistrict(), registerUserDto.getDistrict())
+                && Objects.equals(existingAddress.getCommune(), registerUserDto.getCommune())
+                && Objects.equals(existingAddress.getAddressDetail(), registerUserDto.getAddressDetail());
     }
 
     @Override

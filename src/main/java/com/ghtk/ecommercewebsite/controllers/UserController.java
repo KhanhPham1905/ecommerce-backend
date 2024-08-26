@@ -44,7 +44,7 @@ public class UserController {
 
     // New version start from here
     @PostMapping("/signUpNewVersion")
-    public CommonResult<User> verifyOtpForSigningUp(@RequestBody RegisterUserDto registerUserDto) {
+    public CommonResult<User> verifyOtpForSigningUp(@RequestBody RegisterUserDto registerUserDto) throws UserAlreadyExistedException {
         return CommonResult.success(userService.signUpNewVersion(registerUserDto));
     }
     // New version here

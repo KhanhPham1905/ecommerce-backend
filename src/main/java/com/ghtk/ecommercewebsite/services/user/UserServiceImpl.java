@@ -267,7 +267,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     @Transactional
-    public User signUpNewVersion(RegisterUserDto registerUserDto) {
+    public User signUpNewVersion(RegisterUserDto registerUserDto) throws UserAlreadyExistedException {
         Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.USER);
         if (optionalRole.isEmpty()) { return null; }
 
@@ -281,7 +281,38 @@ public class UserServiceImpl implements UserService{
 
             if (existingRoles.contains(userRole) && existingUser.isEnabled()) {
                 throw new UserAlreadyExistedException(registerUserDto.getEmail());
-            } //else {
+            } else if (existingUser.getEmail().equals(registerUserDto.getEmail()) && !existingUser.isEnabled()) {
+                existingUser.setFullName(registerUserDto.getFullName());
+                existingUser.setPassword(registerUserDto.getPassword());
+                existingUser.setPhone(registerUserDto.getPhone());
+                existingUser.setGender(registerUserDto.getGender());
+                userRepository.save(existingUser);
+
+                Address existingAddress = addressRepository.findById(existingUser.getAddressId()).orElse(null);
+                if (isSameAddress(existingAddress, registerUserDto)) {
+                    existingUser.setAddressId(existingAddress.getId());
+                } else {
+                    existingAddress.setCountry(registerUserDto.getCountry());
+                    existingAddress.setProvince(registerUserDto.getProvince());
+                    existingAddress.setDistrict(registerUserDto.getDistrict());
+                    existingAddress.setCommune(registerUserDto.getCommune());
+                    existingAddress.setAddressDetail(registerUserDto.getAddressDetail());
+                    existingAddress.setUserId(existingUser.getId());
+                }
+                addressRepository.save(existingAddress);
+                existingUser.setAddressId(existingAddress.getId());
+                existingUser.setStatus(false);
+                userRepository.save(existingUser);
+
+                Integer otp = redisOtpService.generateAndSaveOtp(registerUserDto.getEmail());
+                MailBody mailBody = MailBody.builder()
+                        .to(registerUserDto.getEmail())
+                        .text("This is the OTP for your request: " + otp)
+                        .build();
+                emailService.sendSimpleMessage(mailBody);
+                return existingUser;
+            }
+            //else {
 //                existingRoles.add(userRole);
 //                existingUser.setRoles(existingRoles);
 //                existingUser.setPassword(registerUserDto.getPassword());
@@ -341,6 +372,14 @@ public class UserServiceImpl implements UserService{
             return user;
         }
         return null;
+    }
+
+    private boolean isSameAddress(Address existingAddress, RegisterUserDto registerUserDto) {
+        return Objects.equals(existingAddress.getCountry(), registerUserDto.getCountry())
+                && Objects.equals(existingAddress.getProvince(), registerUserDto.getProvince())
+                && Objects.equals(existingAddress.getDistrict(), registerUserDto.getDistrict())
+                && Objects.equals(existingAddress.getCommune(), registerUserDto.getCommune())
+                && Objects.equals(existingAddress.getAddressDetail(), registerUserDto.getAddressDetail());
     }
 
     @Override
