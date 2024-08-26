@@ -99,5 +99,23 @@ public class CommentServiceImpl implements ICommentService {
 
     }
 
+    @Override
+    public Optional<CommentDTO> getCommentById(Long id) {
+        Optional<Comment> commentOptional = commentRepository.findById(id);
+        return commentOptional.map(commentMapper::toDto); // Trả về Optional<CommentDTO>
+    }
+
+    @Override
+    public List<CommentDTO> getCommentsByUserIdAndProductId(Long userId, Long productId) {
+        try {
+            List<Comment> commentList = commentRepository.findCommentsByUserIdAndProductId(userId, productId);
+            return commentList.stream()
+                    .map(commentMapper::toDto)
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to retrieve comments", e);
+        }
+    }
+
 
 }

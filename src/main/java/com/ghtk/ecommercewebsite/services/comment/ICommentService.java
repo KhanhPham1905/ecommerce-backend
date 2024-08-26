@@ -21,6 +21,8 @@ public interface ICommentService {
 
     CommentDTO updateComment(Long id, UpdateCommentRequestDTO requestDTO) ;
 
+    Optional<CommentDTO> getCommentById(Long id) ;
+    List<CommentDTO> getCommentsByUserIdAndProductId(Long userId, Long productId);
 
 
 }
