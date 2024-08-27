@@ -94,7 +94,7 @@ public class PaymentService {
                                 .map(order -> String.valueOf(order.getId()))
                                 .reduce((a, b) -> a + "," + b)
                                 .orElse(""))
-                        .setSuccessUrl("http://localhost:8080/api/payment/checkout/success?session_id={CHECKOUT_SESSION_ID}")
+                        .setSuccessUrl("http://localhost:5173/user/list-order")
                         .setCancelUrl("http://localhost:8080/api/payment/checkout/cancel")
                         .build();
 

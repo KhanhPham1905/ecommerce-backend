@@ -29,7 +29,7 @@ public class OrdersController {
     @GetMapping
     public CommonResult<List<OrdersDTO>> getAllOrders() throws Exception{
         User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        List<OrdersDTO> orders = iOrdersService.findAll().stream().map(orderMapper::toDto).collect(Collectors.toList());
+        List<OrdersDTO> orders = iOrdersService.findAll(user.getId()).stream().map(orderMapper::toDto).collect(Collectors.toList());
         return CommonResult.success(orders, "Get all orders successfully");
     }
 

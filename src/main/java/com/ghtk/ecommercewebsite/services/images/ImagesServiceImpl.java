@@ -38,4 +38,13 @@ public class ImagesServiceImpl implements ImagesService{
                 .build();
         imagesRepository.save(image);
     }
+
+    @Override
+    public void insertNotDelete(String img, Long id) throws DataNotFoundException {
+        Image image = Image.builder()
+                .link(img)
+                .productId(id)
+                .build();
+        imagesRepository.save(image);
+    }
 }

@@ -6,10 +6,10 @@ import com.ghtk.ecommercewebsite.models.entities.Product;
 import com.ghtk.ecommercewebsite.models.responses.ProductResponse;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Optional;
-
 public interface IProductService {
 
     List<Product> findAll();
@@ -33,8 +33,9 @@ public interface IProductService {
 
     ProductResponse getProductById(Long id) throws  Exception;
 
-    Page<ProductResponse> searchProductsSeller (List<Long> categoryIds, long categoryCount, List<Long> brandIds, String keyword, PageRequest pageRequest) throws Exception;
+    Page<ProductResponse> searchProductsSeller (List<Long> categoryIds, long categoryCount, List<Long> brandIds, String keyword,Long userId, PageRequest pageRequest) throws Exception;
 
     Product updateProductById(Long id,ProductDTO productDTO, Long userId) throws Exception;
 
+    Product insertAProduct(ProductDTO productDTO) throws Exception;
 }

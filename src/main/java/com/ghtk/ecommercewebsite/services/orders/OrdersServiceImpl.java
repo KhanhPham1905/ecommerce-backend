@@ -45,8 +45,15 @@ public class OrdersServiceImpl implements IOrdersService {
     }
 
     @Override
-    public List<Orders> findAll() {
-        return ordersRepository.findAll();
+    public List<Orders> findAll(Long userId) throws DataNotFoundException {
+        User user = userRepository.findById(userId).orElseThrow(()-> new DataNotFoundException("Cannot find user by this id"));
+        Address address = addressRepository.findByUserId(userId)
+                .orElseThrow(()-> new DataNotFoundException("Cannot find address by userId"));
+        String addressReceiver = address.getCommune() + ", " + address.getDistrict() + ", " + address.getProvince() + "," + address.getCountry();
+        Shop shop = shopRepository.findByUserId(userId);
+        List<Orders> ordersList = ordersRepository.findAll(shop.getId());
+
+        return ordersList;
     }
 
     @Override

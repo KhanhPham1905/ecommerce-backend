@@ -168,8 +168,9 @@ public class ProductItemServiceImpl implements ProductItemService
         ProductItem newProductItem = ProductItem.builder()
                 .skuCode(detailProductItemDTO.getSkuCode())
                 .id(productItem.getId())
+                .quantity(productItem.getQuantity())
                 .isDelete(Boolean.FALSE)
-                .importPrice(productItem.getImportPrice())
+                .importPrice(detailProductItemDTO.getImportPrice())
                 .productId(detailProductItemDTO.getProductId())
                 .price(detailProductItemDTO.getPrice())
                 .build();

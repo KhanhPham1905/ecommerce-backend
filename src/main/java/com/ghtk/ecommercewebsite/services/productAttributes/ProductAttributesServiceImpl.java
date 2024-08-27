@@ -32,7 +32,7 @@ public class ProductAttributesServiceImpl implements ProductAttributesService
     @Transactional
     public ProductAttributesDTO createProductAttributes(ProductAttributesDTO productAttributesDTO, Long id, Long userId) throws Exception{
         List<ProductAttributes> ListProductAttributes = productAttributesRepository.findByProductId(id);
-        if (ListProductAttributes.size() > 3){
+        if (ListProductAttributes.size() > 5){
             throw new QuantityExceededException("you can only have a maximum of 4 attributes");
         }
 

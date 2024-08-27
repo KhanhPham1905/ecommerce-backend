@@ -13,7 +13,7 @@ import java.util.Optional;
 public interface IOrdersService {
     OrdersDTO addOrder(OrdersDTO orderDTO, Long userId) throws DataNotFoundException;
 
-    List<Orders> findAll() throws  DataNotFoundException;
+    List<Orders> findAll(Long userId) throws  DataNotFoundException;
 
     Optional<Orders> findById(Long id);
 

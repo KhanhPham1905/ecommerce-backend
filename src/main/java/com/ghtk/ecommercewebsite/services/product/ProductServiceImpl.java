@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import com.ghtk.ecommercewebsite.services.CloudinaryService;
 import com.ghtk.ecommercewebsite.services.images.ImagesService;
 import lombok.RequiredArgsConstructor;
+import lombok.Synchronized;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -192,9 +193,14 @@ public class ProductServiceImpl implements IProductService {
             long categoryCount,
             List<Long> brandIds,
             String keyword,
+            Long userId,
             PageRequest pageRequest
     ) throws Exception {
-        return productsRepository.searchProductsSeller(categoryIds, categoryCount, brandIds, keyword, pageRequest)
+        Shop shop = shopRepository.findByUserId(userId);
+        if(shop == null){
+            throw  new Exception("shop not found by userID");
+        }
+        return productsRepository.searchProductsSeller(categoryIds, categoryCount, brandIds, keyword,shop.getId(), pageRequest)
                 .map(product -> {
                     List<String> categoryNames = product.getCategoryList().stream()
                             .map(Category::getName)
@@ -316,6 +322,31 @@ public class ProductServiceImpl implements IProductService {
 
         for (String file: productDTO.getImages()){
             imagesService.addImageTextProduct(file, product.getId());
+        }
+        return product;
+    }
+
+    @Override
+    @Transactional
+    public Product insertAProduct(ProductDTO productDTO) throws  Exception{
+//        Shop shop = shopRepository.findById(productDTO.getShopId())
+//                .orElseThrow(()-> new DataNotFoundException("cannot find shop by shopud"));
+//        productDTO.setShopId(shop.getId());
+        productDTO.setIsDelete(Boolean.FALSE);
+//        CloudinaryResponse ThumbcloudinaryResponse = cloudinaryService.uploadImage(productDTO.getThumbnail());
+//        productDTO.setThumbnailImg(ThumbcloudinaryResponse.getUrl());
+        Product product = productsRepository.save(productMapper.toEntity(productDTO));
+
+        for (int i = 0; i < productDTO.getCategoryIds().size(); i++){
+            ProductCategory productCategory = ProductCategory.builder()
+                    .categoryId(productDTO.getCategoryIds().get(i))
+                    .productId(product.getId())
+                    .build();
+            categoryProductRepository.save(productCategory);
+        }
+
+        for (String file: productDTO.getImages()){
+            imagesService.insertNotDelete(file, product.getId());
         }
         return product;
     }
