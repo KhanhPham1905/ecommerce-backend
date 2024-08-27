@@ -66,10 +66,11 @@ public class PaymentService {
                                         .setName("Product Name: " + productName)  // Sử dụng tên sản phẩm thực tế
                                         .build();
 
+                        BigDecimal unitPrice = item.getUnitPrice().divide(new BigDecimal(1000));
                         SessionCreateParams.LineItem.PriceData priceData =
                                 SessionCreateParams.LineItem.PriceData.builder()
                                         .setCurrency("vnd")
-                                        .setUnitAmount(item.getUnitPrice().multiply(new BigDecimal(1000)).longValue())  // Đơn giá sản phẩm
+                                        .setUnitAmount(unitPrice.multiply(new BigDecimal(1000)).longValue())  // Đơn giá sản phẩm
                                         .setProductData(productData)
                                         .build();
 
