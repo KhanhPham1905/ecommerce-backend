@@ -91,6 +91,7 @@ public class ProductItemServiceImpl implements ProductItemService
                 .productId(detailProductItemDTO.getProductId())
                 .price(detailProductItemDTO.getPrice())
                 .isDelete(Boolean.FALSE)
+                .quantity(0)
                 .skuCode(detailProductItemDTO.getSkuCode())
                 .build();
         productItemRepository.save(productItem);
@@ -154,7 +155,18 @@ public class ProductItemServiceImpl implements ProductItemService
     public DetailProductItemDTO updateProductItem(DetailProductItemDTO detailProductItemDTO, Long userId) throws Exception {
         Product product = productRepository.findById(detailProductItemDTO.getProductId())
                 .orElseThrow(()-> new DataNotFoundException("Cannot not found product"));
+        int valuesCount = detailProductItemDTO.getProductItemAtrAttributesDTOS().size();
+        List<ProductAttributes> productAttributesList = productAttributesRepository.findAllByProductId(detailProductItemDTO.getProductId());
 
+        List<Long> valuesIds = detailProductItemDTO.getProductItemAtrAttributesDTOS().stream()
+                .map(ProductItemAttributesDTO::getAttributeValueId)
+                .collect(Collectors.toList());
+        if(productAttributesList.size() == valuesCount ) {
+            List<ProductItem> productItemList = productItemRepository.findProductItemByAttributesValues(detailProductItemDTO.getProductId(), valuesIds, valuesCount);
+            if(productItemList.size() > 0 ){
+                throw new Exception("product item already exists");
+            }
+        }
         if (product.getMinPrice() == null || product.getMinPrice().compareTo(detailProductItemDTO.getPrice()) > 0) {
             product.setMinPrice(detailProductItemDTO.getPrice());
             productRepository.save(product);
@@ -164,6 +176,7 @@ public class ProductItemServiceImpl implements ProductItemService
         if (productItem == null){
             throw new DataNotFoundException("Cannot find product item");
         }
+
 
         ProductItem newProductItem = ProductItem.builder()
                 .skuCode(detailProductItemDTO.getSkuCode())
@@ -176,14 +189,16 @@ public class ProductItemServiceImpl implements ProductItemService
                 .build();
         productItemRepository.save(newProductItem);
 
-
+        productItemAttributesRepository.deleteProductItemAttributesValue(productItem.getId());
         for(ProductItemAttributesDTO productItemAttributesDTO : detailProductItemDTO.getProductItemAtrAttributesDTOS()) {
             AttributeValues attributeValues = attributeValuesRepository.findById(productItemAttributesDTO.getAttributeValueId())
                     .orElseThrow(()-> new DataNotFoundException("Cannot found attribute values by id"));
 
+//            ProductItemAttributes productItemAttributes = productItemAttributesRepository.findById(productItemAttributesDTO.getId()).orElseThrow(()-> new DataNotFoundException("cannot find product item attribute by id"))
             ProductItemAttributes productItemAttributes = ProductItemAttributes.builder()
                     .value(attributeValues.getValue())
                     .id(productItemAttributesDTO.getId())
+                    .productAttributesId((productItemAttributesDTO.getProductAttributeId()))
                     .attributeValueId(productItemAttributesDTO.getAttributeValueId())
                     .productItemId(productItem.getId())
                     .build();
