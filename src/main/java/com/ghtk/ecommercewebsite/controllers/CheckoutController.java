@@ -63,7 +63,7 @@ public class CheckoutController {
             @RequestParam List<Long> selectedCartItems
     ) throws Exception {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        BigDecimal totalPrice = checkoutService.calculateCartTotal(user.getId(), selectedCartItems).multiply(new BigDecimal(1000));
+        BigDecimal totalPrice = checkoutService.calculateCartTotal(user.getId(), selectedCartItems);
         return CommonResult.success(totalPrice, "Total price calculated successfully");
     }
 //    @PostMapping("/checkout_direct")
