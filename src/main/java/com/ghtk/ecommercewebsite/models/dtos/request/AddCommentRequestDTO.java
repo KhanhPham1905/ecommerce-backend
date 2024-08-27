@@ -14,11 +14,8 @@ public class AddCommentRequestDTO {
     @NotNull(message = "Content cannot be null")
     private String content;
 
-    @NotNull(message = "Product item ID cannot be null")
-    private Long productItemId;
-
-    @NotNull(message = "User ID cannot be null")
-    private Long userId;
+    @NotNull(message = "Product ID cannot be null")
+    private Long productId;
 
     @Min(value = 1, message = "Rating must be at least 1")
     @Max(value = 5, message = "Rating must be at most 5")

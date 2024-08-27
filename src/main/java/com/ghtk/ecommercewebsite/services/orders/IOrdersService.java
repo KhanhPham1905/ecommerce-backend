@@ -29,5 +29,7 @@ public interface IOrdersService {
 
     List<Orders> getAllOrderBySeller(Long userId) throws Exception;
 
-    List<OrderStatusHistory> getOrderHistory(Long orderId) ;
+    List<OrderStatusHistory> getOrderHistory(Long orderId);
+
+    boolean checkUserPurchasedProduct(Long userId, Long productId);
 }

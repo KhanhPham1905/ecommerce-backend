@@ -110,4 +110,8 @@ public class OrdersServiceImpl implements IOrdersService {
     }
 
 
+    public boolean checkUserPurchasedProduct(Long userId, Long productId) {
+        return orderItemRepository.hasUserPurchasedProduct(userId, productId);
+    }
+
 }

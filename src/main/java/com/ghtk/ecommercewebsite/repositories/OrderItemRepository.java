@@ -22,4 +22,10 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Long> {
     Optional<List<OrderItem>> findAllByProductItemId(Long id);
 
     List<OrderItem> findAllByOrderId(Long id);
+
+    @Query("SELECT COUNT(oi) > 0 FROM OrderItem oi " +
+            "JOIN ProductItem pi ON oi.productItemId = pi.id " +
+            "JOIN Orders o ON oi.orderId = o.id " +
+            "WHERE o.userId = :userId AND pi.productId = :productId")
+    boolean hasUserPurchasedProduct(@Param("userId") Long userId, @Param("productId") Long productId);
 }

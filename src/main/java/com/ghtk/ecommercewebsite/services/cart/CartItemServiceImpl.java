@@ -88,17 +88,7 @@ public class CartItemServiceImpl implements ICartItemService {
     }
 
 
-    private BigDecimal calculateDirectDiscount(Long voucherId, int quantity, BigDecimal unitPrice) {
-        BigDecimal discount = BigDecimal.ZERO;
-        if (voucherId != null) {
-            Voucher voucher = voucherRepository.findById(voucherId)
-                    .orElseThrow(() -> new IllegalArgumentException("Voucher not found"));
-            if (isVoucherApplicable(voucher, quantity)) {
-                discount = applyVoucher(voucher, unitPrice, quantity);
-            }
-        }
-        return discount;
-    }
+
 
     private boolean isVoucherApplicable(Voucher voucher, int quantity) {
         return voucher.getIsPublic() &&
@@ -138,11 +128,21 @@ public class CartItemServiceImpl implements ICartItemService {
     @Override
     public void deleteCartItem(Long id, Long userId) throws Exception {
         Optional<CartItem> cartItemOptional = cartItemRepository.findByIdAndUserId(id, userId);
+
         if (cartItemOptional.isPresent()) {
-            cartItemRepository.delete(cartItemOptional.get());
-        } else {
-            throw new Exception("Cart item not found or does not belong to the user");
-        }
+            CartItem cartItem = cartItemOptional.get();
+
+            // Lấy ProductItem liên quan tới CartItem
+            ProductItem productItem = productItemRepository.findById(cartItem.getProductItemId())
+                    .orElseThrow(() -> new Exception("Product item not found"));
+
+            // Trả lại số lượng sản phẩm vào ProductItem
+            productItem.setQuantity(productItem.getQuantity() + cartItem.getQuantity());
+            productItemRepository.save(productItem);  // Lưu lại thay đổi số lượng
+
+            // Xóa CartItem
+            cartItemRepository.delete(cartItem);
+        } else throw new Exception("Cart item not found or does not belong to the user");
     }
 
     @Override
