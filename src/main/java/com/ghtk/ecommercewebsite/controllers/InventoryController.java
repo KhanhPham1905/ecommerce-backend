@@ -30,15 +30,17 @@ public class InventoryController {
 
     @GetMapping
     public  CommonResult<Page<DetailInventoryDTO>> getAllInventoryById(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int limit,
+            @RequestParam(defaultValue = "0",required = false) int page,
+            @RequestParam(defaultValue = "10", required = false) int limit,
             @RequestParam(defaultValue = "",required = false) String warehouse,
             @RequestParam(defaultValue = "",required = false) String skuCode,
             @RequestParam(defaultValue = "",required = false) String name
     ) throws Exception{
-        Pageable pageable = PageRequest.of(page, limit);
+        PageRequest pageRequest = PageRequest.of(
+                page, limit);
+//        Pageable pageable = PageRequest.of(page, limit);
         User user  = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return CommonResult.success(inventoryService.getAllInventory(warehouse, skuCode, name,  user.getId(), pageable),"Get all inventory successfully");
+        return CommonResult.success(inventoryService.getAllInventory(warehouse, skuCode, name,  user.getId(), pageRequest),"Get all inventory successfully");
     }
 
 

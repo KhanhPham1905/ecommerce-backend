@@ -78,7 +78,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
 
     Optional<Product> findById(Long id);
 
-
     @Query("SELECT COUNT(*) FROM Product p WHERE p.shopId = ?1")
     Long getQuantityByShopId(Long shopId);
 }

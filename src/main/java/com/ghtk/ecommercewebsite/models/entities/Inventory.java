@@ -32,6 +32,7 @@ import lombok.Builder;
                 "AND w.name LIKE CONCAT('%', :warehouse,'%') " +
                 "AND pi.sku_code LIKE CONCAT('%',:sku_code,'%') " +
                 "AND p.name LIKE CONCAT('%',:name,'%') ",
+//                "AND LIMIT :limit OFFSET :offset",
         resultSetMapping = "DetailInventoryMapping"
 )
 
