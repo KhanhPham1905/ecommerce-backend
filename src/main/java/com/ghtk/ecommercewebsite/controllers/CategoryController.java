@@ -50,8 +50,8 @@ public class CategoryController {
         PageRequest pageRequest = PageRequest.of(
                 page, limit,
                 Sort.by("id").ascending());
-        User user  = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        Page<Category> categoriesPages = categoryService.getAllCategories(pageRequest,user.getId(), name);
+//        User user  = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        Page<Category> categoriesPages = categoryService.getAllCategories(pageRequest, name);
         return CommonResult.success(categoriesPages, "Get all categories");
     }
 

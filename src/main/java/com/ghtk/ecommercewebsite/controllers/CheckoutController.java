@@ -27,7 +27,7 @@ public class CheckoutController {
     private final PaymentService paymentService;
 
     @PostMapping("/checkout_cart")
-    public ResponseEntity<CommonResult<Map<String, String>>> checkout(@RequestBody CheckoutRequestDTO checkoutRequest) {
+    public ResponseEntity<CommonResult<Map<String, String>>> checkout(@RequestBody CheckoutRequestDTO checkoutRequest)  throws  Exception{
         try {
             // Lấy thông tin người dùng từ SecurityContextHolder
             User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();

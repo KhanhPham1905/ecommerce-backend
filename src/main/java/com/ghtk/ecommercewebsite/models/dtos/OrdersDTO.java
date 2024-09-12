@@ -1,5 +1,6 @@
 package com.ghtk.ecommercewebsite.models.dtos;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.persistence.Column;
@@ -40,6 +41,25 @@ public class OrdersDTO {
     private Long shopId;
     private Long addressID;
 
+    @JsonProperty("address")
+    private String address;
+
+    @JsonProperty("address_detail")
+    private String addressDetail;
+
+    @JsonProperty("receiver_phone")
+    private String receiverPhone;
+
+    @JsonProperty("buyer")
+    private String buyer;
+
+    @JsonProperty("created_at")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime createdAt;
+
+    @JsonProperty("modified_at")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
+    private LocalDateTime modifiedAt;
 
     public enum OrderStatus {
         PENDING,

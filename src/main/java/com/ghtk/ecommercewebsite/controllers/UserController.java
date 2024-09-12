@@ -40,8 +40,6 @@ public class UserController {
         return CommonResult.success(user);
     }
 
-
-
     // New version start from here
     @PostMapping("/signUpNewVersion")
     public CommonResult<User> verifyOtpForSigningUp(@RequestBody RegisterUserDto registerUserDto) throws UserAlreadyExistedException {

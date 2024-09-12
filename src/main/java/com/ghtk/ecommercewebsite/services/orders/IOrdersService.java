@@ -5,6 +5,7 @@ import com.ghtk.ecommercewebsite.models.dtos.OrdersDTO;
 import com.ghtk.ecommercewebsite.models.entities.OrderItem;
 import com.ghtk.ecommercewebsite.models.entities.OrderStatusHistory;
 import com.ghtk.ecommercewebsite.models.entities.Orders;
+import com.ghtk.ecommercewebsite.models.entities.User;
 
 import java.util.List;
 import java.util.Optional;
@@ -12,7 +13,7 @@ import java.util.Optional;
 public interface IOrdersService {
     OrdersDTO addOrder(OrdersDTO orderDTO, Long userId) throws DataNotFoundException;
 
-    List<Orders> findAll();
+    List<Orders> findAll(Long userId) throws  DataNotFoundException;
 
     Optional<Orders> findById(Long id);
 

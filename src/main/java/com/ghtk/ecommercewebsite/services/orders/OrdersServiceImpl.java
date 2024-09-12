@@ -6,6 +6,7 @@ import com.ghtk.ecommercewebsite.models.dtos.OrdersDTO;
 import com.ghtk.ecommercewebsite.models.entities.OrderItem;
 import com.ghtk.ecommercewebsite.models.entities.OrderStatusHistory;
 import com.ghtk.ecommercewebsite.models.entities.Orders;
+import com.ghtk.ecommercewebsite.models.entities.*;
 import com.ghtk.ecommercewebsite.repositories.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -23,21 +24,36 @@ public class OrdersServiceImpl implements IOrdersService {
     private final UserRepository userRepository;
     private final OrderStatusHistoryRepository orderStatusHistoryRepository;
     private final OrderItemRepository orderItemRepository;
-
+    private final ShopRepository shopRepository;
+    private final AddressRepository addressRepository;
 
     @Override
     public OrdersDTO addOrder(OrdersDTO orderDTO, Long userId) throws DataNotFoundException {
-        if (userRepository.findById(userId).isEmpty()) {
-            throw new DataNotFoundException("Cannot find user by this id");
-        }
+        User user = userRepository.findById(userId)
+                .orElseThrow(()-> new DataNotFoundException("Cannot find user by this id"));
+        Address address = addressRepository.findByUserId(userId)
+                .orElseThrow(()-> new DataNotFoundException("Cannot find address by userId"));
+        String addressReceiver = address.getCommune() + ", " + address.getDistrict() + ", " + address.getProvince() + "," + address.getCountry();
         Orders order = orderMapper.toEntity(orderDTO);
+        order.setAddress(addressReceiver);
+        order.setAddressDetail(address.getAddressDetail());
+        order.setBuyer(user.getFullName());
+        order.setReceiverPhone(user.getPhone());
+        order.setShopId(orderDTO.getShopId());
         ordersRepository.save(order);
         return orderDTO;
     }
 
     @Override
-    public List<Orders> findAll() {
-        return ordersRepository.findAll();
+    public List<Orders> findAll(Long userId) throws DataNotFoundException {
+        User user = userRepository.findById(userId).orElseThrow(()-> new DataNotFoundException("Cannot find user by this id"));
+        Address address = addressRepository.findByUserId(userId)
+                .orElseThrow(()-> new DataNotFoundException("Cannot find address by userId"));
+        String addressReceiver = address.getCommune() + ", " + address.getDistrict() + ", " + address.getProvince() + "," + address.getCountry();
+        Shop shop = shopRepository.findByUserId(userId);
+        List<Orders> ordersList = ordersRepository.findAll(shop.getId());
+
+        return ordersList;
     }
 
     @Override
@@ -68,7 +84,7 @@ public class OrdersServiceImpl implements IOrdersService {
 
 
     @Override
-    public List<Orders> getAllOrderBySeller(Long userId) {
+    public List<Orders> getAllOrderBySeller(Long userId) throws Exception {
         return List.of();
     }
 

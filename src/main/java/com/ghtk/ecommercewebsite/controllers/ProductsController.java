@@ -2,6 +2,7 @@ package com.ghtk.ecommercewebsite.controllers;
 
 import com.cloudinary.Cloudinary;
 import com.ghtk.ecommercewebsite.configs.Contant;
+import com.ghtk.ecommercewebsite.exceptions.DataNotFoundException;
 import com.ghtk.ecommercewebsite.mapper.ProductMapper;
 import com.ghtk.ecommercewebsite.models.dtos.ListAttributeValuesDTO;
 import com.ghtk.ecommercewebsite.models.dtos.ProductDTO;
@@ -11,35 +12,40 @@ import com.ghtk.ecommercewebsite.models.responses.CloudinaryResponse;
 import com.ghtk.ecommercewebsite.models.responses.CommonResult;
 import com.ghtk.ecommercewebsite.models.responses.ProductListResponse;
 import com.ghtk.ecommercewebsite.models.responses.ProductResponse;
+import com.ghtk.ecommercewebsite.repositories.ImagesRepository;
 import com.ghtk.ecommercewebsite.services.CloudinaryService;
 import com.ghtk.ecommercewebsite.services.images.ImagesService;
 import com.ghtk.ecommercewebsite.services.product.IProductService;
+import com.github.javafaker.Faker;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/products")
 @RequiredArgsConstructor
 public class ProductsController {
-
     private final IProductService iProductService;
     private final ProductMapper productMapper;
     private final CloudinaryService cloudinaryService;
+    private final ImagesService imagesService;
 
 
     @GetMapping("/user")
-    @PreAuthorize("hasRole('ROLE_USER')")
     public CommonResult<ProductListResponse> getAllProductsUser(
             @RequestParam(defaultValue = "") String keyword,
             @RequestParam(defaultValue = "", name = "category-ids") String categoryIds,
@@ -106,7 +112,7 @@ public class ProductsController {
             @RequestParam(defaultValue = "", name = "brand-ids") String brandIds,
             @RequestParam(defaultValue = "default", name ="sort") String sortOption,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "16") int limit
+            @RequestParam(defaultValue = "10") int limit
     ) throws Exception{
         Sort sort = switch (sortOption) {
             case "latest" -> Sort.by("createdAt").descending();
@@ -143,7 +149,8 @@ public class ProductsController {
         int totalPages = 0;
         List<ProductResponse> productResponses = null;
         if (productPage == null) {
-            productPage = iProductService.searchProductsSeller(categoryList, categoryList == null ? 0 : categoryList.size(), brandList, keyword, pageRequest);
+            User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+            productPage = iProductService.searchProductsSeller(categoryList, categoryList == null ? 0 : categoryList.size(), brandList, keyword, user.getId(), pageRequest);
             // Get total pages
             totalPages = productPage.getTotalPages();
             productResponses = productPage.getContent();
@@ -242,29 +249,129 @@ public class ProductsController {
 //        return CommonResult.success(products, "Search products by description successfully");
 //    }
 
-    @PostMapping(value = "uploads/{id}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public CommonResult<?> uploadImages(
-            @PathVariable("id") Long id,
-            @ModelAttribute("files") List<MultipartFile> files
-    ) throws  Exception{
-        files = files == null ? new ArrayList<MultipartFile>() : files;
-        if(files.size() > Contant.MAXIMUM_IMAGES_PER_PRODUCT){
-            return  CommonResult.failed("You can only upload max : " + Contant.MAXIMUM_IMAGES_PER_PRODUCT);
-        }
-
-        for (MultipartFile file: files){
-            if(file.getSize() == 0){
-                continue;
-            }
-            if (file.getSize() > 10*1024*1024){
-                return CommonResult.failed("you can only upload file Maximum 10MB");
-            }
-            String contentType = file.getContentType();
-            if (contentType == null && ! contentType.startsWith("image/")){
-                return CommonResult.failed("you must up load file is image");
-            }
-            CloudinaryResponse cloudinaryResponse = cloudinaryService.uploadImage(file);
-        }
-        return CommonResult.success("sac set");
+//    @PostMapping(value = "/uploads", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+//    public CommonResult<String> uploadImages(
+//            @ModelAttribute("files") List<MultipartFile> files
+//    ) throws  Exception{
+//        files = files == null ? new ArrayList<MultipartFile>() : files;
+//        if(files.size() > Contant.MAXIMUM_IMAGES_PER_PRODUCT){
+//            return  CommonResult.failed("You can only upload max : " + Contant.MAXIMUM_IMAGES_PER_PRODUCT);
+//        }
+//
+//        for (MultipartFile file: files){
+//            if(file.getSize() == 0){
+//                continue;
+//            }
+//            if (file.getSize() > 10*1024*1024){
+//                return CommonResult.failed("you can only upload file Maximum 10MB");
+//            }
+//            String contentType = file.getContentType();
+//            if (contentType == null && ! contentType.startsWith("image/")){
+//                return CommonResult.failed("you must up load file is image");
+//            }
+//            CloudinaryResponse cloudinaryResponse = cloudinaryService.uploadImage(file);
+//        }
+//        return CommonResult.success("sac set");
+//    }
+@PostMapping(value = "/uploads", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+public CommonResult<String> uploadImage(
+        @RequestParam("files") MultipartFile file
+) throws Exception {
+    if (file == null || file.isEmpty()) {
+        return CommonResult.failed("File không được rỗng");
     }
+
+    if (file.getSize() > 10 * 1024 * 1024) {
+        return CommonResult.failed("Bạn chỉ có thể tải lên tệp tối đa 10MB");
+    }
+
+    String contentType = file.getContentType();
+    if (contentType == null || !contentType.startsWith("image/")) {
+        return CommonResult.failed("Bạn chỉ có thể tải lên tệp là hình ảnh");
+    }
+
+    // Tải lên hình ảnh
+    CloudinaryResponse cloudinaryResponse = cloudinaryService.uploadImage(file);
+
+    return CommonResult.success(cloudinaryResponse.getUrl(), "Tải lên thành công");
+}
+
+
+//    @PostMapping("/generateFakeProducts")
+//    private ResponseEntity<String> generateFakeProducts () throws Exception{
+//        Faker faker = new Faker();
+////        for (long i = 0; i < 100; i++) {
+//            String title = faker.commerce().productName();
+////            if (iProductService.existsByTitle(title)) {
+////                continue;
+////            }
+//            List<Long> categoryIds = new ArrayList<>();
+//            for (int j = 0; j < faker.number().numberBetween(1,5); j++) {
+//                categoryIds.add((long) faker.number().numberBetween(1, 29));
+//            }
+//            ProductDTO productDTO = ProductDTO
+//                    .builder()
+//                    .name(title)
+////                    .price(faker.number().numberBetween(10, 90_000_000))
+//                    .description(faker.lorem().sentence())
+////                    .discount(faker.number().numberBetween(0, 10))
+////                    .averageRate(faker.number().numberBetween(0, 5))
+//                    .brandId((long)faker.number().numberBetween(1,5))
+//                    .categoryIds(categoryIds)
+//                    .images(List.of("https://res.cloudinary.com/dqgarzqlx/image/upload/v1724702644/615999978560552960.jpg"))
+//                    .status(1)
+//                    .totalSold(((long)faker.number().numberBetween(10, 90_000)))
+//                    .shopId((long)faker.number().numberBetween(1,5))
+//                    .minPrice(BigDecimal.valueOf(faker.number().numberBetween(10, 90_000)))
+//                    .build();
+//                iProductService.save(productDTO);
+//
+////        }
+//        return ResponseEntity.ok("Fake Products insert successfully");
+//    }
+
+    @PostMapping("/generateFakeProducts")
+    @PreAuthorize("hasRole('ROLE_SELLER')")
+    public CommonResult<ProductDTO> createProduct() throws Exception{
+        User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+//        Product savedProduct = iProductService.save(productDTO, user.getId());
+        Faker faker = new Faker();
+        for (long i = 0; i < 100000; i++) {
+//            Thread.sleep(100);
+        String title = faker.commerce().productName();
+//            if (iProductService.existsByTitle(title)) {
+//                continue;
+//            }
+        List<Long> categoryIds = new ArrayList<>();
+        for (int j = 0; j < faker.number().numberBetween(1,5); j++) {
+            categoryIds.add((long) faker.number().numberBetween(1, 29));
+        }
+        ProductDTO productDTO = ProductDTO
+                .builder()
+                .name(title)
+//                    .price(faker.number().numberBetween(10, 90_000_000))
+                .description(faker.lorem().sentence())
+//                    .discount(faker.number().numberBetween(0, 10))
+//                    .averageRate(faker.number().numberBetween(0, 5))
+                .brandId((long)faker.number().numberBetween(1,5))
+                .categoryIds(categoryIds)
+                .images(List.of("https://res.cloudinary.com/dqgarzqlx/image/upload/v1724702644/615999978560552960.jpg"))
+                .status(1)
+                .totalSold(((long)faker.number().numberBetween(10, 90_000)))
+                .shopId((long)faker.number().numberBetween(1,5))
+                .minPrice(BigDecimal.valueOf(faker.number().numberBetween(10, 90_000)))
+                .build();
+        Product product = iProductService.insertAProduct(productDTO);
+
+        }
+        return CommonResult.success(null,  "Create product successfully");
+    }
+//    @PostMapping("/uploadsText/{id}/{image}")
+//    public  CommonResult<String> ImageText(
+//            @PathVariable  String image,
+//            @PathVariable Long id
+//    ) throws DataNotFoundException {
+//        imagesService.addImageTextProduct(id, image);
+//        return CommonResult.success("upload img text success");
+//    }
 }

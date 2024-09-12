@@ -50,7 +50,7 @@ public class BrandServiceImpl implements IBrandService {
     }
 
     @Override
-    public Page<Brand> getAllBrands(PageRequest pageRequest, Long userId, String name) throws Exception{
+    public Page<Brand> getAllBrands(PageRequest pageRequest,  String name) throws Exception{
 //        Long shopId = sellerRepository.findShopIdByUserId(userId);
 //        if (shopId == null){
 //            throw new DataNotFoundException("Cannot find Shop id by Userid");

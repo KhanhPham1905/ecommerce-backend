@@ -39,30 +39,52 @@ public class InventoryServiceImpl implements InventoryService{
                 .orElseThrow(()->new DataNotFoundException("Cannot find inventory by id"));
         return inventoryMapper.toDTO(inventory);
     }
-
+//
+//    @Override
+//    public Page<DetailInventoryDTO> getAllInventory(String warehouse,String skuCode,String name,Long userId, Pageable pageable) throws Exception {
+//        Long shopId = sellerRepository.findShopIdByUserId(userId);
+//        if (shopId == null){
+//            throw  new DataNotFoundException("Cannot find shopId by userId");
+//        }
+//        List<DetailInventoryDTO> detailInventoryDTOList = inventoryRepository.getAllInventory(warehouse, skuCode, name, shopId);
+//        if(detailInventoryDTOList.isEmpty()){
+//            throw  new DataNotFoundException("Cannot find Inventory by Shop id");
+//        }
+//
+//        int start = (int) pageable.getOffset();
+//        int end = Math.min((start + pageable.getPageSize()), detailInventoryDTOList.size());
+//
+//        List<DetailInventoryDTO> pagedList = detailInventoryDTOList.subList(start, end);
+//        return new PageImpl<>(pagedList, pageable, detailInventoryDTOList.size());
+//    }
     @Override
-    public Page<DetailInventoryDTO> getAllInventory(String warehouse,String skuCode,String name,Long userId, Pageable pageable) throws Exception {
+    public Page<DetailInventoryDTO> getAllInventory(String warehouse,String skuCode,String name,Long userId, PageRequest pageable) throws Exception {
         Long shopId = sellerRepository.findShopIdByUserId(userId);
         if (shopId == null){
             throw  new DataNotFoundException("Cannot find shopId by userId");
         }
-        List<DetailInventoryDTO> detailInventoryDTOList = inventoryRepository.getAllInventory(warehouse, skuCode, name, shopId);
-        if(detailInventoryDTOList.isEmpty()){
-            throw  new DataNotFoundException("Cannot find Inventory by Shop id");
-        }
+//        List<DetailInventoryDTO> detailInventoryDTOList = inventoryRepository.getAllInventory(warehouse, skuCode, name, shopId,  pageable);
+//        detailInventoryDTOList = null;
+//        if(detailInventoryDTOList.isEmpty()){
+//            throw  new DataNotFoundException("Cannot find Inventory by Shop id");
+//        }
 
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), detailInventoryDTOList.size());
+//        int start = (int) pageable.getOffset();
+//        int end = Math.min((start + pageable.getPageSize()), detailInventoryDTOList.size());
 
-        List<DetailInventoryDTO> pagedList = detailInventoryDTOList.subList(start, end);
-        return new PageImpl<>(pagedList, pageable, detailInventoryDTOList.size());
+//        List<DetailInventoryDTO> pagedList = detailInventoryDTOList.subList(start, end);
+        return inventoryRepository.getAllInventory(warehouse, skuCode, name, shopId,  pageable);
     }
-
     @Override
     @Transactional
-    public DetailInventoryDTO importWarehouse(DetailInventoryDTO detailInventoryDTO, Long userId) throws Exception {
-        ProductItem productItem = productItemRepository.findBySkuCode(detailInventoryDTO.getSkuCode());
-
+    public DetailInventoryDTO importWarehouse(DetailInventoryDTO detailInventoryDTO, Long userId) throws DataNotFoundException {
+        ProductItem productItem = productItemRepository.findBySkuCode(detailInventoryDTO.getSkuCode(), detailInventoryDTO.getProductId());
+        if(productItem == null){
+            throw new DataNotFoundException("Cannot found productItem");
+        }
+        int quantity  = productItem.getQuantity()==null?0: productItem.getQuantity();
+        productItem.setQuantity(quantity + detailInventoryDTO.getQuantity());
+        productItemRepository.save(productItem);
         Supply supply = Supply.builder()
                 .quantity(detailInventoryDTO.getQuantity())
                 .warehouseId(detailInventoryDTO.getWarehouseId())

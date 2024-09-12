@@ -13,12 +13,18 @@ public class OrderMapper {
 
     public OrdersDTO toDto(Orders order) {
         return OrdersDTO.builder()
+                .address(order.getAddress())
+                .addressDetail(order.getAddressDetail())
+                .buyer(order.getBuyer())
+                .receiverPhone(order.getReceiverPhone())
                 .id(order.getId())
                 .shopId(order.getShopId())
                 .userId(order.getUserId())
                 .note(order.getNote())
                 .status(OrdersDTO.OrderStatus.valueOf(order.getStatus().name()))
                 .totalPrice(order.getTotalPrice())
+                .modifiedAt(order.getModifiedAt())
+                .createdAt(order.getCreatedAt())
                 .method(order.isMethod())
                 .build();
     }
@@ -26,6 +32,10 @@ public class OrderMapper {
     public Orders toEntity(OrdersDTO orderDTO) {
         return Orders.builder()
                 .id(orderDTO.getId())
+                .buyer(orderDTO.getBuyer())
+                .addressDetail(orderDTO.getAddressDetail())
+                .receiverPhone(orderDTO.getReceiverPhone())
+                .address(orderDTO.getAddress())
                 .shopId(orderDTO.getShopId())
                 .userId(orderDTO.getUserId())
                 .note(orderDTO.getNote())

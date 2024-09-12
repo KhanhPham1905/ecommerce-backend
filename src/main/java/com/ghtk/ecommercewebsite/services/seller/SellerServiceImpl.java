@@ -307,7 +307,7 @@ public class SellerServiceImpl implements SellerService{
             existingUser.setRoles(existingRoles);
 
             existingUser.setFullName(registerUserDto.getFullName());
-            existingUser.setPassword(registerUserDto.getPassword());
+            existingUser.setPassword(passwordEncoder.encode(registerUserDto.getPassword()));
             existingUser.setPhone(registerUserDto.getPhone());
             existingUser.setGender(registerUserDto.getGender());
             userRepository.save(existingUser);
@@ -424,6 +424,8 @@ public class SellerServiceImpl implements SellerService{
         result.put("warehouse_quantity", quantityWarehouse);
         Long quantityVoucher = voucherRepository.getQuantityByShopId(shop.getId());
         result.put("voucher_quantity", quantityVoucher);
+        Long quantityOrder = ordersRepository.getQuantityByShopId(shop.getId());
+        result.put("order_quantity", quantityOrder);
         return result;
     }
 }

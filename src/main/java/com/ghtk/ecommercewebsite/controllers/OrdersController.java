@@ -25,12 +25,12 @@ public class OrdersController {
 
     private final OrderMapper orderMapper;
     private final IOrdersService iOrdersService;
-
     private final OrderStatusHistoryRepository orderStatusHistoryRepository;
 
     @GetMapping
-    public CommonResult<List<OrdersDTO>> getAllOrders() {
-        List<OrdersDTO> orders = iOrdersService.findAll().stream().map(orderMapper::toDto).collect(Collectors.toList());
+    public CommonResult<List<OrdersDTO>> getAllOrders() throws Exception{
+        User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        List<OrdersDTO> orders = iOrdersService.findAll(user.getId()).stream().map(orderMapper::toDto).collect(Collectors.toList());
         return CommonResult.success(orders, "Get all orders successfully");
     }
 
@@ -41,9 +41,10 @@ public class OrdersController {
                 .orElse(CommonResult.error(404, "Order not found"));
     }
 
-    @GetMapping("/user/{userId}")
-    public CommonResult<List<OrdersDTO>> getUserOrders(@PathVariable Long userId) {
-        List<Orders> ordersList = iOrdersService.findByUserId(userId);
+    @GetMapping("/user")
+    public CommonResult<List<OrdersDTO>> getUserOrders() {
+        User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        List<Orders> ordersList = iOrdersService.findByUserId(user.getId());
         List<OrdersDTO> ordersDTOList = ordersList.stream().map(orderMapper::toDto).collect(Collectors.toList());
         return CommonResult.success(ordersDTOList, "Get user orders successfully");
     }
@@ -72,6 +73,7 @@ public class OrdersController {
                     return CommonResult.success(orderMapper.toDto(updatedOrder), "Update order successfully");
                 }).orElse(CommonResult.error(404, "Order not found"));
     }
+
 
 
     @PatchMapping("/{id}")

@@ -1,5 +1,6 @@
 package com.ghtk.ecommercewebsite.models.entities;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import jakarta.persistence.*;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -31,19 +32,35 @@ public class Orders {
     @Column(name = "total_price", precision = 12, scale = 2)
     private BigDecimal totalPrice;
 
+
     private boolean method;
 
     @Column(name = "user_id", nullable = false)
     private Long userId;
 
     @Column(name = "created_at", nullable = false, updatable = false, columnDefinition = "TIMESTAMP DEFAULT CURRENT_TIMESTAMP")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime createdAt;
 
     @Column(name = "modified_at", columnDefinition = "DATETIME(6)")
+    @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss.SSS")
     private LocalDateTime modifiedAt;
 
-    @Column(name = "shop_id", nullable = false) // Thêm trường shopId
+    @Column(name = "address")
+    private String address;
+
+    @Column(name = "address_detail")
+    private String addressDetail;
+
+    @Column(name = "receiver_phone")
+    private String receiverPhone;
+
+    @Column(name = "buyer")
+    private String buyer;
+
+    @Column(name = "shop_id")
     private Long shopId;
+
 
     @PrePersist
     protected void onCreate() {

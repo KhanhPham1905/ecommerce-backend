@@ -82,7 +82,15 @@ public class ProductItemController {
             @PathVariable Long id,
             @RequestParam(defaultValue = "", name = "values-ids") List<Long> valuesIds
     ) throws  Exception{
-        return CommonResult.success( productItemService.getProductItemByAttributesValues(id, valuesIds),"Get quantity by attributes success");
+        return CommonResult.success( productItemService.getProductItemByAttributesValues(id, valuesIds),"Get quantity by attributes successfully");
+    }
+
+    @GetMapping("/product/{id}")
+    public CommonResult<List<ProductItem>> getListProductItemByProductId(
+        @PathVariable Long id
+    )throws  Exception {
+        User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
+        return CommonResult.success(productItemService.getListProductItemByProductId(id, user.getId()),"Get list product item by product id successfully");
     }
 
 }

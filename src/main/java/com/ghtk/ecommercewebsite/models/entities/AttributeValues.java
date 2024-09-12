@@ -21,7 +21,7 @@ public class AttributeValues {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name="attribute_id")
+    @Column(name="attribute_value_id")
     private Long attributeId;
 
     @Column(name = "value")

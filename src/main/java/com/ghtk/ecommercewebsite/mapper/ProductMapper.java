@@ -14,7 +14,9 @@ public class ProductMapper {
 
         Product product = new Product();
         product.setId(dto.getId());
+        product.setMinPrice(dto.getMinPrice());
 //        product.setThumbnail(dto.getThumbnailImg());
+//        product.setIsDelete(dto.getIsDelete());
         product.setName(dto.getName());
         product.setIsDelete(dto.getIsDelete());
         product.setDescription(dto.getDescription());

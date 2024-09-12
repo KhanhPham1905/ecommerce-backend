@@ -42,6 +42,8 @@ public class ProductItemServiceImpl implements ProductItemService
 
     private final ProductAttributesRepository productAttributesRepository;
 
+    private final ShopRepository shopRepository;
+
     @Transactional
     public void deleteProductItemById(Long id) {
         // Xóa các bản ghi trong cart_item tham chiếu đến product_item
@@ -80,7 +82,7 @@ public class ProductItemServiceImpl implements ProductItemService
             productRepository.save(product);
         }
 
-        ProductItem checkProductItem = productItemRepository.findBySkuCode(detailProductItemDTO.getSkuCode());
+        ProductItem checkProductItem = productItemRepository.findBySkuCode(detailProductItemDTO.getSkuCode(), detailProductItemDTO.getProductId());
         if(checkProductItem != null){
             throw new AlreadyExistedException("sku code has been used");
         }
@@ -89,6 +91,7 @@ public class ProductItemServiceImpl implements ProductItemService
                 .productId(detailProductItemDTO.getProductId())
                 .price(detailProductItemDTO.getPrice())
                 .isDelete(Boolean.FALSE)
+                .quantity(0)
                 .skuCode(detailProductItemDTO.getSkuCode())
                 .build();
         productItemRepository.save(productItem);
@@ -97,9 +100,11 @@ public class ProductItemServiceImpl implements ProductItemService
             AttributeValues attributeValues = attributeValuesRepository.findById(productItemAttributesDTO.getAttributeValueId())
                     .orElseThrow(()-> new DataNotFoundException("Cannot found attribute values by id"));
 
+            Long attributeId = attributeValuesRepository.findAttributeIdByAttributeValueId(attributeValues.getId());
             ProductItemAttributes productItemAttributes = ProductItemAttributes.builder()
                     .productItemId(productItem.getId())
                     .value(attributeValues.getValue())
+                    .productAttributesId(attributeId)
                     .attributeValueId(productItemAttributesDTO.getAttributeValueId())
                     .build();
             productItemAttributesRepository.save(productItemAttributes);
@@ -120,7 +125,7 @@ public class ProductItemServiceImpl implements ProductItemService
             for (ProductItem productItem :productItems) {
                 List<ProductItemAttributes> attributeValues = productItemAttributesRepository.findByProductItemId(productItem.getId());
                 List<ProductItemAttributesDTO> attributeDTOs = attributeValues.stream()
-                        .map(attr -> new ProductItemAttributesDTO(attr.getValue(),attr.getAttributeValueId(), attr.getId()))
+                        .map(attr -> new ProductItemAttributesDTO(attr.getValue(),attr.getAttributeValueId(), attr.getId(), attr.getProductAttributesId()))
                         .collect(Collectors.toList());
 
                 DetailProductItemDTO detailProductItemDTO = DetailProductItemDTO.builder()
@@ -150,34 +155,50 @@ public class ProductItemServiceImpl implements ProductItemService
     public DetailProductItemDTO updateProductItem(DetailProductItemDTO detailProductItemDTO, Long userId) throws Exception {
         Product product = productRepository.findById(detailProductItemDTO.getProductId())
                 .orElseThrow(()-> new DataNotFoundException("Cannot not found product"));
+        int valuesCount = detailProductItemDTO.getProductItemAtrAttributesDTOS().size();
+        List<ProductAttributes> productAttributesList = productAttributesRepository.findAllByProductId(detailProductItemDTO.getProductId());
 
+        List<Long> valuesIds = detailProductItemDTO.getProductItemAtrAttributesDTOS().stream()
+                .map(ProductItemAttributesDTO::getAttributeValueId)
+                .collect(Collectors.toList());
+        if(productAttributesList.size() == valuesCount ) {
+            List<ProductItem> productItemList = productItemRepository.findProductItemByAttributesValues(detailProductItemDTO.getProductId(), valuesIds, valuesCount);
+            if(productItemList.size() > 0 ){
+                throw new Exception("product item already exists");
+            }
+        }
         if (product.getMinPrice() == null || product.getMinPrice().compareTo(detailProductItemDTO.getPrice()) > 0) {
             product.setMinPrice(detailProductItemDTO.getPrice());
             productRepository.save(product);
         }
 
-        ProductItem productItem = productItemRepository.findBySkuCode(detailProductItemDTO.getSkuCode());
+        ProductItem productItem = productItemRepository.findBySkuCode(detailProductItemDTO.getSkuCode(), detailProductItemDTO.getProductId());
         if (productItem == null){
             throw new DataNotFoundException("Cannot find product item");
         }
 
+
         ProductItem newProductItem = ProductItem.builder()
                 .skuCode(detailProductItemDTO.getSkuCode())
                 .id(productItem.getId())
-                .importPrice(productItem.getImportPrice())
+                .quantity(productItem.getQuantity())
+                .isDelete(Boolean.FALSE)
+                .importPrice(detailProductItemDTO.getImportPrice())
                 .productId(detailProductItemDTO.getProductId())
                 .price(detailProductItemDTO.getPrice())
                 .build();
         productItemRepository.save(newProductItem);
 
-
+        productItemAttributesRepository.deleteProductItemAttributesValue(productItem.getId());
         for(ProductItemAttributesDTO productItemAttributesDTO : detailProductItemDTO.getProductItemAtrAttributesDTOS()) {
             AttributeValues attributeValues = attributeValuesRepository.findById(productItemAttributesDTO.getAttributeValueId())
                     .orElseThrow(()-> new DataNotFoundException("Cannot found attribute values by id"));
 
+//            ProductItemAttributes productItemAttributes = productItemAttributesRepository.findById(productItemAttributesDTO.getId()).orElseThrow(()-> new DataNotFoundException("cannot find product item attribute by id"))
             ProductItemAttributes productItemAttributes = ProductItemAttributes.builder()
                     .value(attributeValues.getValue())
                     .id(productItemAttributesDTO.getId())
+                    .productAttributesId((productItemAttributesDTO.getProductAttributeId()))
                     .attributeValueId(productItemAttributesDTO.getAttributeValueId())
                     .productItemId(productItem.getId())
                     .build();
@@ -207,9 +228,8 @@ public class ProductItemServiceImpl implements ProductItemService
         List<String> images = imagesRepository.findLinkByProductId(product.getId());
         List<ProductItemAttributes> attributeValues = productItemAttributesRepository.findByProductItemId(productItem.getId());
         List<ProductItemAttributesDTO> attributeDTOs = attributeValues.stream()
-                .map(attr -> new ProductItemAttributesDTO(attr.getValue(),attr.getAttributeValueId(), attr.getId()))
+                .map(attr -> new ProductItemAttributesDTO(attr.getValue(),attr.getAttributeValueId(),attr.getProductAttributesId(), attr.getId()))
                 .collect(Collectors.toList());
-
         DetailProductItemDTO detailProductItemDTO = DetailProductItemDTO.builder()
                 .id(productItem.getId())
                 .quantity(productItem.getQuantity())
@@ -238,5 +258,15 @@ public class ProductItemServiceImpl implements ProductItemService
         result.put("product_item",productItemList);
         result.put("quantity", sumQuantity);
         return result;
+    }
+
+    @Override
+    public List<ProductItem> getListProductItemByProductId(Long productId, Long userId) throws DataNotFoundException {
+            Shop shop = shopRepository.findByUserId(userId);
+            if(shop == null){
+                throw  new DataNotFoundException("cannot find shopId by userId");
+            }
+            List<ProductItem> productItems = productItemRepository.getListProductItemByProductId(productId, shop.getId());
+        return productItems;
     }
 }

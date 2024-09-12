@@ -20,9 +20,13 @@ public class ProductItemAttributesDTO {
     @JsonProperty("value")
     private String value;
 
-    @Min(value=1, message =  "Product attributes ID is required")
+    @Min(value=1, message =  "Product values attributes ID is required")
     @JsonProperty("attribute_value_id")
     private Long attributeValueId;
+
+    @Min(value=1, message =  "Product attributes ID is required")
+    @JsonProperty("product_attributes_id")
+    private Long productAttributeId;
 
     private Long id;
 

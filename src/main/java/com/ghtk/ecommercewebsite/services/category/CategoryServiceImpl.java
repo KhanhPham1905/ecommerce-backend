@@ -49,7 +49,7 @@ public class CategoryServiceImpl implements CategoryService{
     }
 
     @Override
-    public Page<Category> getAllCategories(PageRequest pageRequest, Long userId, String name) throws Exception{
+    public Page<Category> getAllCategories(PageRequest pageRequest, String name) throws Exception{
         return categoryRepository.findByShopId(name, pageRequest);
     }
 

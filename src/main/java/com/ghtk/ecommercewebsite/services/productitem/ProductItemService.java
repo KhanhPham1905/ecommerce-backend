@@ -23,4 +23,6 @@ public interface ProductItemService {
     DetailProductItemDTO getProductItemById(Long id, Long userId) throws  Exception;
 
     Map<String, Object> getProductItemByAttributesValues(Long id, List<Long> valuesIds) throws Exception;
+
+    List<ProductItem> getListProductItemByProductId(Long id, Long userId) throws Exception;
 }

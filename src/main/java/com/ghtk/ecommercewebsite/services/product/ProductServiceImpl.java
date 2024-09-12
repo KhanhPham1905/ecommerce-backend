@@ -18,6 +18,7 @@ import lombok.RequiredArgsConstructor;
 import com.ghtk.ecommercewebsite.services.CloudinaryService;
 import com.ghtk.ecommercewebsite.services.images.ImagesService;
 import lombok.RequiredArgsConstructor;
+import lombok.Synchronized;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -75,26 +76,30 @@ public class ProductServiceImpl implements IProductService {
             categoryProductRepository.save(productCategory);
         }
 
-        List<MultipartFile> files = productDTO.getImages();
-        files = files == null ? new ArrayList<MultipartFile>() : files;
-        if(files.size() > Contant.MAXIMUM_IMAGES_PER_PRODUCT){
-            new Exception("You can only upload max : " + Contant.MAXIMUM_IMAGES_PER_PRODUCT);
+        for (String file: productDTO.getImages()){
+            imagesService.addImageTextProduct(file, product.getId());
         }
 
-        for (MultipartFile file: files){
-            if(file.getSize() == 0){
-                continue;
-            }
-            if (file.getSize() > 2*1024*1024){
-                new Exception("you can only upload file Maximum 2MB");
-            }
-            String contentType = file.getContentType();
-            if (contentType == null && ! contentType.startsWith("image/")){
-                new Exception("you must up load file is image");
-            }
-            CloudinaryResponse cloudinaryResponse = cloudinaryService.uploadImage(file);
-            imagesService.addImageProduct(cloudinaryResponse, product.getId());
-        }
+//        List<MultipartFile> files = productDTO.getImages();
+//        files = files == null ? new ArrayList<MultipartFile>() : files;
+//        if(files.size() > Contant.MAXIMUM_IMAGES_PER_PRODUCT){
+//            new Exception("You can only upload max : " + Contant.MAXIMUM_IMAGES_PER_PRODUCT);
+//        }
+//
+//        for (MultipartFile file: files){
+//            if(file.getSize() == 0){
+//                continue;
+//            }
+//            if (file.getSize() > 2*1024*1024){
+//                new Exception("you can only upload file Maximum 2MB");
+//            }
+//            String contentType = file.getContentType();
+//            if (contentType == null && ! contentType.startsWith("image/")){
+//                new Exception("you must up load file is image");
+//            }
+//            CloudinaryResponse cloudinaryResponse = cloudinaryService.uploadImage(file);
+//            imagesService.addImageProduct(cloudinaryResponse, product.getId());
+//        }
         return product;
     }
 
@@ -188,9 +193,14 @@ public class ProductServiceImpl implements IProductService {
             long categoryCount,
             List<Long> brandIds,
             String keyword,
+            Long userId,
             PageRequest pageRequest
     ) throws Exception {
-        return productsRepository.searchProductsSeller(categoryIds, categoryCount, brandIds, keyword, pageRequest)
+        Shop shop = shopRepository.findByUserId(userId);
+        if(shop == null){
+            throw  new Exception("shop not found by userID");
+        }
+        return productsRepository.searchProductsSeller(categoryIds, categoryCount, brandIds, keyword,shop.getId(), pageRequest)
                 .map(product -> {
                     List<String> categoryNames = product.getCategoryList().stream()
                             .map(Category::getName)
@@ -221,6 +231,56 @@ public class ProductServiceImpl implements IProductService {
                 });
     }
 
+//    @Override
+//    @Transactional
+//    public Product updateProductById(Long id, ProductDTO productDTO, Long userId) throws Exception {
+//        Product product = productsRepository.findById(id)
+//                .orElseThrow(()-> new DataNotFoundException("Cannot find product"));
+//
+//        Shop shop = shopRepository.findByUserId(userId);
+//        if(!product.getShopId().equals(shop.getId())){
+//            throw new AccessDeniedException("you do not have access");
+//        }
+//
+//        productDTO.setShopId(shop.getId());
+//        productDTO.setId(product.getId());
+//
+//        imagesRepository.deleteByProductId(product.getId());
+////        CloudinaryResponse ThumbcloudinaryResponse = cloudinaryService.uploadImage(productDTO.getThumbnail());
+////        productDTO.setThumbnailImg(ThumbcloudinaryResponse.getUrl());
+//        productsRepository.save(productMapper.toEntity(productDTO));
+//
+//        for (int i = 0; i < productDTO.getCategoryIds().size(); i++){
+//            ProductCategory productCategory = ProductCategory.builder()
+//                    .categoryId(productDTO.getCategoryIds().get(i))
+//                    .productId(product.getId())
+//                    .build();
+//            categoryProductRepository.save(productCategory);
+//        }
+//
+//        List<MultipartFile> files = productDTO.getImages();
+//        files = files == null ? new ArrayList<MultipartFile>() : files;
+//        if(files.size() > Contant.MAXIMUM_IMAGES_PER_PRODUCT){
+//            new Exception("You can only upload max : " + Contant.MAXIMUM_IMAGES_PER_PRODUCT);
+//        }
+//
+//        for (MultipartFile file: files){
+//            if(file.getSize() == 0){
+//                continue;
+//            }
+//            if (file.getSize() > 2*1024*1024){
+//                new Exception("you can only upload file Maximum 2MB");
+//            }
+//            String contentType = file.getContentType();
+//            if (contentType == null && ! contentType.startsWith("image/")){
+//                new Exception("you must up load file is image");
+//            }
+//            CloudinaryResponse cloudinaryResponse = cloudinaryService.uploadImage(file);
+//            imagesService.addImageProduct(cloudinaryResponse, product.getId());
+//        }
+//        return product;
+//    }
+
     @Override
     @Transactional
     public Product updateProductById(Long id, ProductDTO productDTO, Long userId) throws Exception {
@@ -234,11 +294,48 @@ public class ProductServiceImpl implements IProductService {
 
         productDTO.setShopId(shop.getId());
         productDTO.setId(product.getId());
+        productDTO.setIsDelete(Boolean.FALSE);
+        productDTO.setMinPrice(product.getMinPrice());
 
         imagesRepository.deleteByProductId(product.getId());
 //        CloudinaryResponse ThumbcloudinaryResponse = cloudinaryService.uploadImage(productDTO.getThumbnail());
 //        productDTO.setThumbnailImg(ThumbcloudinaryResponse.getUrl());
         productsRepository.save(productMapper.toEntity(productDTO));
+
+        for (int i = 0; i < productDTO.getCategoryIds().size(); i++){
+            ProductCategory productCategoryCheck = categoryProductRepository.findByProductIdAndCategoryId(product.getId(), productDTO.getCategoryIds().get(i));
+            if(productCategoryCheck != null){
+                continue;
+            }
+            ProductCategory productCategory = ProductCategory.builder()
+                    .categoryId(productDTO.getCategoryIds().get(i))
+                    .isDelete(Boolean.FALSE)
+                    .productId(product.getId())
+                    .build();
+            ProductCategory productCategoryNew=  categoryProductRepository.save(productCategory);
+        }
+//        List<MultipartFile> files = productDTO.getImages();
+//        files = files == null ? new ArrayList<MultipartFile>() : files;
+//        if(files.size() > Contant.MAXIMUM_IMAGES_PER_PRODUCT){
+//            new Exception("You can only upload max : " + Contant.MAXIMUM_IMAGES_PER_PRODUCT);
+//        }
+
+        for (String file: productDTO.getImages()){
+            imagesService.addImageTextProduct(file, product.getId());
+        }
+        return product;
+    }
+
+    @Override
+    @Transactional
+    public Product insertAProduct(ProductDTO productDTO) throws  Exception{
+//        Shop shop = shopRepository.findById(productDTO.getShopId())
+//                .orElseThrow(()-> new DataNotFoundException("cannot find shop by shopud"));
+//        productDTO.setShopId(shop.getId());
+        productDTO.setIsDelete(Boolean.FALSE);
+//        CloudinaryResponse ThumbcloudinaryResponse = cloudinaryService.uploadImage(productDTO.getThumbnail());
+//        productDTO.setThumbnailImg(ThumbcloudinaryResponse.getUrl());
+        Product product = productsRepository.save(productMapper.toEntity(productDTO));
 
         for (int i = 0; i < productDTO.getCategoryIds().size(); i++){
             ProductCategory productCategory = ProductCategory.builder()
@@ -248,25 +345,8 @@ public class ProductServiceImpl implements IProductService {
             categoryProductRepository.save(productCategory);
         }
 
-        List<MultipartFile> files = productDTO.getImages();
-        files = files == null ? new ArrayList<MultipartFile>() : files;
-        if(files.size() > Contant.MAXIMUM_IMAGES_PER_PRODUCT){
-            new Exception("You can only upload max : " + Contant.MAXIMUM_IMAGES_PER_PRODUCT);
-        }
-
-        for (MultipartFile file: files){
-            if(file.getSize() == 0){
-                continue;
-            }
-            if (file.getSize() > 2*1024*1024){
-                new Exception("you can only upload file Maximum 2MB");
-            }
-            String contentType = file.getContentType();
-            if (contentType == null && ! contentType.startsWith("image/")){
-                new Exception("you must up load file is image");
-            }
-            CloudinaryResponse cloudinaryResponse = cloudinaryService.uploadImage(file);
-            imagesService.addImageProduct(cloudinaryResponse, product.getId());
+        for (String file: productDTO.getImages()){
+            imagesService.insertNotDelete(file, product.getId());
         }
         return product;
     }
