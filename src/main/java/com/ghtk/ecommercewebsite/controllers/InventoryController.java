@@ -31,13 +31,13 @@ public class InventoryController {
     @GetMapping
     public  CommonResult<Page<DetailInventoryDTO>> getAllInventoryById(
             @RequestParam(defaultValue = "0",required = false) int page,
-            @RequestParam(defaultValue = "10", required = false) int limit,
+            @RequestParam(defaultValue = "10", required = false) int size,
             @RequestParam(defaultValue = "",required = false) String warehouse,
             @RequestParam(defaultValue = "",required = false) String skuCode,
             @RequestParam(defaultValue = "",required = false) String name
     ) throws Exception{
         PageRequest pageRequest = PageRequest.of(
-                page, limit);
+                page, size);
 //        Pageable pageable = PageRequest.of(page, limit);
         User user  = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return CommonResult.success(inventoryService.getAllInventory(warehouse, skuCode, name,  user.getId(), pageRequest),"Get all inventory successfully");
@@ -53,20 +53,12 @@ public class InventoryController {
         return CommonResult.success(inventoryService.importWarehouse(detailInventoryDTO, user.getId()), "Import Inventory successfully");
     }
 
-//    @PostMapping("/export")
-//    @PreAuthorize("hasRole('ROLE_SELLER')")
-//    public CommonResult<DetailInventoryDTO> exportWarehouse(
-//            @RequestBody DetailInventoryDTO detailInventoryDTO
-//    ) throws Exception{
-//        User user  = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//        return CommonResult.success(inventoryService.exportWarehouse(,userId), "Export Inventory successfully");
-//    }
 
     @GetMapping("/export")
     @PreAuthorize("hasRole('ROLE_SELLER')")
     public CommonResult<Page<DetailInventoryDTO>> getListExport(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int limit,
+            @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "",required = false) String warehouse,
             @RequestParam(defaultValue = "",required = false) String supplier,
             @RequestParam(defaultValue = "",required = false) String location,
@@ -74,7 +66,7 @@ public class InventoryController {
             @RequestParam(defaultValue = "",required = false) String name,
             @RequestParam(defaultValue = "",required = false) String createdAt
     ) throws  Exception{
-        Pageable pageable = PageRequest.of(page, limit);
+        Pageable pageable = PageRequest.of(page, size);
         User user  = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Page<DetailInventoryDTO>  listExportsPages = inventoryService.getListExport(warehouse,supplier,location,skuCode, name , createdAt,user.getId(), pageable);
         return  CommonResult.success(listExportsPages, "Get list export successfully");
@@ -85,7 +77,7 @@ public class InventoryController {
     @PreAuthorize("hasRole('ROLE_SELLER')")
     public CommonResult<Page<DetailInventoryDTO>> getListImport(
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int limit,
+            @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "",required = false) String warehouse,
             @RequestParam(defaultValue = "",required = false) String supplier,
             @RequestParam(defaultValue = "",required = false) String location,
@@ -93,7 +85,7 @@ public class InventoryController {
             @RequestParam(defaultValue = "",required = false) String name,
             @RequestParam(defaultValue = "",required = false) String createdAt
     ) throws  Exception{
-        Pageable pageable = PageRequest.of(page, limit);
+        Pageable pageable = PageRequest.of(page, size);
         User user  = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Page<DetailInventoryDTO> listImportsPages = inventoryService.getListImport(warehouse,supplier,location,skuCode, name , createdAt, user.getId(), pageable);
         return  CommonResult.success(listImportsPages , "Get list import successfully");

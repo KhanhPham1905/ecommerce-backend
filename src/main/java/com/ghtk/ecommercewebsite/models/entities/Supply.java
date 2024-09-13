@@ -43,7 +43,9 @@ import java.time.LocalDateTime;
                 "AND pi.sku_code LIKE CONCAT('%',:sku_code,'%') " +
                 "AND p.name LIKE CONCAT('%',:name,'%') " +
                 "AND s.created_at LIKE CONCAT('%',:created_at,'%') " +
-                "ORDER BY s.created_at " ,
+                "ORDER BY s.created_at " +
+                "LIMIT :limit "+
+                "OFFSET :offSet",
         resultSetMapping = "DetailSupplyMapping"
 )
 
@@ -62,7 +64,9 @@ import java.time.LocalDateTime;
                 "AND pi.sku_code LIKE CONCAT('%',:sku_code,'%') " +
                 "AND p.name LIKE CONCAT('%',:name,'%') " +
                 "AND s.created_at LIKE CONCAT('%',:created_at,'%') " +
-                "ORDER BY s.created_at ",
+                "ORDER BY s.created_at " +
+                "LIMIT :limit "+
+                "OFFSET :offSet",
         resultSetMapping = "DetailSupplyMapping"
 )
 

@@ -57,24 +57,18 @@ public class InventoryServiceImpl implements InventoryService{
 //        List<DetailInventoryDTO> pagedList = detailInventoryDTOList.subList(start, end);
 //        return new PageImpl<>(pagedList, pageable, detailInventoryDTOList.size());
 //    }
+    //
     @Override
-    public Page<DetailInventoryDTO> getAllInventory(String warehouse,String skuCode,String name,Long userId, PageRequest pageable) throws Exception {
+    public Page<DetailInventoryDTO> getAllInventory(String warehouse,String skuCode,String name,Long userId, Pageable pageable) throws Exception {
         Long shopId = sellerRepository.findShopIdByUserId(userId);
         if (shopId == null){
             throw  new DataNotFoundException("Cannot find shopId by userId");
         }
-//        List<DetailInventoryDTO> detailInventoryDTOList = inventoryRepository.getAllInventory(warehouse, skuCode, name, shopId,  pageable);
-//        detailInventoryDTOList = null;
-//        if(detailInventoryDTOList.isEmpty()){
-//            throw  new DataNotFoundException("Cannot find Inventory by Shop id");
-//        }
-
-//        int start = (int) pageable.getOffset();
-//        int end = Math.min((start + pageable.getPageSize()), detailInventoryDTOList.size());
-
-//        List<DetailInventoryDTO> pagedList = detailInventoryDTOList.subList(start, end);
-        return inventoryRepository.getAllInventory(warehouse, skuCode, name, shopId,  pageable);
+        List<DetailInventoryDTO> detailInventoryDTOList = inventoryRepository.getAllInventory(warehouse, skuCode, name, shopId, pageable.getPageSize(), pageable.getOffset());
+        int totalItems = inventoryRepository.countAllInventory(warehouse, skuCode, name, shopId);
+        return new PageImpl<>(detailInventoryDTOList, pageable, totalItems);
     }
+
     @Override
     @Transactional
     public DetailInventoryDTO importWarehouse(DetailInventoryDTO detailInventoryDTO, Long userId) throws DataNotFoundException {
@@ -112,29 +106,43 @@ public class InventoryServiceImpl implements InventoryService{
         return detailInventoryDTO;
     }
 
+//    @Override
+//    public Page<DetailInventoryDTO> getListImport(String warehouse,String supplier,String location,String skuCode,String name ,String createdAt, Long userId, Pageable pageable) throws Exception {
+//        Long shopId = sellerRepository.findShopIdByUserId(userId);
+//        int limit = pageable.getPageSize();
+//        int offset = pageable.getPageNumber() * limit;
+//        List<DetailInventoryDTO> detailInventoryDTOList = supplyRepository.getAllImport(warehouse,supplier,location,skuCode, name , createdAt,shopId);
+//        int start = (int) pageable.getOffset();
+//        int end = Math.min((start + pageable.getPageSize()), detailInventoryDTOList.size());
+//
+//        List<DetailInventoryDTO> pagedList = detailInventoryDTOList.subList(start, end);
+//        return new PageImpl<>(pagedList, pageable, detailInventoryDTOList.size());
+//    }
     @Override
     public Page<DetailInventoryDTO> getListImport(String warehouse,String supplier,String location,String skuCode,String name ,String createdAt, Long userId, Pageable pageable) throws Exception {
         Long shopId = sellerRepository.findShopIdByUserId(userId);
-        int limit = pageable.getPageSize();
-        int offset = pageable.getPageNumber() * limit;
-        List<DetailInventoryDTO> detailInventoryDTOList = supplyRepository.getAllImport(warehouse,supplier,location,skuCode, name , createdAt,shopId);
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), detailInventoryDTOList.size());
-
-        List<DetailInventoryDTO> pagedList = detailInventoryDTOList.subList(start, end);
-        return new PageImpl<>(pagedList, pageable, detailInventoryDTOList.size());
+        List<DetailInventoryDTO> detailInventoryDTOList = supplyRepository.getAllImport(warehouse,supplier,location,skuCode, name , createdAt,shopId, pageable.getPageSize(), pageable.getOffset());
+        int totalItems = supplyRepository.countAllImport(warehouse,supplier,location,skuCode, name , createdAt,shopId);
+        return new PageImpl<>(detailInventoryDTOList, pageable, totalItems);
     }
 
+//    @Override
+//    public Page<DetailInventoryDTO> getListExport(String warehouse, String  supplier,String location,String skuCode,String  name ,String createdAt, Long userId, Pageable pageable) throws Exception {
+//        Long shopId = sellerRepository.findShopIdByUserId(userId);
+//        int limit = pageable.getPageSize();
+//        int offset = pageable.getPageNumber() * limit;
+//        List<DetailInventoryDTO> detailInventoryDTOList = supplyRepository.getAllExport(warehouse,supplier,location,skuCode, name , createdAt,shopId);
+//
+//        int start = (int) pageable.getOffset();
+//        int end = Math.min((start + pageable.getPageSize()), detailInventoryDTOList.size());
+//        List<DetailInventoryDTO> pagedList = detailInventoryDTOList.subList(start, end);
+//        return new PageImpl<>(pagedList, pageable, detailInventoryDTOList.size());
+//    }
     @Override
     public Page<DetailInventoryDTO> getListExport(String warehouse, String  supplier,String location,String skuCode,String  name ,String createdAt, Long userId, Pageable pageable) throws Exception {
         Long shopId = sellerRepository.findShopIdByUserId(userId);
-        int limit = pageable.getPageSize();
-        int offset = pageable.getPageNumber() * limit;
-        List<DetailInventoryDTO> detailInventoryDTOList = supplyRepository.getAllExport(warehouse,supplier,location,skuCode, name , createdAt,shopId);
-
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), detailInventoryDTOList.size());
-        List<DetailInventoryDTO> pagedList = detailInventoryDTOList.subList(start, end);
-        return new PageImpl<>(pagedList, pageable, detailInventoryDTOList.size());
+        List<DetailInventoryDTO> detailInventoryDTOList = supplyRepository.getAllExport(warehouse,supplier,location,skuCode, name , createdAt,shopId, pageable.getPageSize(), pageable.getOffset());
+        int totalItems = supplyRepository.countAllExport(warehouse,supplier,location,skuCode, name , createdAt,shopId);
+        return new PageImpl<>(detailInventoryDTOList, pageable, totalItems);
     }
 }

@@ -12,7 +12,7 @@ public interface InventoryService {
     InventoryDTO getInventoryById(Long Userid) throws Exception;
 //    Page<DetailInventoryDTO> getAllInventory(String warehouse,String skuCode,String name,Long userId, Pageable pageable) throws Exception;
 
-    Page<DetailInventoryDTO> getAllInventory(String warehouse,String skuCode,String name,Long userId, PageRequest pageable) throws Exception;
+    Page<DetailInventoryDTO> getAllInventory(String warehouse,String skuCode,String name,Long userId, Pageable pageable) throws Exception;
 
     DetailInventoryDTO importWarehouse(DetailInventoryDTO detailInventoryDTO,Long userId) throws Exception;
 
