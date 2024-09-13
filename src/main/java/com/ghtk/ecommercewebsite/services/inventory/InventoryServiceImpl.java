@@ -66,15 +66,7 @@ public class InventoryServiceImpl implements InventoryService{
         }
         List<DetailInventoryDTO> detailInventoryDTOList = inventoryRepository.getAllInventory(warehouse, skuCode, name, shopId, pageable.getPageSize(), pageable.getOffset());
         int totalItems = inventoryRepository.countAllInventory(warehouse, skuCode, name, shopId);
-        if(detailInventoryDTOList.isEmpty()){
-            throw  new DataNotFoundException("Cannot find Inventory by Shop id");
-        }
-
-        int start = (int) pageable.getOffset();
-        int end = Math.min((start + pageable.getPageSize()), detailInventoryDTOList.size());
-
-        List<DetailInventoryDTO> pagedList = detailInventoryDTOList.subList(start, end);
-        return new PageImpl<>(pagedList, pageable, detailInventoryDTOList.size());
+        return new PageImpl<>(detailInventoryDTOList, pageable, totalItems);
     }
 
     @Override
