@@ -53,14 +53,6 @@ public class InventoryController {
         return CommonResult.success(inventoryService.importWarehouse(detailInventoryDTO, user.getId()), "Import Inventory successfully");
     }
 
-//    @PostMapping("/export")
-//    @PreAuthorize("hasRole('ROLE_SELLER')")
-//    public CommonResult<DetailInventoryDTO> exportWarehouse(
-//            @RequestBody DetailInventoryDTO detailInventoryDTO
-//    ) throws Exception{
-//        User user  = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//        return CommonResult.success(inventoryService.exportWarehouse(,userId), "Export Inventory successfully");
-//    }
 
     @GetMapping("/export")
     @PreAuthorize("hasRole('ROLE_SELLER')")
