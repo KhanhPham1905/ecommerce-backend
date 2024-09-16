@@ -1,4 +1,4 @@
-# syntax = docker/dockerfile:1
+#syntax = docker/dockerfile:1
 FROM openjdk:24-oraclelinux8
 #working directory
 WORKDIR /app
