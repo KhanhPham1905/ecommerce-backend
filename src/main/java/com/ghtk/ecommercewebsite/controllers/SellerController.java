@@ -1,6 +1,7 @@
 package com.ghtk.ecommercewebsite.controllers;
 
 import com.ghtk.ecommercewebsite.exceptions.DataNotFoundException;
+import com.ghtk.ecommercewebsite.exceptions.UserAlreadyExistedException;
 import com.ghtk.ecommercewebsite.models.dtos.*;
 import com.ghtk.ecommercewebsite.models.entities.Seller;
 import com.ghtk.ecommercewebsite.models.entities.Shop;
@@ -28,7 +29,6 @@ import java.util.Objects;
 @RequiredArgsConstructor
 public class SellerController {
 
-    @Autowired
     private final SellerService sellerService;
     private final RedisOtpService redisOtpService;
     private final UserService userService;
@@ -36,8 +36,10 @@ public class SellerController {
 
     @PostMapping("/signUpNewVersion")
     public CommonResult<User> signUpNewestVersion(@RequestBody RegisterUserDto registerUserDto) throws DataNotFoundException, SellerAlreadyExistedException {
+        System.out.println("vô đây r nè");
         return CommonResult.success(sellerService.signUpNewestVersion(registerUserDto));
     }
+
 
     // New version here
     @PostMapping("/verifyOtp")
@@ -111,7 +113,6 @@ public class SellerController {
     @PreAuthorize("hasAnyRole('SELLER')")
     public CommonResult<DetailSellerInfoDTO> getInformationSeller() throws  Exception{
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//        return  CommonResult.success(sellerService.getDetailSellerInfor(user.getId()),"get information seller successfully");
         return  CommonResult.success(sellerService.getSellerInfo(user.getId()),"get information seller successfully");
     }
 

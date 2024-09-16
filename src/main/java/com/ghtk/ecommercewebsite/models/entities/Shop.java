@@ -56,7 +56,7 @@ public class Shop {
     @Column(name = "phone", length = 15)
     private String phone;
 
-    @Column(name = "address_id", nullable = false)
+    @Column(name = "address_id")
     private Long addressId;
 
     @Column(name = "created_at", nullable = false, updatable = false)
