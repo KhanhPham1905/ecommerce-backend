@@ -45,6 +45,7 @@ public class AdminSeeder implements ApplicationListener<ContextRefreshedEvent> {
         var admin = User.builder()
                 .fullName("Admin")
                 .email("admin@gmail.com")
+                .status(true)
                 .password(passwordEncoder.encode("123456"))
                 .roles(new HashSet<>(List.of(optionalAdminRole.get())))
                 .build();

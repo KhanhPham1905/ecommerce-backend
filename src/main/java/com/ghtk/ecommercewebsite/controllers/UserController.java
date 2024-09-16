@@ -1,4 +1,5 @@
 package com.ghtk.ecommercewebsite.controllers;
+import com.ghtk.ecommercewebsite.exceptions.DataNotFoundException;
 import com.ghtk.ecommercewebsite.models.dtos.UserProfileDTO;
 import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.responses.CommonResult;
