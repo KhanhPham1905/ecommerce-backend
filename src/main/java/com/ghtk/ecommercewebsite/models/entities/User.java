@@ -76,7 +76,7 @@ public class User implements UserDetails {
     @JsonManagedReference
     private Set<Role> roles;
 
-    @Column(name = "status", nullable = false, columnDefinition = "tinyint(1) default 0")
+    @Column(name = "status", columnDefinition = "tinyint(1) default 0")
     private Boolean status = false;// = Boolean.FALSE;
 
     @Override
