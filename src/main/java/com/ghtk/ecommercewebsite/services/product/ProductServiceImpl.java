@@ -64,8 +64,6 @@ public class ProductServiceImpl implements IProductService {
         Shop shop = shopRepository.findByUserId(userId);
         productDTO.setShopId(shop.getId());
         productDTO.setIsDelete(Boolean.FALSE);
-//        CloudinaryResponse ThumbcloudinaryResponse = cloudinaryService.uploadImage(productDTO.getThumbnail());
-//        productDTO.setThumbnailImg(ThumbcloudinaryResponse.getUrl());
         Product product = productsRepository.save(productMapper.toEntity(productDTO));
 
         for (int i = 0; i < productDTO.getCategoryIds().size(); i++){
@@ -79,27 +77,6 @@ public class ProductServiceImpl implements IProductService {
         for (String file: productDTO.getImages()){
             imagesService.addImageTextProduct(file, product.getId());
         }
-
-//        List<MultipartFile> files = productDTO.getImages();
-//        files = files == null ? new ArrayList<MultipartFile>() : files;
-//        if(files.size() > Contant.MAXIMUM_IMAGES_PER_PRODUCT){
-//            new Exception("You can only upload max : " + Contant.MAXIMUM_IMAGES_PER_PRODUCT);
-//        }
-//
-//        for (MultipartFile file: files){
-//            if(file.getSize() == 0){
-//                continue;
-//            }
-//            if (file.getSize() > 2*1024*1024){
-//                new Exception("you can only upload file Maximum 2MB");
-//            }
-//            String contentType = file.getContentType();
-//            if (contentType == null && ! contentType.startsWith("image/")){
-//                new Exception("you must up load file is image");
-//            }
-//            CloudinaryResponse cloudinaryResponse = cloudinaryService.uploadImage(file);
-//            imagesService.addImageProduct(cloudinaryResponse, product.getId());
-//        }
         return product;
     }
 

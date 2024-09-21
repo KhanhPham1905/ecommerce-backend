@@ -10,8 +10,8 @@ services:
       MYSQL_DATABASE: ShopApp
     ports:
       - 3307:3306
-    #volumes:
-    #- ./sql/shopapp.sql:/docker-entrypoint-initdb.d/init-script.sql
+    volumes:
+    - ./sql/shopapp.sql:/docker-entrypoint-initdb.d/init-script.sql
     networks:
       - shopapp-network
 
@@ -23,6 +23,22 @@ services:
       - "6379:6379"
     volumes:
       - ./redis-data:/data
+    networks:
+      - shopapp-network
+
+
+  shopapp-spring-container:
+    container_name: shopapp-spring-container
+    build:
+      context: ..
+      dockerfile: Dockerfile
+      #docker tag <image_id> shopapp-spring:1.0.0
+    env_file:
+      - ../.env
+    ports:
+      - 3000:3000
+    depends_on:
+      - mysql8-container
     networks:
       - shopapp-network
 

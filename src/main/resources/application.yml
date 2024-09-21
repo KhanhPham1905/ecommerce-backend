@@ -5,12 +5,12 @@ spring:
   application:
     name: ecommerce
   datasource:
-    url: jdbc:mysql://localhost:3307/ShopApp?useSSL=false&serverTimezone=UTC&allowPublicKeyRetrieval=true
+    url: jdbc:mysql://mysql8-container:3306/ShopApp?serverTimezone=UTC&allowPublicKeyRetrieval=true
     username: root
     password: Abc123456789@
   data:
     redis:
-      host: localhost
+      host: redis-container
       port: 6379
   jpa:
     hibernate:
@@ -25,6 +25,7 @@ spring:
     host: smtp.gmail.com
     port: 587
     username: khanhquocphamdev@gmail.com
+    password: ${MAIL_PASSWORD}
     properties:
       mail:
         smtp:
@@ -38,6 +39,7 @@ spring:
 
 security:
   jwt:
+    secret-key: ${JWT_SECRET_KEY}
     expiration-time: 10000000
     expiration-refresh-token: 80000000
 
@@ -53,3 +55,8 @@ cloudinary:
     file:
       cloud-name: dqgarzqlx
       api-key: 889522243963762
+      api-secret: ${CLOUDINARY_SECRET_KEY}
+
+stripe:
+  api:
+    key: ${STRIPE_API_KEY}
