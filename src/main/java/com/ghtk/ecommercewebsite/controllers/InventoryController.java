@@ -6,6 +6,7 @@ import com.ghtk.ecommercewebsite.models.entities.Category;
 import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.responses.CommonResult;
 import com.ghtk.ecommercewebsite.services.inventory.InventoryService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -21,12 +22,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class InventoryController {
     private final InventoryService inventoryService;
-//    @GetMapping("/{id}")
-//    public CommonResult<InventoryDTO> getInventoryById(
-//            @PathVariable("id") Long inventoryId
-//    )throws Exception{
-//        return CommonResult.success(inventoryService.getInventoryById(inventoryId), "Get inventory successfully");
-//    }
 
     @GetMapping
     public  CommonResult<Page<DetailInventoryDTO>> getAllInventoryById(
@@ -35,10 +30,9 @@ public class InventoryController {
             @RequestParam(defaultValue = "",required = false) String warehouse,
             @RequestParam(defaultValue = "",required = false) String skuCode,
             @RequestParam(defaultValue = "",required = false) String name
-    ) throws Exception{
+    ){
         PageRequest pageRequest = PageRequest.of(
                 page, size);
-//        Pageable pageable = PageRequest.of(page, limit);
         User user  = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return CommonResult.success(inventoryService.getAllInventory(warehouse, skuCode, name,  user.getId(), pageRequest),"Get all inventory successfully");
     }
@@ -47,8 +41,8 @@ public class InventoryController {
     @PostMapping("/import")
     @PreAuthorize("hasRole('ROLE_SELLER')")
     public CommonResult<DetailInventoryDTO> importWarehouse(
-            @RequestBody DetailInventoryDTO detailInventoryDTO
-    ) throws  Exception{
+            @Valid @RequestBody DetailInventoryDTO detailInventoryDTO
+    ){
         User user  = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return CommonResult.success(inventoryService.importWarehouse(detailInventoryDTO, user.getId()), "Import Inventory successfully");
     }
@@ -65,7 +59,7 @@ public class InventoryController {
             @RequestParam(defaultValue = "",required = false) String skuCode,
             @RequestParam(defaultValue = "",required = false) String name,
             @RequestParam(defaultValue = "",required = false) String createdAt
-    ) throws  Exception{
+    ){
         Pageable pageable = PageRequest.of(page, size);
         User user  = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Page<DetailInventoryDTO>  listExportsPages = inventoryService.getListExport(warehouse,supplier,location,skuCode, name , createdAt,user.getId(), pageable);
@@ -84,15 +78,11 @@ public class InventoryController {
             @RequestParam(defaultValue = "",required = false) String skuCode,
             @RequestParam(defaultValue = "",required = false) String name,
             @RequestParam(defaultValue = "",required = false) String createdAt
-    ) throws  Exception{
+    ){
         Pageable pageable = PageRequest.of(page, size);
         User user  = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Page<DetailInventoryDTO> listImportsPages = inventoryService.getListImport(warehouse,supplier,location,skuCode, name , createdAt, user.getId(), pageable);
         return  CommonResult.success(listImportsPages , "Get list import successfully");
     }
-
-//    @GetMapping("/{id}")
-//    @PreAuthorize("hasRole('ROLE_SELLER')")
-//    public CommonResult<> getListInventoryBySkuId
 
 }

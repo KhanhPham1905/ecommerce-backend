@@ -16,9 +16,9 @@ public interface IProductService {
 
     Optional<Product> findById(Long id);
 
-    Product save(ProductDTO productDTO, Long userId) throws Exception;
+    Product save(ProductDTO productDTO, Long userId);
 
-    void deleteById(Long id) throws Exception;
+    void deleteById(Long id);
 
     List<Product> findByBrandId(Long brandId);
 //    void deleteBrandById(Long id);
@@ -26,16 +26,16 @@ public interface IProductService {
 
     List<Product> searchProductsByDes(String keyword); // Phương thức tìm kiếm
 
-    List<Product> getAllProducts() throws  Exception;
+    List<Product> getAllProducts();
 
     Page<ProductResponse> searchProducts (List<Long> categoryIds, long categoryCount, List<Long> brandIds, String keyword, Long fromPrice , Long toPrice, Float
-            rate ,PageRequest pageRequest) throws Exception;
+            rate ,PageRequest pageRequest);
 
-    ProductResponse getProductById(Long id) throws  Exception;
+    ProductResponse getProductById(Long id);
 
-    Page<ProductResponse> searchProductsSeller (List<Long> categoryIds, long categoryCount, List<Long> brandIds, String keyword,Long userId, PageRequest pageRequest) throws Exception;
+    Page<ProductResponse> searchProductsSeller (List<Long> categoryIds, long categoryCount, List<Long> brandIds, String keyword,Long userId, PageRequest pageRequest);
 
-    Product updateProductById(Long id,ProductDTO productDTO, Long userId) throws Exception;
+    Product updateProductById(Long id,ProductDTO productDTO, Long userId);
 
-    Product insertAProduct(ProductDTO productDTO) throws Exception;
+    Product insertAProduct(ProductDTO productDTO);
 }

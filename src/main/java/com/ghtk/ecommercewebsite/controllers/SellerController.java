@@ -10,6 +10,7 @@ import com.ghtk.ecommercewebsite.services.OtpService;
 import com.ghtk.ecommercewebsite.services.RedisOtpService;
 import com.ghtk.ecommercewebsite.services.seller.SellerService;
 import com.ghtk.ecommercewebsite.services.user.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import com.ghtk.ecommercewebsite.exceptions.SellerAlreadyExistedException;
 import com.ghtk.ecommercewebsite.models.entities.User;
@@ -35,8 +36,7 @@ public class SellerController {
     private final OtpService otpService;
 
     @PostMapping("/signUpNewVersion")
-    public CommonResult<User> signUpNewestVersion(@RequestBody RegisterUserDto registerUserDto) throws DataNotFoundException, SellerAlreadyExistedException {
-        System.out.println("vô đây r nè");
+    public CommonResult<User> signUpNewestVersion(@Valid @RequestBody RegisterUserDto registerUserDto) {
         return CommonResult.success(sellerService.signUpNewestVersion(registerUserDto));
     }
 
@@ -59,47 +59,15 @@ public class SellerController {
         return otpService.resendOtpForSigningUp(email);
     }
 
-
-    // Commented out the old version
-//    @PostMapping("/signup")
-//    public CommonResult<User> signup(@RequestBody SellerRegisterDto sellerRegisterDto) throws SellerAlreadyExistedException {
-//        return CommonResult.success(sellerService.signUpSeller(sellerRegisterDto));
-//    }
-
-    // New version
-//    @PostMapping("/signUpNewVersion")
-//    public CommonResult<User> verifyOtpForSigningUpSeller(@RequestBody SellerRegisterDto sellerRegisterDto) {
-//        return CommonResult.success(sellerService.signUpNewVersion(sellerRegisterDto));
-//    }
-
-    // New version here
-//    @PostMapping("/verifyOtp")
-//    public CommonResult<String> verifyOtp(@RequestBody Map<String, String> requestBody) {
-//        String email = requestBody.get("email");
-//        Integer otp = Integer.parseInt(requestBody.get("otp"));
-//        boolean isOtpValid = redisOtpService.verifyOtp(email, otp);
-//        if (!isOtpValid) { return CommonResult.failed("Invalid OTP"); }
-//        userService.activateUser(email);
-//        return CommonResult.success("Seller account activated successfully");
-//    }
-
-    // New version here
-//    @PostMapping("/resendOtp")
-//    public CommonResult<String> resendOtp(@RequestBody Map<String, String> requestBody) {
-//        String email = requestBody.get("email");
-//        return otpService.resendOtpForSigningUp(email);
-//    }
-
     @PostMapping("/login")
-    public CommonResult<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto) throws AccessDeniedException {
+    public CommonResult<LoginResponse> authenticate(@Valid @RequestBody LoginUserDto loginUserDto){
         return CommonResult.success(sellerService.authenticateSellerAndGetLoginResponse(loginUserDto));
     }
 
     @PreAuthorize("hasRole('SELLER')")
     @PostMapping("/addShopInfo")
-    public CommonResult<Shop> updateShopInfoAfterLogin(@RequestBody ShopDTO shopDTO) throws DataNotFoundException {
+    public CommonResult<Shop> updateShopInfoAfterLogin(@Valid @RequestBody ShopDTO shopDTO){
         User authenticatedSeller = sellerService.getAuthenticatedSeller();
-//        Shop shop = sellerService.updateShopInfo(authenticatedSeller, shopDTO);
         return CommonResult.success(sellerService.updateShopInfo(authenticatedSeller.getId(), shopDTO));
     }
 
@@ -111,21 +79,21 @@ public class SellerController {
 
     @GetMapping("/information")
     @PreAuthorize("hasAnyRole('SELLER')")
-    public CommonResult<DetailSellerInfoDTO> getInformationSeller() throws  Exception{
+    public CommonResult<DetailSellerInfoDTO> getInformationSeller() {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return  CommonResult.success(sellerService.getSellerInfo(user.getId()),"get information seller successfully");
     }
 
     @PutMapping("/information")
     @PreAuthorize("hasAnyRole('SELLER')")
-    public CommonResult updateInformationSeller(@RequestBody DetailSellerInfoDTO detailSellerInfoDTO) throws  Exception{
+    public CommonResult updateInformationSeller(@Valid @RequestBody DetailSellerInfoDTO detailSellerInfoDTO){
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return  CommonResult.success(sellerService.updateSellerInfo(detailSellerInfoDTO, user.getId()),"get information seller successfully");
     }
 
     @GetMapping("/basicInfor")
     @PreAuthorize("hasAnyRole('ROLE_SELLER')")
-    public  CommonResult<Map<String, Long>> getBasicInfor() throws  Exception{
+    public  CommonResult<Map<String, Long>> getBasicInfor() {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Map<String, Long> result = new HashMap<>();
         result = sellerService.getBasicInfo(user.getId());

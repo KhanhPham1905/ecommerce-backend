@@ -15,7 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-import java.nio.file.AccessDeniedException;
+import org.springframework.security.access.AccessDeniedException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -33,7 +33,7 @@ public class AuthenticationServiceImpl implements AuthenticationService{
     }
 
     @Override
-    public User authenticateByRole(LoginUserDto loginUserDto, String role) throws AccessDeniedException {
+    public User authenticateByRole(LoginUserDto loginUserDto, String role){
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
                         loginUserDto.getEmail(),
@@ -58,19 +58,19 @@ public class AuthenticationServiceImpl implements AuthenticationService{
     }
 
     @Override
-    public LoginResponse authenticateUserAndGetLoginResponse(LoginUserDto loginUserDto) throws AccessDeniedException {
+    public LoginResponse authenticateUserAndGetLoginResponse(LoginUserDto loginUserDto){
         User authenticatedUser = authenticateByRole(loginUserDto, "USER");
         return buildLoginResponse(authenticatedUser);
     }
 
     @Override
-    public LoginResponse authenticateSellerAndGetLoginResponse(LoginUserDto loginUserDto) throws AccessDeniedException {
+    public LoginResponse authenticateSellerAndGetLoginResponse(LoginUserDto loginUserDto){
         User authenticatedUser = authenticateByRole(loginUserDto, "SELLER");
         return buildLoginResponse(authenticatedUser);
     }
 
     @Override
-    public LoginResponse authenticateAdminAndGetLoginResponse(LoginUserDto loginUserDto) throws AccessDeniedException {
+    public LoginResponse authenticateAdminAndGetLoginResponse(LoginUserDto loginUserDto){
         User authenticatedUser = authenticateByRole(loginUserDto, "ADMIN");
         return buildLoginResponse(authenticatedUser);
     }

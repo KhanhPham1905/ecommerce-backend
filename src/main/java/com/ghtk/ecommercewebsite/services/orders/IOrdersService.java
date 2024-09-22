@@ -11,9 +11,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IOrdersService {
-    OrdersDTO addOrder(OrdersDTO orderDTO, Long userId) throws DataNotFoundException;
+    OrdersDTO addOrder(OrdersDTO orderDTO, Long userId);
 
-    List<Orders> findAll(Long userId) throws  DataNotFoundException;
+    List<Orders> findAll(Long userId);
 
     Optional<Orders> findById(Long id);
 
@@ -27,7 +27,7 @@ public interface IOrdersService {
 
     List<OrderItem> getOrderItems(Long orderId);
 
-    List<Orders> getAllOrderBySeller(Long userId) throws Exception;
+    List<Orders> getAllOrderBySeller(Long userId) ;
 
     List<OrderStatusHistory> getOrderHistory(Long orderId);
 

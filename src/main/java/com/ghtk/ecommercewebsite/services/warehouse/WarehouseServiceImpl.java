@@ -16,7 +16,7 @@ import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import java.nio.file.AccessDeniedException;
+import org.springframework.security.access.AccessDeniedException;
 import java.util.List;
 
 @Service
@@ -27,7 +27,7 @@ public class WarehouseServiceImpl implements WarehouseService{
     private final AddressRepository addressRepository;
 
     @Override
-    public DetailWarehouseDTO getWarehouseInfo(Long id) throws Exception {
+    public DetailWarehouseDTO getWarehouseInfo(Long id) {
         DetailWarehouseDTO detailWarehouseDTO = warehouseRepository.findDetailByWarehouseId(id);
         if (detailWarehouseDTO == null){
             throw new DataNotFoundException("Cannot find detail warehouse information by id");
@@ -37,7 +37,7 @@ public class WarehouseServiceImpl implements WarehouseService{
 
     @Override
     @Transactional
-    public DetailWarehouseDTO createWarehouse(DetailWarehouseDTO detailWarehouseDTO,Long userId) throws Exception {
+    public DetailWarehouseDTO createWarehouse(DetailWarehouseDTO detailWarehouseDTO,Long userId){
         Shop shop = shopRepository.findShopByUserId(userId)
                 .orElseThrow(() -> new DataNotFoundException("Cannot find shop by id"));
 
@@ -62,7 +62,7 @@ public class WarehouseServiceImpl implements WarehouseService{
 
     @Override
     @Transactional
-    public DetailWarehouseDTO updateWarehouseById(DetailWarehouseDTO detailWarehouseDTO, Long id, Long userId) throws Exception {
+    public DetailWarehouseDTO updateWarehouseById(DetailWarehouseDTO detailWarehouseDTO, Long id, Long userId){
         Shop shop = shopRepository.findShopByUserId(userId)
                 .orElseThrow(() -> new DataNotFoundException("Cannot find shop by user id"));
         Long shopId = warehouseRepository.findShopIdById(id);
@@ -86,7 +86,7 @@ public class WarehouseServiceImpl implements WarehouseService{
 
     @Override
     @Transactional
-    public void deleteWarehouseById(Long id, Long userId) throws Exception {
+    public void deleteWarehouseById(Long id, Long userId){
         Shop shop = shopRepository.findShopByUserId(userId)
                 .orElseThrow(() -> new DataNotFoundException("Cannot find shop by user id"));
         Long shopId = warehouseRepository.findShopIdById(id);
@@ -100,7 +100,7 @@ public class WarehouseServiceImpl implements WarehouseService{
     }
 
     @Override
-    public Page<Warehouse> getAllWarehouse(PageRequest pageRequest, Long userId, String name) throws Exception{
+    public Page<Warehouse> getAllWarehouse(PageRequest pageRequest, Long userId, String name){
         Shop shop = shopRepository.findShopByUserId(userId)
                 .orElseThrow(() -> new DataNotFoundException("Cannot find shop by user id"));
         Page<Warehouse> warehouseDtoList = warehouseRepository.findByShopId(shop.getId(),  name, pageRequest);

@@ -11,7 +11,7 @@ import java.util.List;
 public interface StatisticService {
     StatisticDTO getStatisticsOfCurrentShop(Long userId);
 
-    StatisticDTO getStatisticsOfAnProduct(Long userId, Long productId) throws DataNotFoundException;
+    StatisticDTO getStatisticsOfAnProduct(Long userId, Long productId);
 
-    Page<ProductDTO> getAllProductsOfCurrentShop(Long userId, Pageable pageable) throws DataNotFoundException;
+    Page<ProductDTO> getAllProductsOfCurrentShop(Long userId, Pageable pageable);
 }

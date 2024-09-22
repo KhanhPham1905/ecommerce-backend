@@ -9,14 +9,13 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 public interface InventoryService {
-    InventoryDTO getInventoryById(Long Userid) throws Exception;
-//    Page<DetailInventoryDTO> getAllInventory(String warehouse,String skuCode,String name,Long userId, Pageable pageable) throws Exception;
+    InventoryDTO getInventoryById(Long Userid) ;
 
-    Page<DetailInventoryDTO> getAllInventory(String warehouse,String skuCode,String name,Long userId, Pageable pageable) throws Exception;
+    Page<DetailInventoryDTO> getAllInventory(String warehouse,String skuCode,String name,Long userId, Pageable pageable);
 
-    DetailInventoryDTO importWarehouse(DetailInventoryDTO detailInventoryDTO,Long userId) throws Exception;
+    DetailInventoryDTO importWarehouse(DetailInventoryDTO detailInventoryDTO,Long userId) ;
 
-    Page<DetailInventoryDTO> getListImport(String warehouse,String supplier,String location,String skuCode,String name ,String createdAt,Long userId, Pageable pageable) throws Exception;
-    Page<DetailInventoryDTO>  getListExport(String warehouse,String supplier,String location,String skuCode,String name ,String createdAt, Long userId, Pageable pageable) throws Exception;
+    Page<DetailInventoryDTO> getListImport(String warehouse,String supplier,String location,String skuCode,String name ,String createdAt,Long userId, Pageable pageable);
+    Page<DetailInventoryDTO>  getListExport(String warehouse,String supplier,String location,String skuCode,String name ,String createdAt, Long userId, Pageable pageable);
 
 }

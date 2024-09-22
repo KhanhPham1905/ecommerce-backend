@@ -29,11 +29,9 @@ public class DetailInventoryDTO {
     @JsonProperty("sku_code")
     private String skuCode;
 
-    @NotBlank(message = "Name Product is required")
     @JsonProperty("name")
     private String name;
 
-    @NotBlank(message = "Warehouse is required")
     private String warehouse;
 
     @NotBlank(message = "Supplier is required")

@@ -40,7 +40,7 @@ public class SellerServiceImpl implements SellerService{
 
     @Override
     @Transactional
-    public User signUpSeller(SellerRegisterDto input) throws SellerAlreadyExistedException {
+    public User signUpSeller(SellerRegisterDto input){
         Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.SELLER);
         if (optionalRole.isEmpty()) { return null; }
 
@@ -74,13 +74,6 @@ public class SellerServiceImpl implements SellerService{
             Shop shop = Shop.builder().build();
             shop.setUserId(user.getId());
             shopRepository.save(shop);
-
-            // We won't user builder here
-//            Seller seller = Seller.builder()
-//                    .tax(input.getTax())
-//                    .cccd(input.getCccd())
-//                    .shopId(input.getShopId())
-//                    .build();
             Seller seller = new Seller();
             seller.setTax(input.getTax());
             seller.setCccd(input.getCccd());
@@ -93,7 +86,7 @@ public class SellerServiceImpl implements SellerService{
     }
 
     @Override
-    public LoginResponse authenticateSellerAndGetLoginResponse(LoginUserDto loginUserDto) throws AccessDeniedException {
+    public LoginResponse authenticateSellerAndGetLoginResponse(LoginUserDto loginUserDto) {
         return authenticationService.authenticateSellerAndGetLoginResponse(loginUserDto);
     }
 
@@ -102,26 +95,9 @@ public class SellerServiceImpl implements SellerService{
         return (User) authenticationService.getAuthentication().getPrincipal();
     }
 
-//    @Override
-//    public Map<String, Object>  getInformation(Long useId) throws  Exception {
-//        Seller seller = sellerRepository.findByUserId(useId)
-//                .orElseThrow(() -> new DataNotFoundException("information not found"));
-//        User user = userRepository.findById(useId)
-//                .orElseThrow(() -> new DataNotFoundException("information not found"));
-//        List<Address> address = addressRepository.findByUserId(userId)
-//                .orElseThrow(() -> new DataNotFoundException("information not found"));
-//
-//        SellerDTO sellerDTO = sellerMapper.toDTO(seller);
-//        UserDTO userDTO = userMapper.toDTO(user);
-//        Map<String, Object>  response = new HashMap<>();
-//        response.put("seller", sellerDTO);
-//        response.put("user", userDTO);
-//        response.put("address", address);
-//        return response;
-//    }
 
     @Override
-    public DetailSellerInfoDTO getSellerInfo(Long userId) throws Exception{
+    public DetailSellerInfoDTO getSellerInfo(Long userId){
         DetailSellerInfoDTO detailSellerInfoDTO = sellerRepository.getDetailSellerInfo(userId)
                 .orElseThrow(() -> new DataNotFoundException("Category not found"));
         return detailSellerInfoDTO;
@@ -129,7 +105,7 @@ public class SellerServiceImpl implements SellerService{
 
     @Override
     @Transactional
-    public DetailSellerInfoDTO updateSellerInfo(DetailSellerInfoDTO detailSellerInfoDTO,Long userId) throws Exception{
+    public DetailSellerInfoDTO updateSellerInfo(DetailSellerInfoDTO detailSellerInfoDTO,Long userId){
         Seller seller = sellerRepository.findByUserId(userId)
                 .orElseThrow(() -> new DataNotFoundException("Cannot find seller by id"));
 
@@ -156,7 +132,7 @@ public class SellerServiceImpl implements SellerService{
     }
 
     @Override
-    public User viewDetailsOfAnSeller(Long id) throws DataNotFoundException {
+    public User viewDetailsOfAnSeller(Long id){
         Optional<User> user = sellerRepository.findUserWithSellerRoleById(id);
         if (user.isEmpty()) {
             throw new DataNotFoundException("There is no seller with this id");
@@ -166,7 +142,7 @@ public class SellerServiceImpl implements SellerService{
     }
 
     @Override
-    public Seller updateSellerInfo(SellerDTO sellerDTO) throws DataNotFoundException {
+    public Seller updateSellerInfo(SellerDTO sellerDTO){
         Optional<Seller> optionalSeller = sellerRepository.findById(sellerDTO.getUserId());
 
         if (optionalSeller.isEmpty()) {
@@ -183,7 +159,7 @@ public class SellerServiceImpl implements SellerService{
 
     @Override
     @Transactional
-    public Shop updateShopInfo(Long userId, ShopDTO shopDTO) throws DataNotFoundException {
+    public Shop updateShopInfo(Long userId, ShopDTO shopDTO){
         Seller seller = sellerRepository.findByUserId(userId)
                 .orElseThrow(() -> new DataNotFoundException("Seller not found for userId: " + userId));
         Shop shop = shopRepository.findById(seller.getShopId())
@@ -287,7 +263,7 @@ public class SellerServiceImpl implements SellerService{
     }
 
     @Override
-    public User signUpNewestVersion(RegisterUserDto registerUserDto) throws DataNotFoundException, SellerAlreadyExistedException {
+    public User signUpNewestVersion(RegisterUserDto registerUserDto){
         Role sellerRole = roleRepository.findByName(RoleEnum.SELLER)
                 .orElseThrow(() -> new DataNotFoundException("Role not found"));
         Role userRole = roleRepository.findByName(RoleEnum.USER)
@@ -412,14 +388,12 @@ public class SellerServiceImpl implements SellerService{
     }
 
     @Override
-    public Map<String, Long> getBasicInfo(Long userId) throws DataNotFoundException{
+    public Map<String, Long> getBasicInfo(Long userId){
         Map<String, Long> result = new HashMap<>();
         Shop shop = shopRepository.findShopByUserId(userId)
                 .orElseThrow(()-> new DataNotFoundException("shop not found by user id"));
         Long quantityProduct = productRepository.getQuantityByShopId(shop.getId());
         result.put("product_quantity", quantityProduct);
-//        Long quantityOrder = ordersRepository.getQuantityByShopId(shop.getId());
-//        result.put("order_quantiy", quantityOrder);
         Long quantityWarehouse  =  warehouseRepository.getQuantityByShopId(shop.getId());
         result.put("warehouse_quantity", quantityWarehouse);
         Long quantityVoucher = voucherRepository.getQuantityByShopId(shop.getId());

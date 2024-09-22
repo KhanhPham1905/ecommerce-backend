@@ -28,18 +28,14 @@ public class BrandServiceImpl implements IBrandService {
     private final ProductAttributesRepository productAttributesRepository;
 
     @Override
-    public Brand getBrandById(Long id) throws Exception{
+    public Brand getBrandById(Long id){
         return brandRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Category not found"));
+                .orElseThrow(() -> new DataNotFoundException("Brand not found"));
     }
 
     @Override
     @Transactional
-    public Brand createBrand(BrandDTO brandDTO, Long userId)  throws Exception {
-//        Long shopId = sellerRepository.findShopIdByUserId(userId);
-//        if (shopId == null){
-//            throw new DataNotFoundException("Cannot find Shop id by Userid");
-//        }
+    public Brand createBrand(BrandDTO brandDTO, Long userId) {
         Brand newBrand = Brand
                 .builder()
                 .isDelete(Boolean.FALSE)
@@ -50,23 +46,13 @@ public class BrandServiceImpl implements IBrandService {
     }
 
     @Override
-    public Page<Brand> getAllBrands(PageRequest pageRequest,  String name) throws Exception{
-//        Long shopId = sellerRepository.findShopIdByUserId(userId);
-//        if (shopId == null){
-//            throw new DataNotFoundException("Cannot find Shop id by Userid");
-//        }
+    public Page<Brand> getAllBrands(PageRequest pageRequest,  String name){
         return brandRepository.findAllBrand(name, pageRequest);
     }
 
     @Override
     @Transactional
-    public Brand updateBrand(Long brandId, BrandDTO brandDTO, Long userId) throws  Exception {
-//        Long shopId = sellerRepository.findShopIdByUserId(userId);
-        Brand brand = brandRepository.findById(brandId)
-                .orElseThrow(() -> new DataNotFoundException("Cannot find category by id"));
-//        if(!brand.getShopId().equals(shopId)) {
-//            throw new AccessDeniedException("account seller and shop not match");
-//        }
+    public Brand updateBrand(Long brandId, BrandDTO brandDTO, Long userId) {
         Brand existingBrand = getBrandById(brandId);
         existingBrand.setName(brandDTO.getName());
         existingBrand.setStatus(brandDTO.getStatus());
@@ -76,14 +62,8 @@ public class BrandServiceImpl implements IBrandService {
 
     @Override
     @Transactional
-    public Brand deleteBrand(Long id, Long userId) throws Exception {
-//        Long shopId = sellerRepository.findShopIdByUserId(userId);
-        Brand brand = brandRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Cannot find category by id"));
-//        if(!brand.getShopId().equals(shopId)) {
-//            throw new AccessDeniedException("Account seller and shop not match");
-//        }
-//        List<Product> products = productRepository.findByCategoryId(id);
+    public Brand deleteBrand(Long id, Long userId){
+            Brand brand = getBrandById(id);
             brand.setIsDelete(Boolean.TRUE);
             brandRepository.save(brand);
             productRepository.softDeleteProductByCategoryId(id);

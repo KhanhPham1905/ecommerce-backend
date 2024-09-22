@@ -36,14 +36,14 @@ public class UserController {
     private final OtpService otpService;
 
     @PostMapping("/signup")
-    public CommonResult<User> signup(@RequestBody @Valid RegisterUserDto registerUserDto) throws UserAlreadyExistedException {
+    public CommonResult<User> signup(@Valid @RequestBody RegisterUserDto registerUserDto){
         User user = userService.signUp(registerUserDto);
         return CommonResult.success(user);
     }
 
     // New version start from here
     @PostMapping("/signUpNewVersion")
-    public CommonResult<User> verifyOtpForSigningUp(@RequestBody RegisterUserDto registerUserDto) throws UserAlreadyExistedException {
+    public CommonResult<User> verifyOtpForSigningUp(@Valid @RequestBody RegisterUserDto registerUserDto) {
         return CommonResult.success(userService.signUpNewVersion(registerUserDto));
     }
     // New version here
@@ -63,20 +63,8 @@ public class UserController {
         return otpService.resendOtpForSigningUp(email);
     }
 
-//    @PostMapping("/signUpWithOtp")
-//    public CommonResult<String> signUpWithOtp(@RequestBody @Valid RegisterUserDto registerUserDto) {
-//        userService.checkUserExistence(registerUserDto);
-//        userService.sendMailForSignUpUser(registerUserDto);
-//        return CommonResult.success("OTP sent successfully. Please check your email.");
-//    }
-
-
-//    public CommonResult<String> verifyOtpForSigningUp(@RequestBody @Valid String email) {
-//
-//    }
-
     @PostMapping("/login")
-    public CommonResult<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto) throws Exception {
+    public CommonResult<LoginResponse> authenticate(@Valid @RequestBody LoginUserDto loginUserDto) {
         String token = userService.authenticateUserAndGetLoginResponse(loginUserDto).getToken();
         User userDetail = userService.getUserDetailsFromToken(token);
         Token jwtToken = tokenService.addToken(userDetail, token);
@@ -92,8 +80,6 @@ public class UserController {
     @GetMapping("/me")
     @PreAuthorize("hasRole('USER')")
     public CommonResult<User> authenticatedUser() {
-//        Authentication authentication1 = SecurityContextHolder.getContext().getAuthentication();
-//        System.out.println("heheheeeeeeeeeeeeee" + authentication1);
         return CommonResult.success(userService.getAuthenticatedUser());
     }
 
@@ -105,7 +91,7 @@ public class UserController {
 
     @PostMapping("/updateProfile")
     @PreAuthorize("hasRole('USER')")
-    public CommonResult<User> updateUserProfile(@RequestBody UserProfileDTO userProfileDTO) {
+    public CommonResult<User> updateUserProfile(@Valid @RequestBody UserProfileDTO userProfileDTO) {
         return CommonResult.success(userService.updateUserProfile(userProfileDTO));
     }
 
@@ -135,7 +121,7 @@ public class UserController {
     @PostMapping("/refreshToken")
     public CommonResult<LoginResponse> refreshToken(
             @Valid @RequestBody RefreshTokenDTO refreshTokenDTO
-            ) throws  Exception {
+            ){
 
         User userDetail = userService.getUserDetailsFromRefreshToken(refreshTokenDTO.getRefreshToken());
         Token jwtToken = tokenService.refreshToken(refreshTokenDTO.getRefreshToken(), userDetail);

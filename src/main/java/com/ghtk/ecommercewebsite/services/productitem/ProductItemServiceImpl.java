@@ -3,6 +3,7 @@ package com.ghtk.ecommercewebsite.services.productitem;
 import com.cloudinary.api.exceptions.AlreadyExists;
 import com.ghtk.ecommercewebsite.exceptions.AlreadyExistedException;
 import com.ghtk.ecommercewebsite.exceptions.DataNotFoundException;
+import com.ghtk.ecommercewebsite.exceptions.QuantityExceededException;
 import com.ghtk.ecommercewebsite.models.dtos.DetailInventoryDTO;
 import com.ghtk.ecommercewebsite.models.dtos.DetailProductItemDTO;
 import com.ghtk.ecommercewebsite.models.dtos.ListAttributeValuesDTO;
@@ -54,7 +55,7 @@ public class ProductItemServiceImpl implements ProductItemService
 
     @Override
     @Transactional
-    public DetailProductItemDTO createProductItem(DetailProductItemDTO detailProductItemDTO, Long userId) throws Exception {
+    public DetailProductItemDTO createProductItem(DetailProductItemDTO detailProductItemDTO, Long userId){
         int valuesCount = detailProductItemDTO.getProductItemAtrAttributesDTOS().size();
         List<ProductAttributes> productAttributesList = productAttributesRepository.findAllByProductId(detailProductItemDTO.getProductId());
 
@@ -64,11 +65,11 @@ public class ProductItemServiceImpl implements ProductItemService
         if(productAttributesList.size() == valuesCount ) {
             List<ProductItem> productItemList = productItemRepository.findProductItemByAttributesValues(detailProductItemDTO.getProductId(), valuesIds, valuesCount);
             if(productItemList.size() > 0 ){
-                throw new Exception("product item already exists");
+                throw new AlreadyExistedException("product item already exists");
             }
         }
         if(productAttributesList.size() > valuesCount ) {
-            throw new Exception("number of product item attribute list isn't enough ");
+            throw new QuantityExceededException("number of product item attribute list isn't enough ");
         }
 //        else {
 //            throw new Exception("number of product item attribute list isn't enough ");
@@ -113,7 +114,7 @@ public class ProductItemServiceImpl implements ProductItemService
     }
 
     @Override
-    public Page<Object> getAllProductItem(Long productId, Long userId, Pageable pageable) throws Exception {
+    public Page<Object> getAllProductItem(Long productId, Long userId, Pageable pageable){
             int limit = pageable.getPageSize();
             int offset = pageable.getPageNumber() * limit;
             List<ProductItem> productItems =  productItemRepository.findAllByProductId(productId);
@@ -152,7 +153,7 @@ public class ProductItemServiceImpl implements ProductItemService
 
     @Override
     @Transactional
-    public DetailProductItemDTO updateProductItem(DetailProductItemDTO detailProductItemDTO, Long userId) throws Exception {
+    public DetailProductItemDTO updateProductItem(DetailProductItemDTO detailProductItemDTO, Long userId){
         Product product = productRepository.findById(detailProductItemDTO.getProductId())
                 .orElseThrow(()-> new DataNotFoundException("Cannot not found product"));
         int valuesCount = detailProductItemDTO.getProductItemAtrAttributesDTOS().size();
@@ -164,7 +165,7 @@ public class ProductItemServiceImpl implements ProductItemService
         if(productAttributesList.size() == valuesCount ) {
             List<ProductItem> productItemList = productItemRepository.findProductItemByAttributesValues(detailProductItemDTO.getProductId(), valuesIds, valuesCount);
             if(productItemList.size() > 0 ){
-                throw new Exception("product item already exists");
+                throw new AlreadyExistedException("product item already exists");
             }
         }
         if (product.getMinPrice() == null || product.getMinPrice().compareTo(detailProductItemDTO.getPrice()) > 0) {
@@ -210,7 +211,7 @@ public class ProductItemServiceImpl implements ProductItemService
 
     @Override
     @Transactional
-    public void deleteProductItem(Long id, Long userId) throws Exception {
+    public void deleteProductItem(Long id, Long userId){
         ProductItem productItem = productItemRepository.findById(id)
                 .orElseThrow(()-> new DataNotFoundException("product item not exist"));
         productItem.setIsDelete(Boolean.TRUE);
@@ -219,7 +220,7 @@ public class ProductItemServiceImpl implements ProductItemService
 
 
     @Override
-    public DetailProductItemDTO getProductItemById(Long id, Long userId) throws Exception {
+    public DetailProductItemDTO getProductItemById(Long id, Long userId){
         ProductItem productItem = productItemRepository.findById(id)
                 .orElseThrow(()-> new DataNotFoundException("Cannot find product item by id"));
         Product product = productRepository.findById(productItem.getProductId())
@@ -246,7 +247,7 @@ public class ProductItemServiceImpl implements ProductItemService
     }
 
     @Override
-    public Map<String, Object> getProductItemByAttributesValues(Long id, List<Long> valuesIds) throws Exception {
+    public Map<String, Object> getProductItemByAttributesValues(Long id, List<Long> valuesIds){
         int valuesCount = valuesIds.size();
         Long sumQuantity = productItemRepository.sumQuantity(id, valuesIds, valuesCount);
         int attributeCount = productAttributesRepository.findAllByProductId(id).size();
@@ -261,7 +262,7 @@ public class ProductItemServiceImpl implements ProductItemService
     }
 
     @Override
-    public List<ProductItem> getListProductItemByProductId(Long productId, Long userId) throws DataNotFoundException {
+    public List<ProductItem> getListProductItemByProductId(Long productId, Long userId){
             Shop shop = shopRepository.findByUserId(userId);
             if(shop == null){
                 throw  new DataNotFoundException("cannot find shopId by userId");

@@ -1,5 +1,6 @@
 package com.ghtk.ecommercewebsite.services.cart;
 
+import com.ghtk.ecommercewebsite.exceptions.DataNotFoundException;
 import com.ghtk.ecommercewebsite.mapper.CartItemMapper;
 import com.ghtk.ecommercewebsite.models.dtos.CartItemDTO;
 import com.ghtk.ecommercewebsite.models.entities.CartItem;
@@ -32,16 +33,16 @@ public class CartItemServiceImpl implements ICartItemService {
     private final ProductItemRepository productItemRepository;
 
     @Override
-    public CartItem getCartItemById(Long id) throws Exception {
+    public CartItem getCartItemById(Long id){
         return cartItemRepository.findById(id)
-                .orElseThrow(() -> new Exception("Cart item not found"));
+                .orElseThrow(() -> new DataNotFoundException("Cart item not found"));
     }
 
     @Override
     public void createCartItem(CartItemDTO cartItemDTO, Long userId) {
         // Lấy thông tin sản phẩm từ cơ sở dữ liệu
         ProductItem productItem = productItemRepository.findById(cartItemDTO.getProductItemId())
-                .orElseThrow(() -> new IllegalArgumentException("Product item not found"));
+                .orElseThrow(() -> new DataNotFoundException("Product item not found"));
 
         // Kiểm tra số lượng sản phẩm có sẵn
         if (productItem.getQuantity() < cartItemDTO.getQuantity()) {
@@ -126,7 +127,7 @@ public class CartItemServiceImpl implements ICartItemService {
     }
 
     @Override
-    public void deleteCartItem(Long id, Long userId) throws Exception {
+    public void deleteCartItem(Long id, Long userId){
         Optional<CartItem> cartItemOptional = cartItemRepository.findByIdAndUserId(id, userId);
 
         if (cartItemOptional.isPresent()) {
@@ -134,7 +135,7 @@ public class CartItemServiceImpl implements ICartItemService {
 
             // Lấy ProductItem liên quan tới CartItem
             ProductItem productItem = productItemRepository.findById(cartItem.getProductItemId())
-                    .orElseThrow(() -> new Exception("Product item not found"));
+                    .orElseThrow(() -> new DataNotFoundException("Product item not found"));
 
             // Trả lại số lượng sản phẩm vào ProductItem
             productItem.setQuantity(productItem.getQuantity() + cartItem.getQuantity());
@@ -142,14 +143,14 @@ public class CartItemServiceImpl implements ICartItemService {
 
             // Xóa CartItem
             cartItemRepository.delete(cartItem);
-        } else throw new Exception("Cart item not found or does not belong to the user");
+        } else throw new DataNotFoundException("Cart item not found or does not belong to the user");
     }
 
     @Override
-    public CartItem updateCartItemQuantity(Long cartItemId, int quantity, Long userId) throws Exception {
+    public CartItem updateCartItemQuantity(Long cartItemId, int quantity, Long userId){
         // Lấy thông tin giỏ hàng dựa trên cartItemId và userId
         CartItem cartItem = cartItemRepository.findByIdAndUserId(cartItemId, userId)
-                .orElseThrow(() -> new Exception("Cart item not found"));
+                .orElseThrow(() -> new DataNotFoundException("Cart item not found"));
 
         // Cập nhật số lượng sản phẩm
         ProductItem productItem = productItemRepository.findById(cartItem.getProductItemId())

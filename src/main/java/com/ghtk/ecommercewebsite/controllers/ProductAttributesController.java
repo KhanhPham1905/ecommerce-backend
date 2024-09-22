@@ -22,7 +22,7 @@ public class ProductAttributesController {
     @GetMapping("/{id}")
     public CommonResult<ProductAttributesDTO> getProductAttributesById(
             @PathVariable("id") Long IdProductAttributes
-    )throws Exception{
+    ){
         return CommonResult.success(productAttributesService.getProductAttributesById(IdProductAttributes), "Get product attributes successfully");
     }
 
@@ -31,7 +31,7 @@ public class ProductAttributesController {
     public CommonResult<Object> createProductAttributes (
             @PathVariable Long id,
             @Valid @RequestBody ProductAttributesDTO productAttributesDTO
-    ) throws Exception {
+    ){
         User user  = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return CommonResult.success( productAttributesService.createProductAttributes(productAttributesDTO, id , user.getId()),"Create product attribute successfully");
     }
@@ -39,7 +39,7 @@ public class ProductAttributesController {
     @PreAuthorize("hasRole('ROLE_SELLER')")
     public CommonResult<ProductAttributesDTO> updateProductAttributes(
             @Valid @RequestBody ProductAttributesDTO productAttributesDTO
-    )throws Exception{
+    ){
         User user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return CommonResult.success(productAttributesService.updateProductAttributes( productAttributesDTO, user.getId()), "Update product attribute successfully");
     }
@@ -48,7 +48,7 @@ public class ProductAttributesController {
     @PreAuthorize("hasRole('ROLE_SELLER')")
     public CommonResult<ProductAttributesDTO> deleteProductAttributes(
             @PathVariable Long id
-    )throws Exception{
+    ){
         User user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return CommonResult.success(productAttributesService.deleteProductAttributes( id, user.getId()), "Delete product attribute successfully");
     }
@@ -56,7 +56,7 @@ public class ProductAttributesController {
     @GetMapping("/all-product-attribute/{idProduct}")
     public CommonResult<List<ProductAttributes>> getProductAttributes(
             @PathVariable Long idProduct
-    ) throws Exception {
+    ) {
         return CommonResult.success(productAttributesService.getAllProductAttributes(idProduct), "Get all product attribute");
     }
 }

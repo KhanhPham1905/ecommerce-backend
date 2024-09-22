@@ -17,7 +17,7 @@ public class AdminServiceImpl implements AdminService{
     private final AuthenticationServiceImpl authenticationService;
 
     @Override
-    public LoginResponse authenticateAdminAndGetLoginResponse(LoginUserDto loginUserDto) throws AccessDeniedException {
+    public LoginResponse authenticateAdminAndGetLoginResponse(LoginUserDto loginUserDto){
         return authenticationService.authenticateAdminAndGetLoginResponse(loginUserDto);
     }
 

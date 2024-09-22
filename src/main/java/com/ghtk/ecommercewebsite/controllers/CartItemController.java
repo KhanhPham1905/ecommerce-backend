@@ -25,7 +25,7 @@ public class CartItemController {
     @GetMapping("/{id}")
     public CommonResult<CartItem> getCartItemById(
             @PathVariable("id") Long cartItemId
-    ) throws Exception {
+    ){
         CartItem existingCartItem = cartItemService.getCartItemById(cartItemId);
         return CommonResult.success(existingCartItem, "Get cart item successfully");
     }
@@ -33,7 +33,7 @@ public class CartItemController {
     @PostMapping("")
     public CommonResult<Object> createCartItem(
             @Valid @RequestBody CartItemDTO cartItemDTO
-    ) throws Exception {
+    ){
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         cartItemService.createCartItem(cartItemDTO, user.getId());
         return CommonResult.success("Create cart item successfully");
@@ -43,7 +43,7 @@ public class CartItemController {
     public CommonResult<Page<CartItem>> getAllCartItems(
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int limit
-    ) throws Exception {
+    ){
         PageRequest pageRequest = PageRequest.of(
                 page, limit,
                 Sort.by("id").ascending());
@@ -53,7 +53,7 @@ public class CartItemController {
     }
 
     @DeleteMapping("/{id}")
-    public CommonResult<Object> deleteCartItem(@PathVariable Long id) throws Exception {
+    public CommonResult<Object> deleteCartItem(@PathVariable Long id) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         cartItemService.deleteCartItem(id, user.getId());
         return CommonResult.success("Delete cart item successfully");
@@ -61,8 +61,8 @@ public class CartItemController {
 
     @PutMapping("/update")
     public CommonResult<CartItem> updateCartItemQuantity(
-            @RequestBody UpdateCartItemQuantityDTO updateCartItemQuantityDTO
-    ) throws Exception {
+            @Valid @RequestBody UpdateCartItemQuantityDTO updateCartItemQuantityDTO
+    ){
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         CartItem cartItem = cartItemService.updateCartItemQuantity(updateCartItemQuantityDTO.getId(), updateCartItemQuantityDTO.getQuantity(), user.getId());
         return CommonResult.success(cartItem, "Update cart item quantity successfully");
@@ -70,7 +70,7 @@ public class CartItemController {
 
     @GetMapping("/quantity")
     public CommonResult<Long> getQuantityCartItem()
-            throws Exception {
+    {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Long quantityCartItem = cartItemService.getQuantityCartItem(user.getId());
         return CommonResult.success(quantityCartItem, "get quantity success");
@@ -78,8 +78,8 @@ public class CartItemController {
 
     @PostMapping("/apply-voucher")
     public CommonResult<Object> applyVoucherToCartItem(
-            @RequestBody ApplyVoucherDTO applyVoucherDTO
-    ) throws Exception {
+            @Valid @RequestBody ApplyVoucherDTO applyVoucherDTO
+    ){
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         cartItemService.applyVoucherToCartItem(applyVoucherDTO.getCartItemId(), applyVoucherDTO.getVoucherId(), user.getId());
         return CommonResult.success("Voucher applied successfully to cart item");
