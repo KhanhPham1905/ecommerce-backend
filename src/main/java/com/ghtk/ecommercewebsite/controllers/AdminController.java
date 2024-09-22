@@ -12,6 +12,7 @@ import com.ghtk.ecommercewebsite.models.responses.LoginResponse;
 import com.ghtk.ecommercewebsite.services.admin.AdminService;
 import com.ghtk.ecommercewebsite.services.seller.SellerService;
 import com.ghtk.ecommercewebsite.services.user.UserService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -32,7 +33,7 @@ public class AdminController {
     private final AdminService adminService;
 
     @PostMapping("/login")
-    public CommonResult<LoginResponse> authenticate(@RequestBody LoginUserDto loginUserDto) throws AccessDeniedException {
+    public CommonResult<LoginResponse> authenticate(@Valid @RequestBody LoginUserDto loginUserDto){
         return CommonResult.success(adminService.authenticateAdminAndGetLoginResponse(loginUserDto));
     }
 
@@ -70,72 +71,31 @@ public class AdminController {
 
     @GetMapping("/users/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public CommonResult<User> viewUserDetails(@PathVariable Long id) throws DataNotFoundException {
+    public CommonResult<User> viewUserDetails(@PathVariable Long id){
         return CommonResult.success(userService.viewDetailsOfAnUser(id));
     }
 
     @GetMapping("/sellers/{id}")
     @PreAuthorize("hasRole('ADMIN')")
-    public CommonResult<User> viewSellerDetails(@PathVariable Long id) throws DataNotFoundException {
+    public CommonResult<User> viewSellerDetails(@PathVariable Long id){
         return CommonResult.success(sellerService.viewDetailsOfAnSeller(id));
     }
 
     @PostMapping("/users/add")
     @PreAuthorize("hasRole('ADMIN')")
-    public CommonResult<User> addNewUser(@RequestBody RegisterUserDto registerUserDto) {
+    public CommonResult<User> addNewUser(@Valid @RequestBody RegisterUserDto registerUserDto) {
         return CommonResult.success(userService.signUp(registerUserDto));
     }
 
-//    @PostMapping("/sellers/add")
-//    @PreAuthorize("hasRole('ADMIN')")
-//    public CommonResult<User> addNewSeller(@RequestBody RegisterUserDto registerUserDto) {
-//        return CommonResult.success(sellerService.signUpSeller(registerUserDto));
-//    }
-
     @PostMapping("/users/update")
     @PreAuthorize("hasRole('ADMIN')")
-    public CommonResult<User> updateUserInfo(@RequestBody UserDTO userDTO) throws DataNotFoundException {
+    public CommonResult<User> updateUserInfo(@Valid @RequestBody UserDTO userDTO){
         return CommonResult.success(userService.updateUserInfo(userDTO));
     }
 
     @PostMapping("/sellers/update")
     @PreAuthorize("hasRole('ADMIN')")
-    public CommonResult<Seller> updateSellerInfo(@RequestBody SellerDTO sellerDTO) throws DataNotFoundException {
+    public CommonResult<Seller> updateSellerInfo(@Valid @RequestBody SellerDTO sellerDTO){
         return CommonResult.success(sellerService.updateSellerInfo(sellerDTO));
     }
-
-// Normally return to List
-//    @GetMapping("/sellers")
-//    @PreAuthorize("hasRole('ADMIN')")
-//    public CommonResult<List<User>> allSellers() {
-//        List<User> sellers = userService.findAllSellers();
-//        return CommonResult.success(sellers);
-//    }
-
-// Manually convert to Page, without using PageRequest
-//    @GetMapping("/sellers")
-//    @PreAuthorize("hasRole('ADMIN')")
-//    public CommonResult<Page<User>> allSellers(@PageableDefault(size = 10) Pageable pageable) {
-//        List<User> sellers = userService.findAllSellers();
-//        Page<User> pagedSellers = convertListToPage(sellers, pageable);
-//        return CommonResult.success(pagedSellers);
-//    }
-//
-//    private Page<User> convertListToPage(List<User> sellers, Pageable pageable) {
-//        int pageSize = pageable.getPageSize();
-//        int currentPage = pageable.getPageNumber();
-//        int startItem = currentPage * pageSize;
-//
-//        List<User> pagedSellers;
-//
-//        if (sellers.size() < startItem) {
-//            pagedSellers = Collections.emptyList();
-//        } else {
-//            int toIndex = Math.min(startItem + pageSize, sellers.size());
-//            pagedSellers = sellers.subList(startItem, toIndex);
-//        }
-//
-//        return new PageImpl<>(pagedSellers, pageable, sellers.size());
-//    }
-
 }

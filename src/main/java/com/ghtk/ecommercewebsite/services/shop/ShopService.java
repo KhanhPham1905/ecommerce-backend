@@ -6,8 +6,8 @@ import java.util.Optional;
 
 public interface ShopService
 {
-    DetailShopInfoDTO getShopInfo(Long userId) throws Exception;
-    DetailShopInfoDTO updateShopInfo(DetailShopInfoDTO detailShopInfoDTO, Long userId) throws Exception;
-    DetailShopInfoDTO createInformationShop(DetailShopInfoDTO detailShopInfoDTO, Long userId) throws Exception;
-    DetailShopInfoDTO getShopInfoById(Long id,Long userId) throws Exception;
+    DetailShopInfoDTO getShopInfo(Long userId);
+    DetailShopInfoDTO updateShopInfo(DetailShopInfoDTO detailShopInfoDTO, Long userId);
+    DetailShopInfoDTO createInformationShop(DetailShopInfoDTO detailShopInfoDTO, Long userId);
+    DetailShopInfoDTO getShopInfoById(Long id,Long userId);
 }

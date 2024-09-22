@@ -38,10 +38,7 @@ public class UserServiceImpl implements UserService{
     private final AuthenticationService authenticationService;
     private final RedisOtpService redisOtpService;
     private final EmailService emailService;
-//    private final LocationRepository locationRepository;
     private final AddressRepository addressRepository;
-//    private final EmailService emailService;
-//    public static final String KEY = "cacheKey";
 
     @Override
     @Transactional
@@ -76,44 +73,12 @@ public class UserServiceImpl implements UserService{
                     .gender(input.getGender())
                     .roles(roles)
                     .build();
-            // From here
-//            Optional<Location> location = locationRepository.findByCountryAndProvinceAndDistrictAndCommune(input.getCountry(), input.getProvince(), input.getDistrict(), input.getCommune());
-//            if (location.isPresent()) {
-//                Location existedLocation = location.get();
-//                Address newAddressWithDetail = Address.builder()
-//                        .locationId(existedLocation.getId())
-//                        .addressDetail(input.getAddressDetail())
-//                        .build();
-//                addressRepository.save(newAddressWithDetail);
-//                user.setAddressId(newAddressWithDetail.getId());
-//            } else {
-//                Location newLocation = Location.builder()
-//                        .country(input.getCountry())
-//                        .province(input.getProvince())
-//                        .district(input.getDistrict())
-//                        .commune(input.getCommune())
-//                        .build();
-//                locationRepository.save(newLocation);
-//                Address newAddressWithDetail = Address.builder()
-//                        .locationId(newLocation.getId())
-//                        .addressDetail(input.getAddressDetail())
-//                        .build();
-//                user.setAddressId(newAddressWithDetail.getId());
-//            }
-            // to here is for new address implementation
-//            sendMail(input.getEmail());
             return userRepository.save(user);
         }
     }
 
-//    private void sendMail(String mail) {
-//        emailService.sendSimpleMessage(mail,
-//                "Signed up successfully",
-//                "You have just created an account with " + mail);
-//    }
-
     @Override
-    public LoginResponse authenticateUserAndGetLoginResponse(LoginUserDto loginUserDto) throws AccessDeniedException {
+    public LoginResponse authenticateUserAndGetLoginResponse(LoginUserDto loginUserDto){
         return authenticationService.authenticateUserAndGetLoginResponse(loginUserDto);
     }
 
@@ -121,18 +86,6 @@ public class UserServiceImpl implements UserService{
     public User getAuthenticatedUser() {
         return (User) authenticationService.getAuthentication().getPrincipal();
     }
-
-//    @Override
-//    public List<User> allUsers() {
-//        List<User> users = new ArrayList<>();
-//        userRepository.findAll().forEach(users::add);
-//        return users;
-//    }
-
-//    @Override
-//    public List<User> allSellers() {
-//        return userRepository.findByRolesContaining(RoleEnum.SELLER);
-//    }
 
     @Override
 //    @Cacheable(value = "sellers")
@@ -180,37 +133,31 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public User getUserDetailsFromToken(String token) throws Exception {
+    public User getUserDetailsFromToken(String token){
         String username = jwtService.extractUsername(token);
         Optional<User> user;
         user = userRepository.findByEmail(username);
-        return user.orElseThrow(() -> new Exception("User not found"));
+        return user.orElseThrow(() -> new DataNotFoundException("User not found"));
     }
 
     @Override
-    public User getUserDetailsFromRefreshToken(String refreshToken) throws Exception {
+    public User getUserDetailsFromRefreshToken(String refreshToken){
         Token existingToken = tokenRepository.findByRefreshToken(refreshToken);
         return getUserDetailsFromToken(existingToken.getToken());
     }
 
     @Override
-    public User viewDetailsOfAnUser(Long id) throws DataNotFoundException {
+    public User viewDetailsOfAnUser(Long id){
         Optional<User> user = userRepository.findById(id);
         if (user.isEmpty()) {
             throw new DataNotFoundException("There is no user with this id");
         } else {
             return user.get();
         }
-//        return user.map(value -> UserDTO.builder()
-//                .fullName(value.getFullName())
-//                .email(value.getEmail())
-//                .phone(value.getPhone())
-//                .gender(value.getGender())
-//                .build()).orElse(null);
     }
 
     @Override
-    public User updateUserInfo(UserDTO userDTO) throws DataNotFoundException {
+    public User updateUserInfo(UserDTO userDTO){
         Optional<User> optionalUser = userRepository.findUserByEmail(userDTO.getEmail());
 
         if (optionalUser.isEmpty()) {
@@ -267,7 +214,7 @@ public class UserServiceImpl implements UserService{
 
     @Override
     @Transactional
-    public User signUpNewVersion(RegisterUserDto registerUserDto) throws UserAlreadyExistedException {
+    public User signUpNewVersion(RegisterUserDto registerUserDto){
         Optional<Role> optionalRole = roleRepository.findByName(RoleEnum.USER);
         if (optionalRole.isEmpty()) { return null; }
 
@@ -312,30 +259,6 @@ public class UserServiceImpl implements UserService{
                 emailService.sendSimpleMessage(mailBody);
                 return existingUser;
             }
-            //else {
-//                existingRoles.add(userRole);
-//                existingUser.setRoles(existingRoles);
-//                existingUser.setPassword(registerUserDto.getPassword());
-//                existingUser.setFullName(registerUserDto.getFullName());
-//                existingUser.setPhone(registerUserDto.getPhone());
-//                existingUser.setGender(registerUserDto.getGender());
-//                existingUser.setStatus(false);
-//                // Save as inactive account
-//                userRepository.save(existingUser);
-//
-//                Integer otp = redisOtpService.generateAndSaveOtp(registerUserDto.getEmail());
-//                String roleNames = String.valueOf(existingRoles.stream()
-//                        .map(role -> role.getName().name())
-//                        .collect(Collectors.toList()));
-//                MailBody mailBody = MailBody.builder()
-//                        .to(registerUserDto.getEmail())
-//                        .text("You are already an " + roleNames + " in our system. This is the OTP for your request: " + otp)
-//                        .build();
-//                emailService.sendSimpleMessage(mailBody);
-//
-//                return existingUser;
-//
-//            }
         } else {
             Set<Role> roles = new HashSet<>(List.of(optionalRole.get()));
             User user = User.builder()
@@ -463,7 +386,7 @@ public class UserServiceImpl implements UserService{
     }
 
     @Override
-    public String sendOtpForForgotPasswordRequest(String email) throws DataNotFoundException {
+    public String sendOtpForForgotPasswordRequest(String email){
         Optional<User> optionalUser = userRepository.findByEmail(email);
         if (optionalUser.isEmpty()) {
             throw new DataNotFoundException("There is no user with this email");

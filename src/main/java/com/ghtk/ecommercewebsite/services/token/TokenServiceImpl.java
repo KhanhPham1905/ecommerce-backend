@@ -50,7 +50,7 @@ public class TokenServiceImpl implements TokenService {
     }
 
     @Override
-    public Token refreshToken(String refreshToken, User user) throws Exception {
+    public Token refreshToken(String refreshToken, User user){
         Token existingToken = tokenRepository.findByRefreshToken(refreshToken);
         if(existingToken == null){
             throw new DataNotFoundException("Refresh token does not exist");

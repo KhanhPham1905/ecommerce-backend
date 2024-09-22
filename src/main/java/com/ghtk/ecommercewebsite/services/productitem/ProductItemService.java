@@ -13,16 +13,16 @@ import java.util.Map;
 
 
 public interface ProductItemService {
-    DetailProductItemDTO createProductItem(DetailProductItemDTO detailProductItemDTO, Long userId) throws Exception;
+    DetailProductItemDTO createProductItem(DetailProductItemDTO detailProductItemDTO, Long userId);
 
-    Page<Object> getAllProductItem(Long productId, Long userId, Pageable pageable) throws Exception;
+    Page<Object> getAllProductItem(Long productId, Long userId, Pageable pageable);
 
-    DetailProductItemDTO updateProductItem(DetailProductItemDTO detailProductItemDTO, Long userId) throws  Exception;
+    DetailProductItemDTO updateProductItem(DetailProductItemDTO detailProductItemDTO, Long userId);
 
-    void deleteProductItem(Long id, Long userId) throws  Exception;
-    DetailProductItemDTO getProductItemById(Long id, Long userId) throws  Exception;
+    void deleteProductItem(Long id, Long userId);
+    DetailProductItemDTO getProductItemById(Long id, Long userId);
 
-    Map<String, Object> getProductItemByAttributesValues(Long id, List<Long> valuesIds) throws Exception;
+    Map<String, Object> getProductItemByAttributesValues(Long id, List<Long> valuesIds);
 
-    List<ProductItem> getListProductItemByProductId(Long id, Long userId) throws Exception;
+    List<ProductItem> getListProductItemByProductId(Long id, Long userId);
 }

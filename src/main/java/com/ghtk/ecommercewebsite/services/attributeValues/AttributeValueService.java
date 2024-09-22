@@ -9,8 +9,8 @@ import java.util.List;
 
 @Service
 public interface AttributeValueService {
-    void createAttributeValues(AttributeValuesDTO attributeValuesDTO, Long userId) throws  Exception;
-    void deleteAttributeValues(Long id, Long userid) throws Exception;
-    List<AttributeValues> getALLAttributeValues(Long id, Long userId) throws Exception;
+    void createAttributeValues(AttributeValuesDTO attributeValuesDTO, Long userId);
+    void deleteAttributeValues(Long id, Long userid);
+    List<AttributeValues> getALLAttributeValues(Long id, Long userId);
 
 }

@@ -23,7 +23,7 @@ public class BrandController {
     @GetMapping("/{id}")
     public CommonResult<Brand> getBrandById(
             @PathVariable("id") Long brandId
-    )throws Exception{
+    ){
         Brand existingBrand = brandService.getBrandById(brandId);
         return CommonResult.success(existingBrand, "Get brand successfully");
     }
@@ -32,7 +32,7 @@ public class BrandController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public CommonResult<Object> createBrand (
             @Valid @RequestBody BrandDTO brandDTO
-    ) throws Exception {
+    ){
         User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Brand brand = brandService.createBrand(brandDTO, user.getId());
         return CommonResult.success(brand,"Create brand successfully");
@@ -43,7 +43,7 @@ public class BrandController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int limit,
             @RequestParam(defaultValue = "",required = false) String name
-    ) throws Exception {
+    ) {
         PageRequest pageRequest = PageRequest.of(
                 page, limit,
                 Sort.by("id").ascending());
@@ -53,7 +53,7 @@ public class BrandController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public  CommonResult deleteBrand(@PathVariable Long id) throws Exception{
+    public  CommonResult deleteBrand(@PathVariable Long id) {
         User user  = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         brandService.deleteBrand(id, user.getId());
         return CommonResult.success("Delete success brand");
@@ -64,7 +64,7 @@ public class BrandController {
     public CommonResult<Brand> updateBrand(
             @PathVariable Long id,
             @Valid @RequestBody BrandDTO brandDTO
-    )throws Exception{
+    ){
         User user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Brand brand = brandService.updateBrand(id, brandDTO, user.getId());
         return CommonResult.success(brand, "Update brand successfully");

@@ -15,24 +15,24 @@ import java.nio.file.AccessDeniedException;
 import java.util.List;
 
 public interface UserService {
-    User signUp(RegisterUserDto input) throws UserAlreadyExistedException;
-    LoginResponse authenticateUserAndGetLoginResponse(LoginUserDto loginUserDto) throws AccessDeniedException;
+    User signUp(RegisterUserDto input);
+    LoginResponse authenticateUserAndGetLoginResponse(LoginUserDto loginUserDto);
     User getAuthenticatedUser();
     Page<User> allUsers(Pageable pageable);
     List<User> findAllSellers();
     Page<User> allSellers(Pageable pageable);
-    User getUserDetailsFromToken(String token) throws Exception;
-    User getUserDetailsFromRefreshToken(String refreshToken) throws Exception;
-    User viewDetailsOfAnUser(Long id) throws DataNotFoundException;
+    User getUserDetailsFromToken(String token);
+    User getUserDetailsFromRefreshToken(String refreshToken);
+    User viewDetailsOfAnUser(Long id);
 
-    User updateUserInfo(UserDTO userDTO) throws DataNotFoundException;
+    User updateUserInfo(UserDTO userDTO);
 
     String signUpWithOtp(RegisterUserDto registerUserDto);
 
     void checkUserExistence(RegisterUserDto registerUserDto);
     void sendMailForSignUpUser(RegisterUserDto registerUserDto);
 
-    User signUpNewVersion(RegisterUserDto registerUserDto) throws UserAlreadyExistedException;
+    User signUpNewVersion(RegisterUserDto registerUserDto);
 
     void activateUser(String email);
 
@@ -44,5 +44,5 @@ public interface UserService {
 
     void addSellerRole(String email);
 
-    String sendOtpForForgotPasswordRequest(String email) throws DataNotFoundException;
+    String sendOtpForForgotPasswordRequest(String email);
 }

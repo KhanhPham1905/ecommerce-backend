@@ -41,7 +41,7 @@ public class StatisticsController {
             @RequestParam(defaultValue = "10") int size,
             @RequestParam(defaultValue = "id") String sortBy,
             @RequestParam(defaultValue = "asc") String sortDir
-    ) throws DataNotFoundException {
+    ) {
         Sort.Direction direction = sortDir.equalsIgnoreCase("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
         Pageable pageable = PageRequest.of(page, size, Sort.by(direction, sortBy));
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -50,7 +50,7 @@ public class StatisticsController {
 
     @GetMapping("/products/{productId}")
     @PreAuthorize("hasAnyRole('SELLER')")
-    public CommonResult<StatisticDTO> getStatisticsOfAnProduct(@PathVariable Long productId) throws DataNotFoundException {
+    public CommonResult<StatisticDTO> getStatisticsOfAnProduct(@PathVariable Long productId) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return CommonResult.success(statisticService.getStatisticsOfAnProduct(user.getId(), productId));
     }

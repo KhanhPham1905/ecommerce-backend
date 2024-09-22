@@ -19,7 +19,7 @@ public class ImagesServiceImpl implements ImagesService{
     private  final ImagesRepository imagesRepository;
     private  final ProductRepository productsRepository;
     @Override
-    public void addImageProduct(CloudinaryResponse cloudinaryResponse, Long productId) throws Exception {
+    public void addImageProduct(CloudinaryResponse cloudinaryResponse, Long productId){
         Image image = Image.builder()
                 .productId(productId)
                 .link(cloudinaryResponse.getUrl())
@@ -30,7 +30,7 @@ public class ImagesServiceImpl implements ImagesService{
 
     @Override
     @Transactional
-    public void addImageTextProduct(String img, Long id) throws DataNotFoundException{
+    public void addImageTextProduct(String img, Long id){
         imagesRepository.deleteByLink(img);
         Image image = Image.builder()
                 .link(img)
@@ -40,7 +40,7 @@ public class ImagesServiceImpl implements ImagesService{
     }
 
     @Override
-    public void insertNotDelete(String img, Long id) throws DataNotFoundException {
+    public void insertNotDelete(String img, Long id){
         Image image = Image.builder()
                 .link(img)
                 .productId(id)

@@ -7,6 +7,7 @@ import com.ghtk.ecommercewebsite.models.responses.CommonResult;
 import com.ghtk.ecommercewebsite.services.checkout.ICheckoutService;
 import com.ghtk.ecommercewebsite.services.payment.PaymentService;
 import com.stripe.exception.StripeException;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,7 +28,7 @@ public class CheckoutController {
     private final PaymentService paymentService;
 
     @PostMapping("/checkout_cart")
-    public ResponseEntity<CommonResult<Map<String, String>>> checkout(@RequestBody CheckoutRequestDTO checkoutRequest)  throws  Exception{
+    public ResponseEntity<CommonResult<Map<String, String>>> checkout(@Valid  @RequestBody CheckoutRequestDTO checkoutRequest){
         try {
             // Lấy thông tin người dùng từ SecurityContextHolder
             User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
@@ -61,37 +62,9 @@ public class CheckoutController {
     @GetMapping("/total-price")
     public CommonResult<BigDecimal> getTotalPrice(
             @RequestParam List<Long> selectedCartItems
-    ) throws Exception {
+    ) {
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         BigDecimal totalPrice = checkoutService.calculateCartTotal(user.getId(), selectedCartItems);
         return CommonResult.success(totalPrice, "Total price calculated successfully");
     }
-//    @PostMapping("/checkout_direct")
-//    public ResponseEntity<CommonResult<Map<String, Object>>> checkoutDirect(@Valid @RequestBody CheckoutDirectRequestDTO checkoutDirectRequest) {
-//        try {
-//            // Lấy thông tin người dùng từ SecurityContextHolder
-//            User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//            Long userId = user.getId(); // Lấy userId từ đối tượng User
-//
-//            // Thực hiện checkout trực tiếp
-//            OrdersDTO ordersDTO = checkoutService.checkoutDirect(
-//                    userId, // Thay thế checkoutDirectRequest.getUserId() bằng userId
-//                    checkoutDirectRequest.getAddressID(),
-//                    checkoutDirectRequest.getProductItemId(),
-//                    checkoutDirectRequest.getQuantity(),
-//                    checkoutDirectRequest.getVoucherId(),
-//                    checkoutDirectRequest.getNote(),
-//                    checkoutDirectRequest.isMethod()
-//            );
-//
-//            // Gọi phương thức tạo phiên thanh toán sau khi tạo đơn hàng thành công
-//            Map<String, Object> paymentSession = paymentService.createCheckoutSession(ordersDTO.getId());
-//
-//            return ResponseEntity.status(HttpStatus.CREATED)
-//                    .body(CommonResult.success(paymentSession, "Checkout direct successful, please proceed to payment"));
-//        } catch (IllegalArgumentException | StripeException e) {
-//            return ResponseEntity.badRequest()
-//                    .body(CommonResult.error(HttpStatus.BAD_REQUEST.value(), e.getMessage()));
-//        }
-//    }
 }

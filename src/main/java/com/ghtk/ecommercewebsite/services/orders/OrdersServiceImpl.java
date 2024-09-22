@@ -28,7 +28,7 @@ public class OrdersServiceImpl implements IOrdersService {
     private final AddressRepository addressRepository;
 
     @Override
-    public OrdersDTO addOrder(OrdersDTO orderDTO, Long userId) throws DataNotFoundException {
+    public OrdersDTO addOrder(OrdersDTO orderDTO, Long userId){
         User user = userRepository.findById(userId)
                 .orElseThrow(()-> new DataNotFoundException("Cannot find user by this id"));
         Address address = addressRepository.findByUserId(userId)
@@ -45,7 +45,7 @@ public class OrdersServiceImpl implements IOrdersService {
     }
 
     @Override
-    public List<Orders> findAll(Long userId) throws DataNotFoundException {
+    public List<Orders> findAll(Long userId){
         User user = userRepository.findById(userId).orElseThrow(()-> new DataNotFoundException("Cannot find user by this id"));
         Address address = addressRepository.findByUserId(userId)
                 .orElseThrow(()-> new DataNotFoundException("Cannot find address by userId"));
@@ -84,14 +84,14 @@ public class OrdersServiceImpl implements IOrdersService {
 
 
     @Override
-    public List<Orders> getAllOrderBySeller(Long userId) throws Exception {
+    public List<Orders> getAllOrderBySeller(Long userId){
         return List.of();
     }
 
     @Override
     public void updateOrderStatus(Long orderId, Orders.OrderStatus newStatus) {
         Orders order = ordersRepository.findById(orderId)
-                .orElseThrow(() -> new RuntimeException("Order not found"));
+                .orElseThrow(() -> new DataNotFoundException("Order not found"));
         // Cập nhật trạng thái đơn hàng
         order.setStatus(newStatus);
         order.setModifiedAt(LocalDateTime.now());

@@ -56,7 +56,7 @@ public class ProductsController {
             @RequestParam(defaultValue = "", name ="rate") Float rate,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "20") int limit
-    ) throws Exception{
+    ){
         Sort sort = switch (sortOption) {
             case "latest" -> Sort.by("createdAt").descending();
             case "desc" -> Sort.by("minPrice").descending();
@@ -113,7 +113,7 @@ public class ProductsController {
             @RequestParam(defaultValue = "default", name ="sort") String sortOption,
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int limit
-    ) throws Exception{
+    ){
         Sort sort = switch (sortOption) {
             case "latest" -> Sort.by("createdAt").descending();
             case "desc" -> Sort.by("minPrice").descending();
@@ -164,15 +164,15 @@ public class ProductsController {
 
 
     @GetMapping("/{id}")
-    public CommonResult<ProductResponse> getProductById(@PathVariable Long id) throws Exception{
+    public CommonResult<ProductResponse> getProductById(@PathVariable Long id){
         ProductResponse productResponse = iProductService.getProductById(id);
-        return CommonResult.success(productResponse, "Get product by id success");
+        return CommonResult.success(productResponse, "Get product by id successfully");
     }
 
 
     @PostMapping
     @PreAuthorize("hasRole('ROLE_SELLER')")
-    public CommonResult<ProductDTO> createProduct(@ModelAttribute ProductDTO productDTO) throws Exception{
+    public CommonResult<ProductDTO> createProduct(@ModelAttribute ProductDTO productDTO){
         User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Product savedProduct = iProductService.save(productDTO, user.getId());
         return CommonResult.success(null, "Create product successfully");
@@ -181,98 +181,19 @@ public class ProductsController {
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_SELLER')")
-    public CommonResult<ProductDTO> updateProduct(@PathVariable Long id, @ModelAttribute ProductDTO productDTO) throws Exception{
+    public CommonResult<ProductDTO> updateProduct(@PathVariable Long id, @ModelAttribute ProductDTO productDTO){
         User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Product savedProduct = iProductService.updateProductById(id,productDTO, user.getId());
         return CommonResult.success(null,"Update product successfully");
     }
-//
-//    @PatchMapping("/{id}")
-//    public CommonResult<ProductDTO> patchProduct(@PathVariable Long id, @RequestBody Map<String, Object> updates) {
-//        return iProductService.findById(id)
-//                .map(product -> {
-//                    updates.forEach((key, value) -> {
-//                        switch (key) {
-//                            case "name":
-//                                product.setName((String) value);
-//                                break;
-//                            case "description":
-//                                product.setDescription((String) value);
-//                                break;
-//                            case "slug":
-//                                product.setSlug((String) value);
-//                                break;
-//                            case "status":
-//                                product.setStatus((Integer) value);
-//                                break;
-//                            case "totalSold":
-//                                product.setTotalSold(((Number) value).longValue());
-//                                break;
-//                            case "productView":
-//                                product.setProductView((Integer) value);
-//                                break;
-//                            case "brandId":
-//                                product.setBrandId(((Number) value).longValue());
-//                                break;
-//                            case "shopId":
-//                                product.setShopId(((Number) value).longValue());
-//                                break;
-//                        }
-//                    });
-//                    Product updatedProduct = iProductService.save(product);
-//                    return CommonResult.success(productMapper.toDTO(updatedProduct), "Patch product successfully");
-//                })
-//                .orElse(CommonResult.error(404, "Product not found"));
-//    }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_SELLER')")
-    public CommonResult<String> deleteProduct(@PathVariable Long id) throws Exception{
+    public CommonResult<String> deleteProduct(@PathVariable Long id){
         iProductService.deleteById(id);
         return CommonResult.success("delete product success");
     }
 
-//    @GetMapping("/searchName")
-//    public CommonResult<List<ProductDTO>> searchProductsByName(@RequestParam("keyword") String keyword) {
-//        List<ProductDTO> products = iProductService.searchProductsByName(keyword).stream()
-//                .map(productMapper::toDTO)
-//                .collect(Collectors.toList());
-//        if (products.isEmpty()) return CommonResult.error( 404 , "notfounbd");
-//        else return CommonResult.success(products, "Search products by name successfully");
-//    }
-//
-//    @GetMapping("/searchDes")
-//    public CommonResult<List<ProductDTO>> searchProductsByDes(@RequestParam("keyword") String keyword) {
-//        List<ProductDTO> products = iProductService.searchProductsByDes(keyword).stream()
-//                .map(productMapper::toDTO)
-//                .collect(Collectors.toList());
-//        return CommonResult.success(products, "Search products by description successfully");
-//    }
-
-//    @PostMapping(value = "/uploads", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-//    public CommonResult<String> uploadImages(
-//            @ModelAttribute("files") List<MultipartFile> files
-//    ) throws  Exception{
-//        files = files == null ? new ArrayList<MultipartFile>() : files;
-//        if(files.size() > Contant.MAXIMUM_IMAGES_PER_PRODUCT){
-//            return  CommonResult.failed("You can only upload max : " + Contant.MAXIMUM_IMAGES_PER_PRODUCT);
-//        }
-//
-//        for (MultipartFile file: files){
-//            if(file.getSize() == 0){
-//                continue;
-//            }
-//            if (file.getSize() > 10*1024*1024){
-//                return CommonResult.failed("you can only upload file Maximum 10MB");
-//            }
-//            String contentType = file.getContentType();
-//            if (contentType == null && ! contentType.startsWith("image/")){
-//                return CommonResult.failed("you must up load file is image");
-//            }
-//            CloudinaryResponse cloudinaryResponse = cloudinaryService.uploadImage(file);
-//        }
-//        return CommonResult.success("sac set");
-//    }
 @PostMapping(value = "/uploads", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
 public CommonResult<String> uploadImage(
         @RequestParam("files") MultipartFile file
@@ -297,42 +218,9 @@ public CommonResult<String> uploadImage(
 }
 
 
-//    @PostMapping("/generateFakeProducts")
-//    private ResponseEntity<String> generateFakeProducts () throws Exception{
-//        Faker faker = new Faker();
-////        for (long i = 0; i < 100; i++) {
-//            String title = faker.commerce().productName();
-////            if (iProductService.existsByTitle(title)) {
-////                continue;
-////            }
-//            List<Long> categoryIds = new ArrayList<>();
-//            for (int j = 0; j < faker.number().numberBetween(1,5); j++) {
-//                categoryIds.add((long) faker.number().numberBetween(1, 29));
-//            }
-//            ProductDTO productDTO = ProductDTO
-//                    .builder()
-//                    .name(title)
-////                    .price(faker.number().numberBetween(10, 90_000_000))
-//                    .description(faker.lorem().sentence())
-////                    .discount(faker.number().numberBetween(0, 10))
-////                    .averageRate(faker.number().numberBetween(0, 5))
-//                    .brandId((long)faker.number().numberBetween(1,5))
-//                    .categoryIds(categoryIds)
-//                    .images(List.of("https://res.cloudinary.com/dqgarzqlx/image/upload/v1724702644/615999978560552960.jpg"))
-//                    .status(1)
-//                    .totalSold(((long)faker.number().numberBetween(10, 90_000)))
-//                    .shopId((long)faker.number().numberBetween(1,5))
-//                    .minPrice(BigDecimal.valueOf(faker.number().numberBetween(10, 90_000)))
-//                    .build();
-//                iProductService.save(productDTO);
-//
-////        }
-//        return ResponseEntity.ok("Fake Products insert successfully");
-//    }
-
     @PostMapping("/generateFakeProducts")
     @PreAuthorize("hasRole('ROLE_SELLER')")
-    public CommonResult<ProductDTO> createProduct() throws Exception{
+    public CommonResult<ProductDTO> createProduct(){
         User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
 //        Product savedProduct = iProductService.save(productDTO, user.getId());
         Faker faker = new Faker();
@@ -366,12 +254,5 @@ public CommonResult<String> uploadImage(
         }
         return CommonResult.success(null,  "Create product successfully");
     }
-//    @PostMapping("/uploadsText/{id}/{image}")
-//    public  CommonResult<String> ImageText(
-//            @PathVariable  String image,
-//            @PathVariable Long id
-//    ) throws DataNotFoundException {
-//        imagesService.addImageTextProduct(id, image);
-//        return CommonResult.success("upload img text success");
-//    }
+
 }

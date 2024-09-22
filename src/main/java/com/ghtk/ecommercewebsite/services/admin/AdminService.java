@@ -7,7 +7,7 @@ import com.ghtk.ecommercewebsite.models.responses.LoginResponse;
 import java.nio.file.AccessDeniedException;
 
 public interface AdminService {
-    LoginResponse authenticateAdminAndGetLoginResponse(LoginUserDto loginUserDto) throws AccessDeniedException;
+    LoginResponse authenticateAdminAndGetLoginResponse(LoginUserDto loginUserDto) ;
 
     User getAuthenticatedAdmin();
 }

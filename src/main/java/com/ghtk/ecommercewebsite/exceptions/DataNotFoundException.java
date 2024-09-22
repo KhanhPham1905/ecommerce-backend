@@ -1,5 +1,5 @@
 package com.ghtk.ecommercewebsite.exceptions;
 
-public class DataNotFoundException extends Exception{
+public class DataNotFoundException extends RuntimeException{
     public DataNotFoundException(String message) {super(message);}
 }

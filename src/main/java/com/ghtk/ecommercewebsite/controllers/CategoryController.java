@@ -26,7 +26,7 @@ public class CategoryController {
     @GetMapping("/{id}")
     public CommonResult<Category> getCategoryById(
             @PathVariable("id") Long categoryId
-    )throws Exception{
+    ){
         Category existingCategory = categoryService.getCategoryById(categoryId);
         return CommonResult.success(existingCategory, "Get category successfully");
     }
@@ -35,7 +35,7 @@ public class CategoryController {
     @PreAuthorize("hasRole('ROLE_ADMIN')")
     public CommonResult<Object> createCategory (
             @Valid @RequestBody CategoryDTO categoryDTO
-    ) throws Exception {
+    ){
         User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Category category = categoryService.createCategory(categoryDTO, user.getId());
         return CommonResult.success(category,"Create category successfully");
@@ -46,18 +46,17 @@ public class CategoryController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int limit,
             @RequestParam(defaultValue = "",required = false) String name
-    ) throws Exception {
+    ){
         PageRequest pageRequest = PageRequest.of(
                 page, limit,
                 Sort.by("id").ascending());
-//        User user  = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Page<Category> categoriesPages = categoryService.getAllCategories(pageRequest, name);
         return CommonResult.success(categoriesPages, "Get all categories");
     }
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_ADMIN')")
-    public  CommonResult deleteCategory(@PathVariable Long id) throws Exception{
+    public  CommonResult deleteCategory(@PathVariable Long id){
         User user  = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         categoryService.deleteCategory(id, user.getId());
         return CommonResult.success("Delete success category");
@@ -68,7 +67,7 @@ public class CategoryController {
     public CommonResult<Category> updateCategory(
             @PathVariable Long id,
             @Valid @RequestBody CategoryDTO categoryDTO
-    )throws Exception{
+    ){
         User user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         Category category = categoryService.updateCategory(id, categoryDTO, user.getId());
         return CommonResult.success(category, "Update category successfully");

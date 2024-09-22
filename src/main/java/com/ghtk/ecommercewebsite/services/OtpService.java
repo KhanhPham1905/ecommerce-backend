@@ -32,7 +32,7 @@ public class OtpService {
     private final RedisOtpService redisOtpService;
 
     // New version
-    public CommonResult<String> verifyEmailAndSendOtpNewVersion(String email) throws UsernameNotFoundException {
+    public CommonResult<String> verifyEmailAndSendOtpNewVersion(String email){
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Please provide a valid email!"));
 
@@ -47,15 +47,7 @@ public class OtpService {
         return CommonResult.success(email, "Email sent for verification!");
     }
 
-//    public CommonResult<String> verifyOtpForForgotPasswordRequest(Integer otp, String email) {
-//        boolean isValid = redisOtpService.verifyOtp(email, otp);
-//        if (isValid) {
-//            return ResponseEntity.ok("OTP verified!");
-//        }
-//        return new ResponseEntity<>("Invalid or expired OTP!", HttpStatus.BAD_REQUEST);
-//    }
-
-    public ResponseEntity<String> verifyEmailAndSendOtp(String email) throws UsernameNotFoundException {
+    public ResponseEntity<String> verifyEmailAndSendOtp(String email){
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Please provide a valid email!"));
 
@@ -76,30 +68,9 @@ public class OtpService {
         emailService.sendSimpleMessage(mailBody);
         forgotPasswordRepository.save(fp);
         return ResponseEntity.ok("Email sent for verification!");
-//        try {
-//            emailService.sendSimpleMessage(mailBody);
-//            forgotPasswordRepository.save(fp);
-//            return ResponseEntity.ok("Email sent for verification!");
-//        } catch (Exception e) {
-//            // Log the exception
-//            logger.error("Error sending email: ", e);
-//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Internal Server Error");
-//        }
     }
 
     public ResponseEntity<String> verifyOtp(Integer otp, String email) {
-//        User user = userRepository.findByEmail(email)
-//                .orElseThrow(() -> new UsernameNotFoundException("Please provide a valid email!"));
-//
-//        ForgotPassword fp = forgotPasswordRepository.findByOtpAndUser(otp, user)
-//                .orElseThrow(() -> new RuntimeException("Invalid OTP for email " + email));
-//        if (fp.getExpirationTime().before(Date.from(Instant.now()))) {
-//            forgotPasswordRepository.deleteById(fp.getFpid());
-//            return new ResponseEntity<>("OTP has expired!", HttpStatus.EXPECTATION_FAILED);
-//        }
-//
-//        forgotPasswordRepository.deleteById(fp.getFpid());
-//        return ResponseEntity.ok("OTP verified!");
         boolean isValid = redisOtpService.verifyOtp(email, otp);
         if (isValid) {
             return ResponseEntity.ok("OTP verified!");
@@ -116,11 +87,6 @@ public class OtpService {
 
         return ResponseEntity.ok("Password has been changed!");
     }
-
-//    private Integer otpGenerator() {
-//        Random random = new Random();
-//        return random.nextInt(100_000, 999_999);
-//    }
 
     public ResponseEntity<String> resendOtp(String email) {
         try {

@@ -6,6 +6,7 @@ import com.ghtk.ecommercewebsite.models.entities.ProductItem;
 import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.responses.CommonResult;
 import com.ghtk.ecommercewebsite.services.productitem.ProductItemService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
@@ -27,8 +28,8 @@ public class ProductItemController {
     @PostMapping
     @PreAuthorize("hasRole('ROLE_SELLER')")
     public CommonResult<DetailProductItemDTO> createProductItem(
-            @RequestBody DetailProductItemDTO detailProductItemDTO
-    ) throws  Exception {
+            @Valid @RequestBody DetailProductItemDTO detailProductItemDTO
+    ){
         User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return CommonResult.success(productItemService.createProductItem(detailProductItemDTO, user.getId()), "create product item successfully");
     }
@@ -39,7 +40,7 @@ public class ProductItemController {
         @RequestParam(defaultValue = "0") int page,
         @RequestParam(defaultValue = "10") int limit,
         @PathVariable Long id
-    ) throws  Exception{
+    ){
         Pageable pageable = PageRequest.of(page, limit);
         User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return CommonResult.success(productItemService.getAllProductItem(id,user.getId(), pageable),"get all product item successfully");
@@ -48,8 +49,8 @@ public class ProductItemController {
     @PutMapping
     @PreAuthorize("hasRole('ROLE_SELLER')")
     public CommonResult<DetailProductItemDTO> updateProductItem(
-            @RequestBody DetailProductItemDTO detailProductItemDTO
-    ) throws Exception{
+            @Valid @RequestBody DetailProductItemDTO detailProductItemDTO
+    ){
         User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return CommonResult.success(productItemService.updateProductItem(detailProductItemDTO,user.getId()),"update product item successfully");
     }
@@ -58,7 +59,7 @@ public class ProductItemController {
     @PreAuthorize("hasRole('ROLE_SELLER')")
     public CommonResult<String> deleteProductItem(
             @PathVariable Long id
-    ) throws Exception{
+    ){
         User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         productItemService.deleteProductItem(id, user.getId());
         return CommonResult.success("Delete product item id = " + id + " successfully");
@@ -68,12 +69,10 @@ public class ProductItemController {
     @GetMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_SELLER')")
     public  CommonResult<DetailProductItemDTO> getProductItemById(
-            @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "10") int limit,
             @PathVariable Long id
-    ) throws  Exception{
+    ){
         User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-        return CommonResult.success(productItemService.getProductItemById(id,user.getId()),"get all product item successfully");
+        return CommonResult.success(productItemService.getProductItemById(id,user.getId()),"get product item successfully");
     }
 
 
@@ -81,14 +80,14 @@ public class ProductItemController {
     public CommonResult<Map<String, Object>> getProductItemByAttributesValues(
             @PathVariable Long id,
             @RequestParam(defaultValue = "", name = "values-ids") List<Long> valuesIds
-    ) throws  Exception{
+    ){
         return CommonResult.success( productItemService.getProductItemByAttributesValues(id, valuesIds),"Get quantity by attributes successfully");
     }
 
     @GetMapping("/product/{id}")
     public CommonResult<List<ProductItem>> getListProductItemByProductId(
         @PathVariable Long id
-    )throws  Exception {
+    ){
         User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return CommonResult.success(productItemService.getListProductItemByProductId(id, user.getId()),"Get list product item by product id successfully");
     }

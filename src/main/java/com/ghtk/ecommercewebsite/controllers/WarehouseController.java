@@ -28,7 +28,7 @@ public class WarehouseController {
     @GetMapping("/{id}")
     public CommonResult<DetailWarehouseDTO> getWarehouseInfo(
             @PathVariable("id") Long id
-    )throws Exception{
+    ){
         return CommonResult.success(warehouseService.getWarehouseInfo(id), "Get product attributes successfully");
     }
 
@@ -36,7 +36,7 @@ public class WarehouseController {
     @PreAuthorize("hasRole('ROLE_SELLER')")
     public CommonResult<DetailWarehouseDTO> createWarehouse (
             @Valid @RequestBody  DetailWarehouseDTO detailWarehouseDTO
-    ) throws Exception {
+    ){
         User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return CommonResult.success(warehouseService.createWarehouse(detailWarehouseDTO, user.getId()),"Create warehouse successfully");
     }
@@ -46,7 +46,7 @@ public class WarehouseController {
     public CommonResult<DetailWarehouseDTO> updateWarehouseById(
             @PathVariable Long id,
             @Valid @RequestBody DetailWarehouseDTO detailWarehouseDTO
-    )throws Exception{
+    ){
         User user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         warehouseService.updateWarehouseById(detailWarehouseDTO,id, user.getId());
         return CommonResult.success(warehouseService.updateWarehouseById(detailWarehouseDTO,id, user.getId()),"Update warehouse successfully");
@@ -54,7 +54,7 @@ public class WarehouseController {
 
     @DeleteMapping("/{id}")
     @PreAuthorize("hasRole('ROLE_SELLER')")
-    public  CommonResult deleteWarehouse(@PathVariable Long id) throws Exception{
+    public  CommonResult deleteWarehouse(@PathVariable Long id) {
         User user  = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         warehouseService.deleteWarehouseById(id, user.getId());
         return CommonResult.success("Delete warehouse successfully ");
@@ -66,7 +66,7 @@ public class WarehouseController {
             @RequestParam(defaultValue = "0") int page,
             @RequestParam(defaultValue = "10") int limit,
             @RequestParam(defaultValue = "",required = false) String name
-    ) throws Exception {
+    ){
         PageRequest pageRequest = PageRequest.of(
                 page, limit,
                 Sort.by("id").ascending());

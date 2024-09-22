@@ -14,9 +14,9 @@ import java.util.List;
 import java.util.Optional;
 
 public interface IBrandService {
-    Brand getBrandById(Long id) throws Exception;
-    Brand createBrand(BrandDTO brandDTO, Long userId) throws Exception;
-    public Page<Brand> getAllBrands(PageRequest pageRequest, String name) throws Exception;
-    Brand updateBrand(Long categoryId, BrandDTO brandDTO, Long id) throws  Exception;
-    Brand deleteBrand(Long id, Long userId) throws Exception;
+    Brand getBrandById(Long id) ;
+    Brand createBrand(BrandDTO brandDTO, Long userId);
+    public Page<Brand> getAllBrands(PageRequest pageRequest, String name) ;
+    Brand updateBrand(Long categoryId, BrandDTO brandDTO, Long id) ;
+    Brand deleteBrand(Long id, Long userId);
 }
