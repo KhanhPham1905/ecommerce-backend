@@ -7,5 +7,5 @@ import org.springframework.stereotype.Service;
 @Service
 public interface TokenService {
     Token addToken(User user, String token);
-    Token refreshToken(String refreshToken, User user) throws Exception;
+    Token refreshToken(String refreshToken, User user);
 }

@@ -23,11 +23,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.math.BigDecimal;
-import java.nio.file.AccessDeniedException;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -60,12 +60,10 @@ public class ProductServiceImpl implements IProductService {
 
 
     @Transactional
-    public Product save(ProductDTO productDTO, Long userId) throws  Exception {
+    public Product save(ProductDTO productDTO, Long userId){
         Shop shop = shopRepository.findByUserId(userId);
         productDTO.setShopId(shop.getId());
         productDTO.setIsDelete(Boolean.FALSE);
-//        CloudinaryResponse ThumbcloudinaryResponse = cloudinaryService.uploadImage(productDTO.getThumbnail());
-//        productDTO.setThumbnailImg(ThumbcloudinaryResponse.getUrl());
         Product product = productsRepository.save(productMapper.toEntity(productDTO));
 
         for (int i = 0; i < productDTO.getCategoryIds().size(); i++){
@@ -79,33 +77,12 @@ public class ProductServiceImpl implements IProductService {
         for (String file: productDTO.getImages()){
             imagesService.addImageTextProduct(file, product.getId());
         }
-
-//        List<MultipartFile> files = productDTO.getImages();
-//        files = files == null ? new ArrayList<MultipartFile>() : files;
-//        if(files.size() > Contant.MAXIMUM_IMAGES_PER_PRODUCT){
-//            new Exception("You can only upload max : " + Contant.MAXIMUM_IMAGES_PER_PRODUCT);
-//        }
-//
-//        for (MultipartFile file: files){
-//            if(file.getSize() == 0){
-//                continue;
-//            }
-//            if (file.getSize() > 2*1024*1024){
-//                new Exception("you can only upload file Maximum 2MB");
-//            }
-//            String contentType = file.getContentType();
-//            if (contentType == null && ! contentType.startsWith("image/")){
-//                new Exception("you must up load file is image");
-//            }
-//            CloudinaryResponse cloudinaryResponse = cloudinaryService.uploadImage(file);
-//            imagesService.addImageProduct(cloudinaryResponse, product.getId());
-//        }
         return product;
     }
 
 
     @Transactional
-    public void deleteById(Long id) throws Exception{
+    public void deleteById(Long id){
         Product product = productsRepository.findById(id)
                 .orElseThrow(()->  new DataNotFoundException("Cannot find product by id"));
         product.setIsDelete(Boolean.TRUE);
@@ -121,14 +98,6 @@ public class ProductServiceImpl implements IProductService {
         return productsRepository.findByBrandId(brandId);
     }
 
-//    @Override
-//    public void deleteBrandById(Long brandId) {
-//        List<Product> products = findByBrandId(brandId);
-//        for (Product product : products) {
-//            deleteById(product.getId());
-//        }
-//    }
-
     @Override
     public List<Product> searchProductsByName(String keyword) {
         return productsRepository.findByNameContaining(keyword);
@@ -140,7 +109,7 @@ public class ProductServiceImpl implements IProductService {
     }
 
     @Override
-    public List<Product> getAllProducts() throws Exception{
+    public List<Product> getAllProducts(){
         return List.of();
     }
 
@@ -154,7 +123,7 @@ public class ProductServiceImpl implements IProductService {
             Long toPrice,
             Float rateStar,
             PageRequest pageRequest
-    ) throws Exception {
+    ) {
         return productsRepository.searchProducts(categoryIds, brandIds, keyword, fromPrice , toPrice, rateStar, pageRequest)
             .map(product -> {
                 List<String> categoryNames = product.getCategoryList().stream()
@@ -195,10 +164,10 @@ public class ProductServiceImpl implements IProductService {
             String keyword,
             Long userId,
             PageRequest pageRequest
-    ) throws Exception {
+    ){
         Shop shop = shopRepository.findByUserId(userId);
         if(shop == null){
-            throw  new Exception("shop not found by userID");
+            throw  new DataNotFoundException("shop not found by userID");
         }
         return productsRepository.searchProductsSeller(categoryIds, categoryCount, brandIds, keyword,shop.getId(), pageRequest)
                 .map(product -> {
@@ -231,59 +200,9 @@ public class ProductServiceImpl implements IProductService {
                 });
     }
 
-//    @Override
-//    @Transactional
-//    public Product updateProductById(Long id, ProductDTO productDTO, Long userId) throws Exception {
-//        Product product = productsRepository.findById(id)
-//                .orElseThrow(()-> new DataNotFoundException("Cannot find product"));
-//
-//        Shop shop = shopRepository.findByUserId(userId);
-//        if(!product.getShopId().equals(shop.getId())){
-//            throw new AccessDeniedException("you do not have access");
-//        }
-//
-//        productDTO.setShopId(shop.getId());
-//        productDTO.setId(product.getId());
-//
-//        imagesRepository.deleteByProductId(product.getId());
-////        CloudinaryResponse ThumbcloudinaryResponse = cloudinaryService.uploadImage(productDTO.getThumbnail());
-////        productDTO.setThumbnailImg(ThumbcloudinaryResponse.getUrl());
-//        productsRepository.save(productMapper.toEntity(productDTO));
-//
-//        for (int i = 0; i < productDTO.getCategoryIds().size(); i++){
-//            ProductCategory productCategory = ProductCategory.builder()
-//                    .categoryId(productDTO.getCategoryIds().get(i))
-//                    .productId(product.getId())
-//                    .build();
-//            categoryProductRepository.save(productCategory);
-//        }
-//
-//        List<MultipartFile> files = productDTO.getImages();
-//        files = files == null ? new ArrayList<MultipartFile>() : files;
-//        if(files.size() > Contant.MAXIMUM_IMAGES_PER_PRODUCT){
-//            new Exception("You can only upload max : " + Contant.MAXIMUM_IMAGES_PER_PRODUCT);
-//        }
-//
-//        for (MultipartFile file: files){
-//            if(file.getSize() == 0){
-//                continue;
-//            }
-//            if (file.getSize() > 2*1024*1024){
-//                new Exception("you can only upload file Maximum 2MB");
-//            }
-//            String contentType = file.getContentType();
-//            if (contentType == null && ! contentType.startsWith("image/")){
-//                new Exception("you must up load file is image");
-//            }
-//            CloudinaryResponse cloudinaryResponse = cloudinaryService.uploadImage(file);
-//            imagesService.addImageProduct(cloudinaryResponse, product.getId());
-//        }
-//        return product;
-//    }
-
     @Override
     @Transactional
-    public Product updateProductById(Long id, ProductDTO productDTO, Long userId) throws Exception {
+    public Product updateProductById(Long id, ProductDTO productDTO, Long userId){
         Product product = productsRepository.findById(id)
                 .orElseThrow(()-> new DataNotFoundException("Cannot find product"));
 
@@ -298,8 +217,6 @@ public class ProductServiceImpl implements IProductService {
         productDTO.setMinPrice(product.getMinPrice());
 
         imagesRepository.deleteByProductId(product.getId());
-//        CloudinaryResponse ThumbcloudinaryResponse = cloudinaryService.uploadImage(productDTO.getThumbnail());
-//        productDTO.setThumbnailImg(ThumbcloudinaryResponse.getUrl());
         productsRepository.save(productMapper.toEntity(productDTO));
 
         for (int i = 0; i < productDTO.getCategoryIds().size(); i++){
@@ -312,14 +229,8 @@ public class ProductServiceImpl implements IProductService {
                     .isDelete(Boolean.FALSE)
                     .productId(product.getId())
                     .build();
-            ProductCategory productCategoryNew=  categoryProductRepository.save(productCategory);
+            categoryProductRepository.save(productCategory);
         }
-//        List<MultipartFile> files = productDTO.getImages();
-//        files = files == null ? new ArrayList<MultipartFile>() : files;
-//        if(files.size() > Contant.MAXIMUM_IMAGES_PER_PRODUCT){
-//            new Exception("You can only upload max : " + Contant.MAXIMUM_IMAGES_PER_PRODUCT);
-//        }
-
         for (String file: productDTO.getImages()){
             imagesService.addImageTextProduct(file, product.getId());
         }
@@ -328,13 +239,8 @@ public class ProductServiceImpl implements IProductService {
 
     @Override
     @Transactional
-    public Product insertAProduct(ProductDTO productDTO) throws  Exception{
-//        Shop shop = shopRepository.findById(productDTO.getShopId())
-//                .orElseThrow(()-> new DataNotFoundException("cannot find shop by shopud"));
-//        productDTO.setShopId(shop.getId());
+    public Product insertAProduct(ProductDTO productDTO){
         productDTO.setIsDelete(Boolean.FALSE);
-//        CloudinaryResponse ThumbcloudinaryResponse = cloudinaryService.uploadImage(productDTO.getThumbnail());
-//        productDTO.setThumbnailImg(ThumbcloudinaryResponse.getUrl());
         Product product = productsRepository.save(productMapper.toEntity(productDTO));
 
         for (int i = 0; i < productDTO.getCategoryIds().size(); i++){
@@ -353,7 +259,7 @@ public class ProductServiceImpl implements IProductService {
 
 
     @Override
-    public ProductResponse getProductById(Long id) throws Exception {
+    public ProductResponse getProductById(Long id){
         Product product = productsRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("product not found"));
         Rate rate = rateRepository.findByProductId(id);

@@ -23,7 +23,7 @@ public class ShopServiceImpl implements ShopService{
     private  final SellerRepository sellerRepository;
     private  final AddressRepository addressRepository;
     @Override
-    public DetailShopInfoDTO getShopInfo(Long userId) throws  Exception{
+    public DetailShopInfoDTO getShopInfo(Long userId){
         Long shopId = sellerRepository.findShopIdByUserId(userId);
         if(shopId == null){
             throw new DataNotFoundException("Cannot not found shop id by userId");
@@ -35,7 +35,7 @@ public class ShopServiceImpl implements ShopService{
 
     @Override
     @Transactional
-    public DetailShopInfoDTO updateShopInfo(DetailShopInfoDTO detailShopInfoDTO ,Long userId) throws Exception {
+    public DetailShopInfoDTO updateShopInfo(DetailShopInfoDTO detailShopInfoDTO ,Long userId){
         Shop shop = shopRepository.findShopByUserId(userId)
                 .orElseThrow(() -> new DataNotFoundException("shop not found"));
         shop.setMail(detailShopInfoDTO.getMail());
@@ -57,7 +57,7 @@ public class ShopServiceImpl implements ShopService{
 
     @Override
     @Transactional
-    public DetailShopInfoDTO createInformationShop(DetailShopInfoDTO detailShopInfoDTO, Long userId) throws Exception {
+    public DetailShopInfoDTO createInformationShop(DetailShopInfoDTO detailShopInfoDTO, Long userId){
 
         Address address = Address.builder()
                 .addressDetail(detailShopInfoDTO.getAddressDetail())
@@ -88,7 +88,7 @@ public class ShopServiceImpl implements ShopService{
 
 
     @Override
-    public DetailShopInfoDTO getShopInfoById(Long id,Long userId) throws  Exception{
+    public DetailShopInfoDTO getShopInfoById(Long id,Long userId){
         Shop shopId = shopRepository.findById(id)
                 .orElseThrow(()-> new DataNotFoundException("Cannot find shop id by id"));
         if(shopId == null){

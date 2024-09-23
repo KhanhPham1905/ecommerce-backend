@@ -10,11 +10,10 @@ import com.ghtk.ecommercewebsite.models.entities.Shop;
 import com.ghtk.ecommercewebsite.repositories.ProductAttributesRepository;
 import com.ghtk.ecommercewebsite.repositories.ProductRepository;
 import com.ghtk.ecommercewebsite.repositories.ShopRepository;
+import org.springframework.security.access.AccessDeniedException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
-import java.nio.file.AccessDeniedException;
 import java.util.List;
 import java.util.Optional;
 
@@ -30,7 +29,7 @@ public class ProductAttributesServiceImpl implements ProductAttributesService
 
     @Override
     @Transactional
-    public ProductAttributesDTO createProductAttributes(ProductAttributesDTO productAttributesDTO, Long id, Long userId) throws Exception{
+    public ProductAttributesDTO createProductAttributes(ProductAttributesDTO productAttributesDTO, Long id, Long userId){
         List<ProductAttributes> ListProductAttributes = productAttributesRepository.findByProductId(id);
         if (ListProductAttributes.size() > 5){
             throw new QuantityExceededException("you can only have a maximum of 4 attributes");
@@ -49,16 +48,15 @@ public class ProductAttributesServiceImpl implements ProductAttributesService
     }
 
     @Override
-    public ProductAttributesDTO getProductAttributesById(Long id) throws Exception {
+    public ProductAttributesDTO getProductAttributesById(Long id){
         ProductAttributes productAttributes = productAttributesRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Cannot find product attributes by id"));
-        ProductAttributesDTO productAttributes1 = productAttributesMapper.toDTO(productAttributes);
         return productAttributesMapper.toDTO(productAttributes);
     }
 
     @Override
     @Transactional
-    public ProductAttributesDTO updateProductAttributes(ProductAttributesDTO productAttributesDTO, Long userId) throws Exception {
+    public ProductAttributesDTO updateProductAttributes(ProductAttributesDTO productAttributesDTO, Long userId){
         Shop shop = shopRepository.findShopByUserId(userId)
                 .orElseThrow(() -> new DataNotFoundException("Cannot find shop by id"));
         Product product = productRepository.findById(productAttributesDTO.getProductId())
@@ -75,7 +73,7 @@ public class ProductAttributesServiceImpl implements ProductAttributesService
 
     @Override
     @Transactional
-    public ProductAttributesDTO deleteProductAttributes(Long id, Long userId) throws Exception {
+    public ProductAttributesDTO deleteProductAttributes(Long id, Long userId){
         ProductAttributes productAttributes = productAttributesRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Cannot find product attributes by id"));
         Shop shop = shopRepository.findShopByUserId(userId)
@@ -91,7 +89,7 @@ public class ProductAttributesServiceImpl implements ProductAttributesService
     }
 
     @Override
-    public List<ProductAttributes> getAllProductAttributes(Long idProduct) throws Exception {
+    public List<ProductAttributes> getAllProductAttributes(Long idProduct){
         List<ProductAttributes> productAttributes = productAttributesRepository.findByProductId(idProduct);
         return productAttributes;
     }

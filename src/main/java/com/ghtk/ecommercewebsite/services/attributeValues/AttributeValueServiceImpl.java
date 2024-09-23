@@ -17,7 +17,7 @@ public class AttributeValueServiceImpl implements AttributeValueService{
 
     @Override
     @Transactional
-    public void createAttributeValues(AttributeValuesDTO attributeValuesDTO, Long userId) throws Exception {
+    public void createAttributeValues(AttributeValuesDTO attributeValuesDTO, Long userId){
         AttributeValues attributeValues = AttributeValues.builder()
                 .attributeId(attributeValuesDTO.getAttributeId())
                 .value(attributeValuesDTO.getValue())
@@ -28,16 +28,14 @@ public class AttributeValueServiceImpl implements AttributeValueService{
 
     @Override
     @Transactional
-    public void deleteAttributeValues(Long id, Long userid) throws Exception {
-        AttributeValues attributeValues = attributeValuesRepository.findById(id)
+    public void deleteAttributeValues(Long id, Long userid){
+        attributeValuesRepository.findById(id)
                 .orElseThrow(()-> new DataNotFoundException("Cannot find attribute values by id"));
-
         attributeValuesRepository.softDeleteById(id);
-
     }
 
     @Override
-    public List<AttributeValues> getALLAttributeValues(Long id, Long userId) throws Exception {
+    public List<AttributeValues> getALLAttributeValues(Long id, Long userId) {
         List<AttributeValues> attributeValuesList = attributeValuesRepository.findAttributeValuesByAttributeId(id);
         return attributeValuesList;
     }

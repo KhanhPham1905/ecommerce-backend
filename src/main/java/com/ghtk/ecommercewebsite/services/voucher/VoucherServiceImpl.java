@@ -38,31 +38,6 @@ public class VoucherServiceImpl implements IVoucherService {
     private final VoucherRepository voucherRepository;
     private final VoucherMapper voucherMapper;
 
-//    @Scheduled(fixedRate = 60000)
-//    @Transactional
-//    public void makeVouchersPublic() {
-//        voucherRepository.findAllByIsActiveTrueAndIsPublicFalse()
-//                .forEach(voucher -> {
-//                    if (LocalDateTime.now().isAfter(voucher.getStartAt())) {
-//                        voucher.setPublic(true);
-//                        voucherRepository.save(voucher);
-//                    }
-//                });
-//    }
-
-    // Set the default value "NONE" for existed vouchers (whose discount type is null)
-    // Uncomment the following methods and repository method in VoucherRepository
-
-//    @PostConstruct
-//    public void updateDefaultDiscountTypeOnStartup() {
-//        updateDiscountTypeToNone();
-//    }
-//
-//    @Transactional
-//    public void updateDiscountTypeToNone() {
-//        voucherRepository.updateDiscountTypeToNone();
-//    }
-
     // Old scheduling version
     @Scheduled(fixedRate = 60000) // 1 minute
     @Transactional
@@ -74,10 +49,6 @@ public class VoucherServiceImpl implements IVoucherService {
             ZonedDateTime startAt = ZonedDateTime.of(voucher.getStartAt(), ZoneId.of("Asia/Ho_Chi_Minh"));
             ZonedDateTime expiredAt = ZonedDateTime.of(voucher.getExpiredAt(), ZoneId.of("Asia/Ho_Chi_Minh"));
 
-            // Testing
-//            System.out.println("Current Time: " + now);
-//            System.out.println("Voucher Start Time: " + voucher.getStartAt());
-//            System.out.println("Voucher Expiry Time: " + voucher.getExpiredAt());
 
             if (now.isAfter(startAt) && now.isBefore(expiredAt)) {
                 if (!voucher.getIsPublic()) {
@@ -94,8 +65,6 @@ public class VoucherServiceImpl implements IVoucherService {
 
                 switch (voucher.getTypeRepeat()) {
                     case DAILY:
-//                        voucher.setStartAt(voucher.getStartAt().plusDays(1));
-//                        voucher.setExpiredAt(voucher.getExpiredAt().plusDays(1));
                         voucher.setStartAt(voucher.getStartAt().plusMinutes(1));
                         voucher.setExpiredAt(voucher.getExpiredAt().plusMinutes(1));
                         break;
@@ -113,54 +82,12 @@ public class VoucherServiceImpl implements IVoucherService {
         }
     }
 
-    // Another version
-//    @Scheduled(fixedRate = 10000) // 1 minute
-//    @Transactional
-//    public void updateVouchersPublicStatusBetterVersion() {
-//        ZonedDateTime now = ZonedDateTime.now(ZoneId.of("Asia/Ho_Chi_Minh"));
-//        List<Voucher> vouchers = voucherRepository.findAllByIsActiveTrueAndExpiredAtAfter(now.toLocalDateTime());
-//
-//        for (Voucher voucher : vouchers) {
-//            ZonedDateTime startAt = ZonedDateTime.of(voucher.getStartAt(), ZoneId.of("Asia/Ho_Chi_Minh"));
-//            ZonedDateTime expiredAt = ZonedDateTime.of(voucher.getExpiredAt(), ZoneId.of("Asia/Ho_Chi_Minh"));
-//
-//            if (!voucher.isPublic() && now.isAfter(startAt) && now.isBefore(expiredAt)) {
-//                voucher.setPublic(true);
-//                voucherRepository.save(voucher);
-//            }
-//
-//            if (voucher.isPublic() && now.isAfter(expiredAt)) {
-//                voucher.setPublic(false);
-//                voucherRepository.save(voucher);
-//                switch (voucher.getTypeRepeat()) {
-//                    case DAILY:
-//                        voucher.setStartAt(voucher.getStartAt().plusDays(1));
-//                        voucher.setExpiredAt(voucher.getExpiredAt().plusDays(1));
-//                        break;
-//                    case WEEKLY:
-//                        voucher.setStartAt(voucher.getStartAt().plusWeeks(1));
-//                        voucher.setExpiredAt(voucher.getExpiredAt().plusWeeks(1));
-//                        break;
-//                    case MONTHLY:
-//                        voucher.setStartAt(voucher.getStartAt().plusMonths(1));
-//                        voucher.setExpiredAt(voucher.getExpiredAt().plusMonths(1));
-//                        break;
-//                }
-//            }
-//        }
-//    }
 
     // Old version
     @Override
-    public Page<VoucherDTO> findAllVouchersByShopFromUser(Long userId, Pageable pageable) throws DataNotFoundException {
-//        Long shopId = shopRepository.findShopByUserId(userId)
-//                .orElseThrow(() -> new DataNotFoundException("No shop found with this user")).getId();
-//        Shop shopFound = shopRepository.findById(shopId)
-//                .orElseThrow(() -> new DataNotFoundException("Shop not found"));
+    public Page<VoucherDTO> findAllVouchersByShopFromUser(Long userId, Pageable pageable){
         Shop shop = shopRepository.findShopByUserId(userId)
                 .orElseThrow(() -> new DataNotFoundException("No shop found with this user"));
-
-//        List<Voucher> vouchers = voucherRepository.findByShopId(shop.getId());
         Page<Voucher> voucherPage = voucherRepository.findByShopId(shop.getId(), pageable);
         return (Page<VoucherDTO>) voucherPage.getContent().stream()
                 .map(voucherMapper::toDTO)
@@ -168,7 +95,7 @@ public class VoucherServiceImpl implements IVoucherService {
     }
 
     @Override
-    public Page<VoucherDTO> findAllVouchersByShopFromSeller(Long userId, Pageable pageable) throws DataNotFoundException {
+    public Page<VoucherDTO> findAllVouchersByShopFromSeller(Long userId, Pageable pageable){
         Shop shop = shopRepository.findShopByUserId(userId)
                 .orElseThrow(() -> new DataNotFoundException("No shop found with this user"));
 
@@ -185,7 +112,7 @@ public class VoucherServiceImpl implements IVoucherService {
     }
 
     @Override
-    public Page<VoucherDTO> findVouchersByNameFromSeller(Long userId, String name, Pageable pageable) throws DataNotFoundException {
+    public Page<VoucherDTO> findVouchersByNameFromSeller(Long userId, String name, Pageable pageable) {
         Shop shop = shopRepository.findShopByUserId(userId)
                 .orElseThrow(() -> new DataNotFoundException("No shop found with this user"));
 
@@ -201,7 +128,7 @@ public class VoucherServiceImpl implements IVoucherService {
     }
 
     @Override
-    public Page<VoucherDTO> findVouchersByCouponCodeFromSeller(Long userId, String couponCode, Pageable pageable) throws DataNotFoundException {
+    public Page<VoucherDTO> findVouchersByCouponCodeFromSeller(Long userId, String couponCode, Pageable pageable){
         Shop shop = shopRepository.findShopByUserId(userId)
                 .orElseThrow(() -> new DataNotFoundException("No shop found with this user"));
 
@@ -217,7 +144,7 @@ public class VoucherServiceImpl implements IVoucherService {
     }
 
     @Override
-    public Page<VoucherDTO> findVouchersByDiscountTypeFromSeller(Long userId, DiscountType discountType, Pageable pageable) throws DataNotFoundException {
+    public Page<VoucherDTO> findVouchersByDiscountTypeFromSeller(Long userId, DiscountType discountType, Pageable pageable){
         Shop shop = shopRepository.findShopByUserId(userId)
                 .orElseThrow(() -> new DataNotFoundException("No shop found with this user"));
 
@@ -233,7 +160,7 @@ public class VoucherServiceImpl implements IVoucherService {
     }
 
     @Override
-    public Page<VoucherDTO> findVouchersByRepeatTypeFromSeller(Long userId, RepeatType repeatType, Pageable pageable) throws DataNotFoundException {
+    public Page<VoucherDTO> findVouchersByRepeatTypeFromSeller(Long userId, RepeatType repeatType, Pageable pageable){
         Shop shop = shopRepository.findShopByUserId(userId)
                 .orElseThrow(() -> new DataNotFoundException("No shop found with this user"));
 
@@ -249,7 +176,7 @@ public class VoucherServiceImpl implements IVoucherService {
     }
 
     @Override
-    public Page<VoucherDTO> findActiveVouchersFromSeller(Long userId, Boolean isActive, Pageable pageable) throws DataNotFoundException {
+    public Page<VoucherDTO> findActiveVouchersFromSeller(Long userId, Boolean isActive, Pageable pageable){
         Shop shop = shopRepository.findShopByUserId(userId)
                 .orElseThrow(() -> new DataNotFoundException("No shop found with this user"));
 
@@ -265,7 +192,7 @@ public class VoucherServiceImpl implements IVoucherService {
     }
 
     @Override
-    public Page<VoucherDTO> findPublicVouchersFromSeller(Long userId, Boolean isPublic, Pageable pageable) throws DataNotFoundException {
+    public Page<VoucherDTO> findPublicVouchersFromSeller(Long userId, Boolean isPublic, Pageable pageable){
         Shop shop = shopRepository.findShopByUserId(userId)
                 .orElseThrow(() -> new DataNotFoundException("No shop found with this user"));
 
@@ -281,7 +208,7 @@ public class VoucherServiceImpl implements IVoucherService {
     }
 
     @Override
-    public Page<VoucherDTO> searchVouchersByStartDateRange(Long userId, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) throws DataNotFoundException {
+    public Page<VoucherDTO> searchVouchersByStartDateRange(Long userId, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable){
         Shop shop = shopRepository.findShopByUserId(userId)
                 .orElseThrow(() -> new DataNotFoundException("No shop found with this user"));
 
@@ -297,7 +224,7 @@ public class VoucherServiceImpl implements IVoucherService {
     }
 
     @Override
-    public Page<VoucherDTO> searchVouchersByExpiredDateRange(Long userId, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable) throws DataNotFoundException {
+    public Page<VoucherDTO> searchVouchersByExpiredDateRange(Long userId, LocalDateTime startDate, LocalDateTime endDate, Pageable pageable){
         Shop shop = shopRepository.findShopByUserId(userId)
                 .orElseThrow(() -> new DataNotFoundException("No shop found with this user"));
 
@@ -313,7 +240,7 @@ public class VoucherServiceImpl implements IVoucherService {
     }
 
     @Override
-    public Page<VoucherDTO> findActiveAndPublicVouchersFromSeller(Long userId, Boolean isActive, Boolean isPublic, Pageable pageable) throws DataNotFoundException {
+    public Page<VoucherDTO> findActiveAndPublicVouchersFromSeller(Long userId, Boolean isActive, Boolean isPublic, Pageable pageable) {
         Shop shop = shopRepository.findShopByUserId(userId)
                 .orElseThrow(() -> new DataNotFoundException("No shop found with this user"));
 
@@ -346,11 +273,7 @@ public class VoucherServiceImpl implements IVoucherService {
     }
 
     @Override
-    public VoucherDTO createNewVoucher(VoucherDTO voucherDTO, Long userId) throws DataNotFoundException {
-//        Long shopId = shopRepository.findShopByUserId(userId)
-//                .orElseThrow(() -> new DataNotFoundException("No shop found with this user")).getId();
-//        Shop shopFound = shopRepository.findById(shopId)
-//                .orElseThrow(() -> new DataNotFoundException("Shop not found"));
+    public VoucherDTO createNewVoucher(VoucherDTO voucherDTO, Long userId){
         Shop shop = shopRepository.findShopByUserId(userId)
                 .orElseThrow(() -> new DataNotFoundException("No shop found with this user"));
 
@@ -361,11 +284,7 @@ public class VoucherServiceImpl implements IVoucherService {
     }
 
     @Override
-    public VoucherDTO getVoucherByIdByShopFromUser(Long voucherId, Long userId) throws DataNotFoundException {
-//        Long shopId = shopRepository.findShopByUserId(userId)
-//                .orElseThrow(() -> new DataNotFoundException("No shop found with this user")).getId();
-//        Shop shopFound = shopRepository.findById(shopId)
-//                .orElseThrow(() -> new DataNotFoundException("Shop not found"));
+    public VoucherDTO getVoucherByIdByShopFromUser(Long voucherId, Long userId){
         Shop shop = shopRepository.findShopByUserId(userId)
                 .orElseThrow(() -> new DataNotFoundException("No shop found with this user"));
 
@@ -375,11 +294,7 @@ public class VoucherServiceImpl implements IVoucherService {
     }
 
     @Override
-    public VoucherDTO updateVoucherByIdByShopFromUser(Long voucherId, Long userId, VoucherDTO voucherDTO) throws DataNotFoundException {
-//        Long shopId = shopRepository.findShopByUserId(userId)
-//                .orElseThrow(() -> new DataNotFoundException("No shop found with this user")).getId();
-//        Shop shopFound = shopRepository.findById(shopId)
-//                .orElseThrow(() -> new DataNotFoundException("Shop not found"));
+    public VoucherDTO updateVoucherByIdByShopFromUser(Long voucherId, Long userId, VoucherDTO voucherDTO){
         Shop shop = shopRepository.findShopByUserId(userId)
                 .orElseThrow(() -> new DataNotFoundException("No shop found with this user"));
         Voucher voucher = voucherRepository.findById(voucherId)
@@ -396,7 +311,7 @@ public class VoucherServiceImpl implements IVoucherService {
     }
 
     @Override
-    public void deleteVoucherByIdByShopFromUser(Long voucherId, Long userId) throws DataNotFoundException {
+    public void deleteVoucherByIdByShopFromUser(Long voucherId, Long userId){
         Shop shop = shopRepository.findShopByUserId(userId)
                 .orElseThrow(() -> new DataNotFoundException("No shop found with this user"));
         Voucher voucher = voucherRepository.findById(voucherId)
@@ -410,22 +325,22 @@ public class VoucherServiceImpl implements IVoucherService {
     }
 
     @Override
-    public VoucherDTO setVoucherActive(Long voucherId, Long userId) throws DataNotFoundException {
+    public VoucherDTO setVoucherActive(Long voucherId, Long userId){
         return updateVoucherStatus(voucherId, userId, true, null);
     }
 
     @Override
-    public VoucherDTO setVoucherInactive(Long voucherId, Long userId) throws DataNotFoundException {
+    public VoucherDTO setVoucherInactive(Long voucherId, Long userId){
         return updateVoucherStatus(voucherId, userId, false, null);
     }
 
     @Override
-    public VoucherDTO setVoucherPublic(Long voucherId, Long userId) throws DataNotFoundException {
+    public VoucherDTO setVoucherPublic(Long voucherId, Long userId){
         return updateVoucherStatus(voucherId, userId, null, true);
     }
 
     @Override
-    public VoucherDTO setVoucherPrivate(Long voucherId, Long userId) throws DataNotFoundException {
+    public VoucherDTO setVoucherPrivate(Long voucherId, Long userId){
         return updateVoucherStatus(voucherId, userId, null, false);
     }
 
@@ -438,7 +353,7 @@ public class VoucherServiceImpl implements IVoucherService {
     }
 
     @Override
-    public VoucherDTO switchVoucherStatus(Long voucherId, Long userId) throws DataNotFoundException {
+    public VoucherDTO switchVoucherStatus(Long voucherId, Long userId){
         Shop shop = shopRepository.findShopByUserId(userId)
                 .orElseThrow(() -> new DataNotFoundException("No shop found with this user"));
         Voucher voucher = voucherRepository.findById(voucherId)
@@ -469,7 +384,7 @@ public class VoucherServiceImpl implements IVoucherService {
         return voucherMapper.toDTO(voucher);
     }
 
-    private VoucherDTO updateVoucherStatus(Long voucherId, Long userId, Boolean isActive, Boolean isPublic) throws DataNotFoundException {
+    private VoucherDTO updateVoucherStatus(Long voucherId, Long userId, Boolean isActive, Boolean isPublic) {
         Shop shop = shopRepository.findShopByUserId(userId)
                 .orElseThrow(() -> new DataNotFoundException("No shop found with this user"));
         Voucher voucher = voucherRepository.findById(voucherId)
@@ -503,7 +418,6 @@ public class VoucherServiceImpl implements IVoucherService {
         voucher.setQuantity(voucherDTO.getQuantity());
         voucher.setMinimumQuantityNeeded(voucherDTO.getMinimumQuantityNeeded());
         voucher.setTypeRepeat(voucherDTO.getTypeRepeat());
-//        return voucher;
     }
 
 

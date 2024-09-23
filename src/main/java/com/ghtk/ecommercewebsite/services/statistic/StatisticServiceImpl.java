@@ -56,7 +56,7 @@ public class StatisticServiceImpl implements StatisticService {
     }
 
     @Override
-    public Page<ProductDTO> getAllProductsOfCurrentShop(Long userId, Pageable pageable) throws DataNotFoundException {
+    public Page<ProductDTO> getAllProductsOfCurrentShop(Long userId, Pageable pageable) {
         Optional<Shop> shop = shopRepository.findShopByUserId(userId);
         if (shop.isEmpty()) {
             throw new DataNotFoundException("No shop found with this user");
@@ -64,9 +64,6 @@ public class StatisticServiceImpl implements StatisticService {
         List<Product> products = productRepository.findAllByShopId(shop.get().getId());
         return convertProductsListToPage(products, pageable)
                 .map(productMapper::toDTO);
-//        return products.stream()
-//                .map(productMapper::toDTO)
-//                .toList();
     }
 
     private Page<Product> convertProductsListToPage(List<Product> products, Pageable pageable) {
@@ -87,7 +84,7 @@ public class StatisticServiceImpl implements StatisticService {
     }
 
     @Override
-    public StatisticDTO getStatisticsOfAnProduct(Long userId, Long productId) throws DataNotFoundException {
+    public StatisticDTO getStatisticsOfAnProduct(Long userId, Long productId){
         Shop shop = shopRepository.findShopByUserId(userId)
                 .orElseThrow(() -> new DataNotFoundException("No shop found with this user"));
         Product product = productRepository.findById(productId)

@@ -8,6 +8,7 @@ import com.ghtk.ecommercewebsite.services.OtpService;
 import com.ghtk.ecommercewebsite.services.RedisOtpService;
 import com.ghtk.ecommercewebsite.services.user.UserService;
 import com.ghtk.ecommercewebsite.utils.ChangePassword;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,13 +24,8 @@ public class ForgotPasswordController {
     private final UserService userService;
     private final RedisOtpService redisOtpService;
 
-//    @PostMapping("/verifyEmail/{email}")
-//    public ResponseEntity<String> verifyEmail(@PathVariable String email) {
-//        return otpService.verifyEmailAndSendOtp(email);
-//    }
-
     @PostMapping("/verifyEmail")
-    public CommonResult<String> verifyEmailNewVersion(@RequestBody EmailDTO emailDTO) throws DataNotFoundException {
+    public CommonResult<String> verifyEmailNewVersion(@Valid  @RequestBody EmailDTO emailDTO) {
         return CommonResult.success(userService.sendOtpForForgotPasswordRequest(emailDTO.getEmail()));
     }
 
@@ -67,7 +63,7 @@ public class ForgotPasswordController {
     }
 
     @PostMapping("/changePassword/{email}")
-    public ResponseEntity<String> changePasswordHandler(@RequestBody ChangePassword changePassword,
+    public ResponseEntity<String> changePasswordHandler(@Valid @RequestBody ChangePassword changePassword,
                                                         @PathVariable String email) {
         return otpService.changePassword(changePassword, email);
     }

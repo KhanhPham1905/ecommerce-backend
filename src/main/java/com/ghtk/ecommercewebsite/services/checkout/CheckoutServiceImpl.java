@@ -35,7 +35,7 @@ public class CheckoutServiceImpl implements ICheckoutService {
 
     @Transactional
     @Override
-    public List<OrdersDTO> checkoutCart(Long userId, boolean method, String note, List<Long> selectedCartItems) throws  DataNotFoundException{
+    public List<OrdersDTO> checkoutCart(Long userId, boolean method, String note, List<Long> selectedCartItems){
         validateCheckoutRequest(userId);
         // Lấy danh sách các CartItem được chọn
         List<CartItem> cartItemList = cartItemRepository.findByUserIdAndIdIn(userId, selectedCartItems);
@@ -87,7 +87,7 @@ public class CheckoutServiceImpl implements ICheckoutService {
                 .reduce(BigDecimal.ZERO, BigDecimal::add);
     }
 
-    private void validateCheckoutRequest(Long userId) throws IllegalArgumentException {
+    private void validateCheckoutRequest(Long userId){
         // Kiểm tra userId có tồn tại trong Address hay không
         boolean exists = addressService.isUserInAddress(userId);
         // Nếu không tồn tại, ném ngoại lệ với thông báo phù hợp
@@ -152,32 +152,6 @@ public class CheckoutServiceImpl implements ICheckoutService {
         productItemRepository.save(productItem);
     }
 
-//    @Override
-//    public OrdersDTO checkoutDirect(Long userId,
-//                                    Long productItemId, int quantity, Long voucherId, String note,
-//                                    boolean method) {
-//        validateDirectCheckout(productItemId, quantity);
-//
-//        ProductItem productItem = productItemRepository.findById(productItemId)
-//                .orElseThrow(() -> new IllegalArgumentException("Product item not found"));
-//
-//        if (productItem.getQuantity() < quantity)
-//            throw new IllegalArgumentException("Insufficient stock for the product item");
-//
-//        Orders orders = createOrder(userId, method, note);
-//
-//        BigDecimal unitPrice = productItem.getPrice();
-//        BigDecimal discount = calculateDirectDiscount(voucherId, quantity, unitPrice);
-//
-//        BigDecimal finalPrice = unitPrice.subtract(discount).multiply(BigDecimal.valueOf(quantity));
-//        saveDirectOrderItem(orders, productItemId, quantity, unitPrice, voucherId);
-//
-//        orders.setTotalPrice(finalPrice);
-//        orderRepository.save(orders);
-//        updateProductStock(productItem, quantity);
-//
-//        return orderMapper.toDto(orders);
-//    }
 
     private void validateDirectCheckout(Long productItemId, int quantity) {
         if (productItemId == null || quantity <= 0)

@@ -26,18 +26,14 @@ public class CategoryServiceImpl implements CategoryService{
     private final ProductAttributesRepository productAttributesRepository;
 
     @Override
-    public Category getCategoryById(Long id) throws Exception{
+    public Category getCategoryById(Long id){
         return categoryRepository.findById(id)
                 .orElseThrow(() -> new DataNotFoundException("Category not found"));
     }
 
     @Override
     @Transactional
-    public Category createCategory(CategoryDTO categoryDTO, Long userId)  throws Exception {
-//            Long shopId = sellerRepository.findShopIdByUserId(userId);
-//            if (shopId == null){
-//                throw new DataNotFoundException("Cannot find Shop id by Userid");
-//            }
+    public Category createCategory(CategoryDTO categoryDTO, Long userId){
             Category newCategory = Category
                     .builder()
                     .isDelete(Boolean.FALSE)
@@ -49,19 +45,13 @@ public class CategoryServiceImpl implements CategoryService{
     }
 
     @Override
-    public Page<Category> getAllCategories(PageRequest pageRequest, String name) throws Exception{
+    public Page<Category> getAllCategories(PageRequest pageRequest, String name){
         return categoryRepository.findByShopId(name, pageRequest);
     }
 
     @Override
     @Transactional
-    public Category updateCategory(Long categoryId, CategoryDTO categoryDTO, Long userId) throws  Exception {
-//        Long shopId = sellerRepository.findShopIdByUserId(userId);
-        Category category = categoryRepository.findById(categoryId)
-                .orElseThrow(() -> new DataNotFoundException("Cannot find category by id"));
-//        if(!category.getShopId().equals(shopId)) {
-//            throw new AccessDeniedException("account seller and shop not match");
-//        }
+    public Category updateCategory(Long categoryId, CategoryDTO categoryDTO, Long userId){
         Category existingCategory = getCategoryById(categoryId);
         existingCategory.setName(categoryDTO.getName());
         existingCategory.setStatus(categoryDTO.getStatus());
@@ -71,21 +61,13 @@ public class CategoryServiceImpl implements CategoryService{
 
     @Override
     @Transactional
-    public Category deleteCategory(Long id, Long userId) throws Exception {
-//        Long shopId = sellerRepository.findShopIdByUserId(userId);
-        Category category = categoryRepository.findById(id)
-                .orElseThrow(() -> new DataNotFoundException("Cannot find category by id"));
-//        if(!category.getShopId().equals(shopId)) {
-//            throw new AccessDeniedException("Account seller and shop not match");
-//        }
-//        List<Product> products = productRepository.findByCategoryId(id);
-
+    public Category deleteCategory(Long id, Long userId){
+            Category category = getCategoryById(id);
             category.setIsDelete(Boolean.TRUE);
             categoryRepository.save(category);
             productRepository.softDeleteProductByCategoryId(id);
             productAttributesRepository.softDeleteProductAttributesByProductId(id);
             productItemRepository.softDeleteProductItemByProductId(id);
-
         return category;
     }
 }

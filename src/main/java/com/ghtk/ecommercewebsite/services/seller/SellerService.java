@@ -14,21 +14,21 @@ import java.util.Objects;
 import java.util.Optional;
 
 public interface SellerService {
-    User signUpSeller(SellerRegisterDto input) throws SellerAlreadyExistedException;
-    LoginResponse authenticateSellerAndGetLoginResponse(LoginUserDto loginUserDto) throws AccessDeniedException;
+    User signUpSeller(SellerRegisterDto input);
+    LoginResponse authenticateSellerAndGetLoginResponse(LoginUserDto loginUserDto);
     User getAuthenticatedSeller();
-    DetailSellerInfoDTO getSellerInfo(Long useId) throws  Exception;
-    DetailSellerInfoDTO updateSellerInfo(DetailSellerInfoDTO detailSellerInfoDTO,Long useId) throws  Exception;
+    DetailSellerInfoDTO getSellerInfo(Long useId);
+    DetailSellerInfoDTO updateSellerInfo(DetailSellerInfoDTO detailSellerInfoDTO,Long useId);
 
-    User viewDetailsOfAnSeller(Long id) throws DataNotFoundException;
+    User viewDetailsOfAnSeller(Long id);
 
-    Seller updateSellerInfo(SellerDTO sellerDTO) throws DataNotFoundException;
+    Seller updateSellerInfo(SellerDTO sellerDTO);
 
-    Shop updateShopInfo(Long userId, ShopDTO shopDTO) throws DataNotFoundException;
+    Shop updateShopInfo(Long userId, ShopDTO shopDTO);
 
     User signUpNewVersion(SellerRegisterDto sellerRegisterDto);
 
-    User signUpNewestVersion(RegisterUserDto registerUserDto) throws DataNotFoundException;
+    User signUpNewestVersion(RegisterUserDto registerUserDto);
 
-    Map<String, Long> getBasicInfo(Long userId) throws DataNotFoundException;
+    Map<String, Long> getBasicInfo(Long userId);
 }

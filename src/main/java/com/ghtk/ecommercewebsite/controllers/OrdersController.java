@@ -9,6 +9,7 @@ import com.ghtk.ecommercewebsite.models.entities.User;
 import com.ghtk.ecommercewebsite.models.responses.CommonResult;
 import com.ghtk.ecommercewebsite.repositories.OrderStatusHistoryRepository;
 import com.ghtk.ecommercewebsite.services.orders.IOrdersService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -28,7 +29,7 @@ public class OrdersController {
     private final OrderStatusHistoryRepository orderStatusHistoryRepository;
 
     @GetMapping
-    public CommonResult<List<OrdersDTO>> getAllOrders() throws Exception{
+    public CommonResult<List<OrdersDTO>> getAllOrders(){
         User user  = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         List<OrdersDTO> orders = iOrdersService.findAll(user.getId()).stream().map(orderMapper::toDto).collect(Collectors.toList());
         return CommonResult.success(orders, "Get all orders successfully");
@@ -52,7 +53,7 @@ public class OrdersController {
 
     @PostMapping
     @PreAuthorize("hasRole('ROLE_USER')")
-    public CommonResult<OrdersDTO> createOrder(@RequestBody OrdersDTO ordersDTO) throws DataNotFoundException {
+    public CommonResult<OrdersDTO> createOrder(@Valid @RequestBody OrdersDTO ordersDTO){
         User user = (User) SecurityContextHolder.getContext().getAuthentication().getPrincipal();
         return CommonResult.success(iOrdersService.addOrder(ordersDTO, user.getId()));
 //        Orders order = orderMapper.toEntity(ordersDTO);
@@ -100,16 +101,6 @@ public class OrdersController {
                 })
                 .orElse(CommonResult.error(404, "Order not found"));
     }
-
-
-//    @GetMapping("/seller")
-//    @PreAuthorize("hasRole('ROLE_SELLER')")
-//    public CommonResult<List<Orders>> getAllOrderBySeller()
-//    throws Exception{
-//        User user = (User)SecurityContextHolder.getContext().getAuthentication().getPrincipal();
-//        List<Orders> ordersList = iOrdersService.getAllOrderBySeller(user.getId());
-//        return CommonResult.success(ordersList);
-//    }
 
 
     // API để cập nhật trạng thái đơn hàng

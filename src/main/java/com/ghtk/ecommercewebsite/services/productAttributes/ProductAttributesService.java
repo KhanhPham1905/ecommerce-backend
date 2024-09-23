@@ -6,9 +6,9 @@ import com.ghtk.ecommercewebsite.models.entities.ProductAttributes;
 import java.util.List;
 
 public interface ProductAttributesService {
-    ProductAttributesDTO createProductAttributes(ProductAttributesDTO productAttributesDTO,Long id, Long userId) throws Exception;
-    ProductAttributesDTO getProductAttributesById(Long id) throws  Exception;
-    ProductAttributesDTO updateProductAttributes(ProductAttributesDTO productAttributesDTO, Long user) throws  Exception;
-    ProductAttributesDTO deleteProductAttributes(Long id, Long userId) throws Exception;
-    List<ProductAttributes> getAllProductAttributes(Long idProduct) throws Exception;
+    ProductAttributesDTO createProductAttributes(ProductAttributesDTO productAttributesDTO,Long id, Long userId);
+    ProductAttributesDTO getProductAttributesById(Long id);
+    ProductAttributesDTO updateProductAttributes(ProductAttributesDTO productAttributesDTO, Long user);
+    ProductAttributesDTO deleteProductAttributes(Long id, Long userId);
+    List<ProductAttributes> getAllProductAttributes(Long idProduct);
 }

@@ -30,12 +30,6 @@ public class ProductItemAttributesDTO {
 
     private Long id;
 
-//    @JsonProperty("is_delete")
-//    private Boolean isDelete;
-
     public ProductItemAttributesDTO(String value, Long productAttributesId) {
     }
-//    @Min(value=1, message =  "Product item ID is required")
-//    @JsonProperty("product_item_id")
-//    private Long productItemId;
 }
