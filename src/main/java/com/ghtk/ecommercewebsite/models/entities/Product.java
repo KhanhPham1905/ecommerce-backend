@@ -18,6 +18,7 @@ import java.util.List;
 @Builder
 @Getter
 @Setter
+//@EntityListeners(ProductListener.class)
 @JsonNaming(PropertyNamingStrategies.SnakeCaseStrategy.class)
 public class Product {
 
