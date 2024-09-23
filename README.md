@@ -1,8 +1,6 @@
 # ecommerce-backend
 Back-end for E-commerce Website
 
-## Database
-![](./document/resource/db.png)
 - sơ qua về giao diện 
 ## giao diện đăng nhập
 `User`
